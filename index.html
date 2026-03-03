@@ -222,6 +222,11 @@ input,select,button,textarea{font-family:var(--font-b);}
 .set-plan-lbl{font-size:.55rem;color:var(--text3);text-align:center;letter-spacing:.5px;text-transform:uppercase;}
 .set-plan-head{display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:6px;padding-bottom:4px;margin-bottom:4px;border-bottom:1px solid var(--border);}
 
+/* WORKOUT LOG */
+.wlog-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:8px;cursor:pointer;transition:.15s;}
+.wlog-card:hover{border-color:rgba(232,255,60,.3);transform:translateY(-1px);}
+.wlog-group-date{font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px 0 4px;}
+
 /* MACRO BOX */
 .macro-results{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;}
 @media(max-width:500px){.macro-results{grid-template-columns:repeat(2,1fr);}}
@@ -427,6 +432,9 @@ input,select,button,textarea{font-family:var(--font-b);}
         <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>IA Coach
         <span style="position:absolute;top:6px;right:8px;background:var(--accent);color:#000;font-size:.45rem;font-weight:900;padding:1px 5px;border-radius:8px;letter-spacing:.5px;">NEW</span>
       </button>
+      <button class="sidebar-item" id="sn-wlog" onclick="goTo('wlog')">
+        <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Workout Log
+      </button>
       <button class="sidebar-item" id="sn-progress" onclick="goTo('progress')">
         <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progreso
       </button>
@@ -581,6 +589,24 @@ input,select,button,textarea{font-family:var(--font-b);}
           <button class="fchip" id="bf-paid" onclick="filterBilling('paid',this)">Pagados</button>
         </div>
         <div id="billing-list"></div>
+      </div>
+
+      <!-- WORKOUT LOG -->
+      <div class="section" id="sec-wlog">
+        <div class="section-header flex-between">
+          <div>
+            <div class="section-title">Workout <span style="color:var(--accent)">Log</span></div>
+            <div class="section-sub">Registro de sesiones y historial de cargas</div>
+          </div>
+          <button class="btn btn-accent btn-md" onclick="openNewSession()">+ Sesión</button>
+        </div>
+        <div class="field-group mb-12">
+          <label class="field-label">Ver sesiones de</label>
+          <select class="field-input field-select" id="wlog-client-sel" onchange="renderWlogSection()">
+            <option value="">Todos los clientes</option>
+          </select>
+        </div>
+        <div id="wlog-list"></div>
       </div>
 
       <!-- IA COACH -->
@@ -777,8 +803,32 @@ input,select,button,textarea{font-family:var(--font-b);}
             <div class="card-title">Rutina generada</div>
             <div id="ai-routine-text" class="ai-result-body"></div>
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-              <button class="btn btn-ghost btn-sm" onclick="copyAiResult('routine')">📋 Copiar rutina</button>
-              <button class="btn btn-orange btn-sm" onclick="exportAiContentPDF('routine')">📄 Exportar PDF</button>
+              <button class="btn btn-ghost btn-sm" onclick="copyAiResult('routine')">📋 Copiar</button>
+              <button class="btn btn-orange btn-sm" onclick="exportAiContentPDF('routine')">📄 PDF</button>
+              <button class="btn btn-accent btn-sm" onclick="openSaveRoutineToClient()">💾 Guardar en asesorado</button>
+            </div>
+          </div>
+
+          <!-- MODAL: Guardar rutina IA en asesorado -->
+          <div id="save-routine-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:center;justify-content:center;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;width:90%;max-width:460px;padding:24px;">
+              <div style="font-family:var(--font-h);font-size:1.3rem;font-weight:900;margin-bottom:4px;">💾 Guardar rutina en asesorado</div>
+              <div style="font-size:.75rem;color:var(--text3);margin-bottom:18px;">Se crearán las rutinas por día en el perfil del asesorado seleccionado</div>
+              <div class="field-group">
+                <label class="field-label">Seleccionar asesorado</label>
+                <select class="field-input field-select" id="save-routine-client-sel">
+                  <option value="">Elige un asesorado...</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Prefijo del nombre de las rutinas</label>
+                <input class="field-input" id="save-routine-prefix" placeholder="Ej: Semana 1, Mes Enero..." value="">
+              </div>
+              <div id="save-routine-preview" style="margin-bottom:16px;"></div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-accent btn-full" onclick="confirmSaveRoutineToClient()">✅ Guardar rutinas</button>
+                <button class="btn btn-ghost btn-md" onclick="document.getElementById('save-routine-modal').style.display='none'">Cancelar</button>
+              </div>
             </div>
           </div>
         </div>
@@ -990,6 +1040,10 @@ input,select,button,textarea{font-family:var(--font-b);}
         <button class="nav-item" id="nn-routines" onclick="goTo('routines')">
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           <span>RUTINAS</span>
+        </button>
+        <button class="nav-item" id="nn-wlog" onclick="goTo('wlog')">
+          <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          <span>Log</span>
         </button>
         <button class="nav-item" id="nn-billing" onclick="goTo('billing')">
           <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
@@ -1371,6 +1425,66 @@ input,select,button,textarea{font-family:var(--font-b);}
   </div>
 </div>
 
+<!-- WORKOUT LOG SESSION OVERLAY -->
+<div class="overlay" id="wlog-overlay">
+  <div class="sheet" style="max-width:600px;">
+    <div class="sheet-head">
+      <div class="sheet-title" id="wlog-sheet-title">💪 Registrar Sesión</div>
+      <button class="sheet-close" onclick="closeOverlay('wlog-overlay')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="field-row field-row-2">
+        <div class="field-group">
+          <label class="field-label">Asesorado</label>
+          <select class="field-input field-select" id="wlog-client" onchange="loadRoutinesForWlog()">
+            <option value="">Selecciona...</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Rutina</label>
+          <select class="field-input field-select" id="wlog-routine" onchange="loadExercisesForWlog()">
+            <option value="">Selecciona...</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row field-row-2">
+        <div class="field-group">
+          <label class="field-label">Fecha</label>
+          <input type="date" class="field-input" id="wlog-date">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Duración (min)</label>
+          <input type="number" class="field-input" id="wlog-duration" placeholder="60">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Nota de la sesión</label>
+        <input class="field-input" id="wlog-note" placeholder="Ej: Buena sesión, subí peso en press banca...">
+      </div>
+      <div id="wlog-exercises-container" style="margin-top:4px;"></div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeOverlay('wlog-overlay')">Cancelar</button>
+      <button class="btn btn-accent btn-md" style="flex:1" onclick="saveWorkoutLog()">💾 Guardar sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- WORKOUT LOG DETAIL OVERLAY -->
+<div class="overlay" id="wlog-detail-overlay">
+  <div class="sheet" style="max-width:600px;">
+    <div class="sheet-head">
+      <div class="sheet-title">📋 Detalle de sesión</div>
+      <button class="sheet-close" onclick="closeOverlay('wlog-detail-overlay')">✕</button>
+    </div>
+    <div class="sheet-body" id="wlog-detail-body"></div>
+    <div class="sheet-footer">
+      <button class="btn btn-danger btn-md" id="wlog-detail-delete-btn" onclick="deleteWlogSession()">🗑 Eliminar</button>
+      <button class="btn btn-ghost btn-md" onclick="closeOverlay('wlog-detail-overlay')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- API KEY MODAL -->
 <div class="overlay" id="apikey-overlay">
   <div class="sheet" style="max-width:480px;">
@@ -1493,23 +1607,113 @@ function updateApiKeyBadge(){
 }
 
 // =====================================================================
-// DATA STORAGE
+// DATA STORAGE — SUPABASE SYNC
 // =====================================================================
 const STORE_KEY = 'jft_coach_v1';
-let ST = { clients:[], routines:[] };
+let ST = { clients:[], routines:[], progress:[], payments:[], workoutLogs:[] };
 
-function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(ST)); }
-function load(){
+// ── Supabase config ──────────────────────────────────────────────────
+const SB_URL = 'https://rciwhxefoiaovnvdubuh.supabase.co';
+const SB_KEY = 'sb_publishable_2i0btmkqwSCEJOBNTc_JbA_MmhZ8n46';
+// New Supabase publishable key format — uses Authorization header only
+const SB_HEADERS = { 'Content-Type':'application/json', 'Authorization': 'Bearer ' + SB_KEY, 'apikey': SB_KEY, 'x-client-info': 'jelianft/1.0' };
+
+async function sbGet(table){
   try{
-    const d=localStorage.getItem(STORE_KEY);
-    if(d){ ST=JSON.parse(d); }
-    // Migrate if needed
-    if(!ST.clients) ST.clients=[];
-    if(!ST.routines) ST.routines=[];
-    if(!ST.progress) ST.progress=[];
-    if(!ST.payments) ST.payments=[];
-  } catch(e){ ST={clients:[],routines:[],progress:[],payments:[]}; }
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?select=*`, { headers: SB_HEADERS });
+    if(!r.ok) return null;
+    return await r.json();
+  } catch(e){ return null; }
 }
+
+async function sbUpsert(table, row){
+  try{
+    await fetch(`${SB_URL}/rest/v1/${table}`, {
+      method:'POST',
+      headers:{ ...SB_HEADERS, 'Prefer':'resolution=merge-duplicates' },
+      body: JSON.stringify(row)
+    });
+  } catch(e){}
+}
+
+async function sbDelete(table, id){
+  try{
+    await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`, {
+      method:'DELETE', headers: SB_HEADERS
+    });
+  } catch(e){}
+}
+
+// ── Save: localStorage + Supabase ───────────────────────────────────
+let _saveTimer = null;
+function save(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(ST));
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(syncToSupabase, 800);
+}
+
+async function syncToSupabase(){
+  const tables = [
+    { name:'clients',      items: ST.clients },
+    { name:'routines',     items: ST.routines },
+    { name:'progress',     items: ST.progress||[] },
+    { name:'billing',      items: ST.payments||[] },
+    { name:'workout_logs', items: ST.workoutLogs||[] },
+  ];
+  for(const t of tables){
+    for(const item of t.items){
+      await sbUpsert(t.name, { id: item.id, data: item, updated_at: new Date().toISOString() });
+    }
+  }
+  showSyncBadge('✅ Sincronizado');
+}
+
+// ── Load: Supabase first, localStorage fallback ──────────────────────
+async function load(){
+  showSyncBadge('⏳ Cargando...');
+  try{
+    const [clients, routines, progress, billing, wlogs] = await Promise.all([
+      sbGet('clients'), sbGet('routines'), sbGet('progress'), sbGet('billing'), sbGet('workout_logs')
+    ]);
+    if(clients !== null){
+      ST.clients      = (clients  ||[]).map(r=>r.data).filter(Boolean);
+      ST.routines     = (routines ||[]).map(r=>r.data).filter(Boolean);
+      ST.progress     = (progress ||[]).map(r=>r.data).filter(Boolean);
+      ST.payments     = (billing  ||[]).map(r=>r.data).filter(Boolean);
+      ST.workoutLogs  = (wlogs    ||[]).map(r=>r.data).filter(Boolean);
+      localStorage.setItem(STORE_KEY, JSON.stringify(ST));
+      showSyncBadge('☁️ En la nube');
+      return;
+    }
+  } catch(e){ console.warn('Supabase load error:', e); }
+  // Fallback localStorage
+  try{
+    const d = localStorage.getItem(STORE_KEY);
+    if(d){ ST = JSON.parse(d); }
+  } catch(e){}
+  if(!ST.clients)     ST.clients=[];
+  if(!ST.routines)    ST.routines=[];
+  if(!ST.progress)    ST.progress=[];
+  if(!ST.payments)    ST.payments=[];
+  if(!ST.workoutLogs) ST.workoutLogs=[];
+  showSyncBadge('💾 Local');
+}
+
+// Sync badge indicator
+function showSyncBadge(msg){
+  let badge = document.getElementById('sync-badge');
+  if(!badge){
+    badge = document.createElement('div');
+    badge.id = 'sync-badge';
+    badge.style.cssText = 'position:fixed;bottom:72px;right:12px;z-index:9998;background:var(--surface3);border:1px solid var(--border2);color:var(--text2);padding:4px 10px;border-radius:20px;font-size:.65rem;font-weight:700;pointer-events:none;transition:opacity .5s;';
+    document.body.appendChild(badge);
+  }
+  badge.textContent = msg;
+  badge.style.opacity = '1';
+  clearTimeout(badge._t);
+  badge._t = setTimeout(()=>{ badge.style.opacity='0'; }, 3000);
+}
+
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
 // =====================================================================
@@ -1786,16 +1990,21 @@ function renderSection(sec){
   else if(sec==='exercises') renderExLib();
   else if(sec==='progress') renderProgress();
   else if(sec==='billing') renderBilling();
+  else if(sec==='wlog') renderWlogSection();
 }
 
 // =====================================================================
 // INIT
 // =====================================================================
-function initApp(){
-  load();
+async function initApp(){
   buildExPickerFilter();
   buildExLibFilter();
   goTo('dashboard');
+  await load();
+  renderDashboard();
+  renderClients();
+  renderRoutinesSection();
+  renderWlogSection();
 }
 
 // =====================================================================
@@ -2150,6 +2359,7 @@ function renderRoutinesSection(){
           ${r.day?`<span class="routine-day-badge">${r.day}</span>`:''}
           <button class="btn btn-ghost btn-xs" onclick="openEditRoutine('${r.id}')">✏️</button>
           <button class="btn btn-green btn-xs" onclick="cloneRoutine('${r.id}')" title="Clonar">⧉</button>
+          <button class="btn btn-purple btn-xs" onclick="openNewSession('${r.clientId||''}','${r.id}')" title="Registrar sesión">💪</button>
           <button class="btn btn-orange btn-xs" onclick="openPDFForRoutine('${r.id}')">📄</button>
           <button class="btn btn-danger btn-xs" onclick="deleteRoutine('${r.id}')">🗑</button>
         </div>
@@ -2320,12 +2530,13 @@ function saveRoutine(){
   if(savedClientId) openClientDetail(savedClientId);
 }
 
-function deleteRoutine(id){
+async function deleteRoutine(id){
   if(!confirm('¿Eliminar esta rutina?')) return;
   const r=ST.routines.find(r=>r.id===id);
   const clientId=r?.clientId||null;
   ST.routines=ST.routines.filter(r=>r.id!==id);
   save(); renderRoutinesSection(); renderDashboard();
+  await sbDelete('routines', id);
   if(clientId && (currentSection==='client-detail' || currentSection==='clients')) {
     if(currentSection==='client-detail') openClientDetail(clientId);
     else renderClients();
@@ -2942,6 +3153,112 @@ IMPORTANTE: Incluye TODOS los ${days} días completos. Usa SOLO el equipamiento 
   }
 }
 
+// ─── SAVE AI ROUTINE TO CLIENT ──────────────────────────────────────
+function openSaveRoutineToClient(){
+  if(!AI.routineResult){ showToast('⚠️ Primero genera una rutina'); return; }
+  const sel = document.getElementById('save-routine-client-sel');
+  sel.innerHTML = '<option value="">Elige un asesorado...</option>' +
+    ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('save-routine-prefix').value = '';
+  document.getElementById('save-routine-preview').innerHTML = '';
+  const modal = document.getElementById('save-routine-modal');
+  modal.style.display = 'flex';
+
+  // Update preview when client or prefix changes
+  sel.oninput = updateSaveRoutinePreview;
+  document.getElementById('save-routine-prefix').oninput = updateSaveRoutinePreview;
+}
+
+function parseAiRoutineDays(text){
+  var days = [];
+  var lines = text.split('\n');
+  var currentDay = null;
+  var currentLines = [];
+  for(var i=0; i<lines.length; i++){
+    var line = lines[i];
+    var m = /^##\s*D.A\s*(\d+)\s*[\-\u2014\u2013:]\s*(.+)/i.exec(line);
+    if(m){
+      if(currentDay) days.push({num:currentDay.num,title:currentDay.title,content:currentLines.join('\n').trim()});
+      currentDay = {num:parseInt(m[1]),title:m[2].trim()};
+      currentLines = [];
+    } else if(currentDay){
+      if(/^##\s*(PROGRES|CONSEJO|NOTAS|GENERAL)/i.test(line)){
+        days.push({num:currentDay.num,title:currentDay.title,content:currentLines.join('\n').trim()});
+        currentDay = null; currentLines = [];
+      } else {
+        currentLines.push(line);
+      }
+    }
+  }
+  if(currentDay && currentLines.length) days.push({num:currentDay.num,title:currentDay.title,content:currentLines.join('\n').trim()});
+  return days;
+}
+
+function updateSaveRoutinePreview(){
+  const days = parseAiRoutineDays(AI.routineResult || '');
+  const prefix = document.getElementById('save-routine-prefix').value.trim();
+  const previewEl = document.getElementById('save-routine-preview');
+  if(!days.length){
+    previewEl.innerHTML = '<div style="color:var(--text3);font-size:.78rem;">No se detectaron días en la rutina generada. La rutina se guardará como un solo bloque.</div>';
+    return;
+  }
+  previewEl.innerHTML = `<div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;">Se crearán ${days.length} rutinas:</div>` +
+    days.map(d=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:.8rem;">📋</span>
+      <span style="font-size:.8rem;font-weight:600;">${prefix ? prefix + ' · ' : ''}Día ${d.num} — ${d.title}</span>
+    </div>`).join('');
+}
+
+async function confirmSaveRoutineToClient(){
+  const clientId = document.getElementById('save-routine-client-sel').value;
+  if(!clientId){ showToast('⚠️ Selecciona un asesorado'); return; }
+  const client = ST.clients.find(c=>c.id===clientId);
+  if(!client) return;
+
+  const prefix = document.getElementById('save-routine-prefix').value.trim();
+  const days = parseAiRoutineDays(AI.routineResult || '');
+  const icons = ['💪','🏋️','🔥','⚡','🎯','🏃','💥','🌟'];
+
+  if(days.length === 0){
+    // Save as single routine
+    const r = {
+      id: uid(), name: (prefix || 'Rutina IA') + ' — ' + client.name,
+      day: '', icon: '🤖', clientId,
+      notes: AI.routineResult.substring(0, 300),
+      exercises: [], updatedAt: new Date().toISOString(), createdAt: new Date().toISOString()
+    };
+    ST.routines.push(r);
+  } else {
+    for(const d of days){
+      const r = {
+        id: uid(),
+        name: (prefix ? prefix + ' · ' : '') + 'Día ' + d.num + ' — ' + d.title,
+        day: 'Día ' + d.num,
+        icon: icons[(d.num-1) % icons.length],
+        clientId,
+        notes: d.content.substring(0, 500),
+        exercises: [],
+        updatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+      };
+      ST.routines.push(r);
+    }
+  }
+
+  save();
+  document.getElementById('save-routine-modal').style.display = 'none';
+  showToast(`✅ ${days.length || 1} rutina(s) guardadas para ${client.name}`);
+  renderRoutinesSection();
+  renderDashboard();
+
+  // Ask if user wants to go to the client
+  setTimeout(()=>{
+    if(confirm(`¿Ir al perfil de ${client.name} para ver las rutinas guardadas?`)){
+      openClientDetail(clientId);
+    }
+  }, 400);
+}
+
 // ─── EQUIPMENT RECOMMENDATIONS ──────────────────────────────────────
 async function getEquipRecommendations() {
   const recoEl = document.getElementById('ai-equip-reco-result');
@@ -3164,6 +3481,227 @@ function cloneRoutine(id){
 }
 
 // =====================================================================
+// WORKOUT LOG
+// =====================================================================
+let currentWlogId = null;
+
+function openNewSession(clientId, routineId){
+  currentWlogId = null;
+  const sel = document.getElementById('wlog-client');
+  sel.innerHTML = '<option value="">Selecciona...</option>' +
+    ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(clientId) sel.value = clientId;
+  document.getElementById('wlog-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('wlog-duration').value = '';
+  document.getElementById('wlog-note').value = '';
+  document.getElementById('wlog-exercises-container').innerHTML = '';
+  loadRoutinesForWlog();
+  if(routineId){
+    setTimeout(()=>{
+      document.getElementById('wlog-routine').value = routineId;
+      loadExercisesForWlog();
+    },100);
+  }
+  document.getElementById('wlog-overlay').classList.add('open');
+}
+
+function loadRoutinesForWlog(){
+  const clientId = document.getElementById('wlog-client').value;
+  const rSel = document.getElementById('wlog-routine');
+  const rts = clientId ? ST.routines.filter(r=>r.clientId===clientId) : ST.routines;
+  rSel.innerHTML = '<option value="">Sin rutina base</option>' +
+    rts.map(r=>`<option value="${r.id}">${r.icon||'📋'} ${r.name}</option>`).join('');
+  document.getElementById('wlog-exercises-container').innerHTML = '';
+}
+
+function loadExercisesForWlog(){
+  const routineId = document.getElementById('wlog-routine').value;
+  const clientId  = document.getElementById('wlog-client').value;
+  const container = document.getElementById('wlog-exercises-container');
+  if(!routineId){ container.innerHTML=''; return; }
+
+  const routine = ST.routines.find(r=>r.id===routineId);
+  if(!routine || !routine.exercises.length){
+    container.innerHTML = '<div style="color:var(--text3);font-size:.8rem;padding:8px 0;">Esta rutina no tiene ejercicios definidos.</div>';
+    return;
+  }
+
+  // Get last log for this routine to show previous weights
+  const prevLog = (ST.workoutLogs||[])
+    .filter(l=>l.routineId===routineId && (!clientId || l.clientId===clientId))
+    .sort((a,b)=>b.date.localeCompare(a.date))[0];
+
+  container.innerHTML = routine.exercises.map((rte,ei)=>{
+    const ex = gEx(rte.id);
+    const prevSets = prevLog ? (prevLog.sets[ei]||[]) : [];
+    const setsHtml = rte.sets.map((s,si)=>{
+      const prev = prevSets[si];
+      const prevW = prev?.weight || '';
+      const prevR = prev?.reps  || s.reps || '';
+      return `<div style="display:grid;grid-template-columns:20px 1fr 1fr 1fr;gap:5px;align-items:center;margin-bottom:4px;">
+        <div style="font-size:.7rem;color:var(--text3);text-align:center;">${si+1}</div>
+        <input class="set-plan-inp" placeholder="Reps${prevR?' ('+prevR+')':''}" data-ei="${ei}" data-si="${si}" data-field="reps" style="font-size:.8rem;">
+        <input class="set-plan-inp" placeholder="Kg${prevW?' ('+prevW+')':''}" data-ei="${ei}" data-si="${si}" data-field="weight" style="font-size:.8rem;">
+        <div style="font-size:.62rem;color:${prevW?'var(--accent2)':'var(--text3)'};">${prevW?'Ant: '+prevW+'kg':'—'}</div>
+      </div>`;
+    }).join('');
+    return `<div style="background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+      <div style="font-family:var(--font-h);font-weight:800;font-size:.95rem;color:var(--accent2);margin-bottom:2px;">${ex.e} ${ex.n}</div>
+      <div style="font-size:.62rem;color:var(--text3);margin-bottom:8px;">${rte.sets.length} series · ${ex.m}</div>
+      <div style="display:grid;grid-template-columns:20px 1fr 1fr 1fr;gap:5px;margin-bottom:5px;">
+        <div></div>
+        <div style="font-size:.55rem;color:var(--text3);text-align:center;letter-spacing:.5px;text-transform:uppercase;">Reps</div>
+        <div style="font-size:.55rem;color:var(--text3);text-align:center;letter-spacing:.5px;text-transform:uppercase;">Kg</div>
+        <div style="font-size:.55rem;color:var(--text3);text-align:center;letter-spacing:.5px;text-transform:uppercase;">Anterior</div>
+      </div>
+      ${setsHtml}
+    </div>`;
+  }).join('');
+}
+
+function saveWorkoutLog(){
+  const clientId  = document.getElementById('wlog-client').value;
+  const routineId = document.getElementById('wlog-routine').value;
+  const date      = document.getElementById('wlog-date').value || new Date().toISOString().slice(0,10);
+  const duration  = document.getElementById('wlog-duration').value;
+  const note      = document.getElementById('wlog-note').value.trim();
+
+  if(!clientId){ showToast('⚠️ Selecciona un asesorado'); return; }
+
+  // Collect sets from inputs
+  const setInputs = document.querySelectorAll('#wlog-exercises-container [data-ei]');
+  const setsMap = {};
+  setInputs.forEach(inp=>{
+    const ei = inp.dataset.ei;
+    const si = inp.dataset.si;
+    const field = inp.dataset.field;
+    if(!setsMap[ei]) setsMap[ei] = {};
+    if(!setsMap[ei][si]) setsMap[ei][si] = {};
+    setsMap[ei][si][field] = inp.value;
+  });
+  const sets = Object.keys(setsMap).sort((a,b)=>a-b).map(ei=>
+    Object.keys(setsMap[ei]).sort((a,b)=>a-b).map(si=>setsMap[ei][si])
+  );
+
+  const log = {
+    id: uid(), clientId, routineId, date, duration, note, sets,
+    createdAt: new Date().toISOString()
+  };
+  if(!ST.workoutLogs) ST.workoutLogs = [];
+  ST.workoutLogs.push(log);
+  save();
+  closeOverlay('wlog-overlay');
+  renderWlogSection();
+  showToast('✅ Sesión registrada');
+}
+
+function renderWlogSection(){
+  const sel = document.getElementById('wlog-client-sel');
+  if(!sel) return;
+  const prevVal = sel.value;
+  sel.innerHTML = '<option value="">Todos los clientes</option>' +
+    ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(prevVal) sel.value = prevVal;
+
+  const filterClient = sel.value;
+  let logs = (ST.workoutLogs||[]).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  if(filterClient) logs = logs.filter(l=>l.clientId===filterClient);
+
+  const el = document.getElementById('wlog-list');
+  if(!el) return;
+  if(!logs.length){
+    el.innerHTML = `<div class="empty"><div class="empty-icon">💪</div><div class="empty-ttl">Sin sesiones registradas</div><p class="empty-txt">Empieza registrando la primera sesión</p><button class="btn btn-accent btn-md" onclick="openNewSession()">+ Nueva sesión</button></div>`;
+    return;
+  }
+
+  // Group by date
+  const groups = {};
+  logs.forEach(l=>{ if(!groups[l.date]) groups[l.date]=[]; groups[l.date].push(l); });
+
+  el.innerHTML = Object.keys(groups).sort((a,b)=>b.localeCompare(a)).map(date=>{
+    const label = formatDateEs(date);
+    const items = groups[date].map(l=>{
+      const client  = ST.clients.find(c=>c.id===l.clientId);
+      const routine = l.routineId ? ST.routines.find(r=>r.id===l.routineId) : null;
+      return `<div class="client-card" style="margin-bottom:8px;padding:12px;" onclick="openWlogDetail('${l.id}')">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:38px;height:38px;background:rgba(232,255,60,.08);border:1px solid rgba(232,255,60,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;">💪</div>
+            <div>
+              <div style="font-weight:700;font-size:.88rem;">${routine ? routine.icon+' '+routine.name : 'Sesión libre'}</div>
+              <div style="font-size:.7rem;color:var(--text3);">${client?client.name:'—'} ${l.duration?' · '+l.duration+' min':''}</div>
+              ${l.note?`<div style="font-size:.7rem;color:var(--text2);margin-top:2px;font-style:italic;">"${l.note.substring(0,60)}${l.note.length>60?'...':''}"</div>`:''}
+            </div>
+          </div>
+          <div style="font-size:.65rem;color:var(--text3);">Ver →</div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div style="font-size:.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:8px 0 4px;">${label}</div>${items}`;
+  }).join('');
+}
+
+let currentWlogDetailId = null;
+function openWlogDetail(id){
+  const log = (ST.workoutLogs||[]).find(l=>l.id===id);
+  if(!log) return;
+  currentWlogDetailId = id;
+  const client  = ST.clients.find(c=>c.id===log.clientId);
+  const routine = log.routineId ? ST.routines.find(r=>r.id===log.routineId) : null;
+
+  let html = `<div style="margin-bottom:16px;">
+    <div style="font-family:var(--font-h);font-size:1.4rem;font-weight:900;">${routine?routine.icon+' '+routine.name:'💪 Sesión libre'}</div>
+    <div style="color:var(--text3);font-size:.75rem;margin-top:4px;">${client?client.name:'—'} · ${formatDateEs(log.date)} ${log.duration?' · '+log.duration+' min':''}</div>
+    ${log.note?`<div style="color:var(--text2);font-size:.82rem;font-style:italic;margin-top:6px;background:var(--surface3);padding:8px 12px;border-radius:8px;">"${log.note}"</div>`:''}
+  </div>`;
+
+  if(routine && routine.exercises.length){
+    html += routine.exercises.map((rte,ei)=>{
+      const ex = gEx(rte.id);
+      const sets = (log.sets||[])[ei] || [];
+      const setsStr = sets.length
+        ? sets.map((s,j)=>`<tr><td style="color:var(--text3);padding:4px 8px;">${j+1}</td><td style="padding:4px 8px;font-weight:700;">${s.reps||'—'}</td><td style="padding:4px 8px;color:var(--accent2);font-weight:700;">${s.weight?s.weight+' kg':'—'}</td></tr>`).join('')
+        : `<tr><td colspan="3" style="padding:4px 8px;color:var(--text3);font-style:italic;">Sin datos registrados</td></tr>`;
+      return `<div style="background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;">
+        <div style="font-family:var(--font-h);font-weight:800;color:var(--accent2);margin-bottom:8px;">${ex.e} ${ex.n}</div>
+        <table style="width:100%;border-collapse:collapse;">
+          <tr style="font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:1px;">
+            <th style="padding:4px 8px;text-align:left;">Serie</th><th style="padding:4px 8px;text-align:left;">Reps</th><th style="padding:4px 8px;text-align:left;">Peso</th>
+          </tr>${setsStr}
+        </table>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('wlog-detail-body').innerHTML = html;
+  document.getElementById('wlog-detail-overlay').classList.add('open');
+}
+
+function deleteWlogSession(){
+  if(!currentWlogDetailId || !confirm('¿Eliminar esta sesión?')) return;
+  const id = currentWlogDetailId;
+  ST.workoutLogs = (ST.workoutLogs||[]).filter(l=>l.id!==id);
+  save();
+  sbDelete('workout_logs', id);
+  closeOverlay('wlog-detail-overlay');
+  renderWlogSection();
+  showToast('🗑 Sesión eliminada');
+}
+
+// Show last weights on routine preview
+function getLastWeightsForRoutine(routineId, clientId){
+  const logs = (ST.workoutLogs||[])
+    .filter(l=>l.routineId===routineId && l.clientId===clientId)
+    .sort((a,b)=>b.date.localeCompare(a.date));
+  return logs[0] || null;
+}
+
+function formatDateEs(dateStr){
+  const d = new Date(dateStr+'T12:00:00');
+  return d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+}
+
+// =====================================================================
 // PROGRESS TRACKING
 // =====================================================================
 function openAddProgress(){
@@ -3249,9 +3787,10 @@ function renderProgress(){
   content.innerHTML=chartHtml+summaryHtml+`<div class="card"><div class="card-title">Historial completo (${entries.length})</div>${histHtml}</div>`;
 }
 
-function deleteProgress(id,clientId){
+async function deleteProgress(id,clientId){
   if(!confirm('¿Eliminar este registro?')) return;
   ST.progress=(ST.progress||[]).filter(e=>e.id!==id); save(); renderProgress();
+  await sbDelete('progress', id);
 }
 
 // =====================================================================
@@ -3310,10 +3849,12 @@ function savePayment(){
   save(); closeOverlay('payment-overlay'); renderBilling(); showToast('💳 Pago guardado');
 }
 
-function deletePayment(){
+async function deletePayment(){
   if(!editPaymentId||!confirm('¿Eliminar este pago?')) return;
-  ST.payments=(ST.payments||[]).filter(p=>p.id!==editPaymentId);
+  const pid = editPaymentId;
+  ST.payments=(ST.payments||[]).filter(p=>p.id!==pid);
   save(); closeOverlay('payment-overlay'); renderBilling(); showToast('🗑 Pago eliminado');
+  await sbDelete('billing', pid);
 }
 
 function filterBilling(f,btn){
