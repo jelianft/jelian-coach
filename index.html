@@ -4596,7 +4596,7 @@ function buildPdfHtml(rawText, which) {
 function exportAiContentPDF(which) {
   const meta = {
     analysis: { title:'Análisis Corporal',     icon:'📸', sub:'Evaluación postural y muscular' },
-    routine:  { title:'Rutina Generada por IA', icon:'📋', sub:'Programa de entrenamiento personalizado' },
+    routine:  { title:'Rutina de Entrenamiento', icon:'📋', sub:'Programa de entrenamiento personalizado' },
     mealplan: { title:'Plan de Comidas',         icon:'🥗', sub:'Planificación nutricional semanal' }
   };
   let rawText = which==='mealplan' ? mealPlanResult : which==='analysis' ? AI.analysisResult : AI.routineResult;
@@ -4682,7 +4682,7 @@ function exportAiContentPDF(which) {
     <div class="pdf-titleband-icon">${meta[which].icon}</div>
     <div class="pdf-titleband-text">
       <h1>${meta[which].title}</h1>
-      <p>${meta[which].sub} · Generado con IA · JELIAN FT</p>
+      <p>${meta[which].sub} · JELIAN FT</p>
     </div>
   </div>
   <div class="pdf-body">${bodyHtml}</div>
