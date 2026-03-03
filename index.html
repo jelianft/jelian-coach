@@ -236,28 +236,57 @@ input,select,button,textarea{font-family:var(--font-b);}
 
 /* PDF PREVIEW */
 .pdf-preview{background:#fff;color:#111;border-radius:var(--radius-lg);padding:32px;font-family:'Barlow',sans-serif;}
-.pdf-header{border-bottom:3px solid #e8ff3c;padding-bottom:16px;margin-bottom:20px;}
-.pdf-logo{font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;color:#0a0a0b;}
-.pdf-logo span{color:#555;}
-.pdf-client{font-size:1.3rem;font-weight:700;margin-top:4px;}
-.pdf-date{font-size:.75rem;color:#666;margin-top:2px;}
+.pdf-header{background:linear-gradient(135deg,#0a0a0b 60%,#1a1a1f);border-radius:10px;padding:20px 24px 18px;margin-bottom:20px;}
+.pdf-logo{font-family:'Barlow Condensed',sans-serif;font-size:2.8rem;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1;}
+.pdf-logo span{color:#e8ff3c;}
+.pdf-logo-sub{font-size:.55rem;letter-spacing:4px;text-transform:uppercase;color:#888;margin-top:2px;}
+.pdf-client{font-size:1.4rem;font-weight:800;color:#fff;margin-top:6px;}
+.pdf-client-meta{font-size:.72rem;color:#aaa;margin-top:2px;}
+.pdf-date{font-size:.7rem;color:#aaa;background:rgba(255,255,255,.08);padding:3px 10px;border-radius:20px;display:inline-block;}
+.pdf-badge{display:inline-block;background:#e8ff3c;color:#000;font-size:.55rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-left:8px;vertical-align:middle;}
 .pdf-section{margin-bottom:20px;}
-.pdf-section-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0a0a0b;border-left:3px solid #e8ff3c;padding-left:8px;margin-bottom:10px;}
+.pdf-section-title{font-family:'Barlow Condensed',sans-serif;font-size:1.15rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#0a0a0b;background:linear-gradient(90deg,#e8ff3c22,transparent);border-left:4px solid #e8ff3c;padding:8px 12px;border-radius:0 6px 6px 0;margin-bottom:12px;}
 .pdf-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
-.pdf-macro-box{background:#f5f5f5;border-radius:8px;padding:10px;text-align:center;}
-.pdf-macro-val{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;}
-.pdf-macro-lbl{font-size:.6rem;letter-spacing:1px;text-transform:uppercase;color:#666;}
-.pdf-day{margin-bottom:16px;}
-.pdf-day-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;background:#f0f0f0;padding:6px 10px;border-radius:6px;margin-bottom:6px;}
+.pdf-macro-box{background:#0a0a0b;border-radius:8px;padding:12px;text-align:center;}
+.pdf-macro-val{font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;line-height:1;color:#e8ff3c;}
+.pdf-macro-lbl{font-size:.58rem;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:2px;}
+.pdf-day{margin-bottom:18px;border-radius:8px;overflow:hidden;border:1px solid #e8e8e8;}
+.pdf-day-title{font-family:'Barlow Condensed',sans-serif;font-size:1.05rem;font-weight:900;background:#0a0a0b;color:#e8ff3c;padding:8px 14px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px;}
+.pdf-day-title-sub{font-size:.65rem;color:#888;font-weight:400;letter-spacing:0;text-transform:none;font-family:'Barlow',sans-serif;}
 .pdf-ex-table{width:100%;border-collapse:collapse;font-size:.8rem;}
-.pdf-ex-table th{background:#e8e8e8;padding:5px 8px;text-align:left;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:#555;}
-.pdf-ex-table td{padding:6px 8px;border-bottom:1px solid #eee;}
-.pdf-ex-table tr:last-child td{border:none;}
-.pdf-note{font-size:.75rem;color:#666;font-style:italic;margin-top:4px;padding:8px;background:#fff9e6;border-left:2px solid #ffaa44;border-radius:0 4px 4px 0;}
+.pdf-ex-table th{background:#f5f5f5;padding:6px 10px;text-align:left;font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:#555;border-bottom:2px solid #e8ff3c;}
+.pdf-ex-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+.pdf-ex-table tr:last-child td{border-bottom:none;}
+.pdf-ex-table tr:nth-child(even) td{background:#fafafa;}
+.pdf-ex-name{font-weight:700;color:#0a0a0b;font-size:.82rem;}
+.pdf-ex-cat{font-size:.6rem;color:#999;letter-spacing:.5px;text-transform:uppercase;}
+.pdf-badge-set{display:inline-block;background:#e8ff3c;color:#000;font-size:.65rem;font-weight:900;padding:2px 8px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;}
+.pdf-note{font-size:.75rem;color:#666;font-style:italic;margin:4px 14px 8px;padding:7px 10px;background:#fffbea;border-left:3px solid #e8ff3c;border-radius:0 5px 5px 0;}
 .pdf-meals{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:8px;}
-.pdf-meals th{background:#e8e8e8;padding:5px 8px;text-align:left;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:#555;}
-.pdf-meals td{padding:6px 8px;border-bottom:1px solid #eee;}
-.pdf-footer{margin-top:24px;padding-top:14px;border-top:1px solid #eee;font-size:.7rem;color:#999;display:flex;justify-content:space-between;}
+.pdf-meals th{background:#0a0a0b;color:#e8ff3c;padding:6px 10px;text-align:left;font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;border-bottom:2px solid #e8ff3c;}
+.pdf-meals td{padding:7px 10px;border-bottom:1px solid #f0f0f0;}
+.pdf-meals tr:nth-child(even) td{background:#fafafa;}
+.pdf-footer{margin-top:24px;padding-top:14px;border-top:2px solid #e8ff3c;font-size:.65rem;color:#aaa;display:flex;justify-content:space-between;align-items:center;}
+.pdf-footer-brand{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:.85rem;color:#0a0a0b;letter-spacing:-1px;}
+.pdf-footer-brand span{color:#e8ff3c;}
+/* AI-generated PDF */
+.pdf-ai-section{margin-bottom:16px;}
+.pdf-ai-block{background:#0a0a0b;border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+.pdf-ai-block-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;color:#e8ff3c;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;border-bottom:1px solid rgba(232,255,60,.2);padding-bottom:6px;}
+.pdf-ai-block-body{font-size:.8rem;color:#e0e0e0;line-height:1.6;}
+.pdf-ai-block-body strong{color:#fff;}
+.pdf-ai-block-body ul,.pdf-ai-block-body ol{padding-left:16px;margin:6px 0;}
+.pdf-ai-block-body li{margin-bottom:3px;}
+/* Multi-photo upload */
+.ai-photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:8px;}
+.ai-photo-add-slot{border:2px dashed var(--border2);border-radius:var(--radius);min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:.2s;background:var(--surface3);text-align:center;padding:12px;}
+.ai-photo-add-slot:hover{border-color:var(--accent);background:rgba(232,255,60,.05);}
+.ai-photo-thumb-wrap{position:relative;border-radius:var(--radius);overflow:hidden;min-height:100px;background:var(--surface3);}
+.ai-photo-thumb-wrap img{width:100%;height:100px;object-fit:cover;display:block;}
+.ai-photo-thumb-label{background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);position:absolute;bottom:0;left:0;right:0;font-size:.58rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--accent);padding:6px 5px 4px;text-align:center;}
+.ai-photo-thumb-del{position:absolute;top:4px;right:4px;background:rgba(255,60,110,.85);border:none;color:#fff;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:.65rem;display:flex;align-items:center;justify-content:center;line-height:1;transition:.15s;}
+.ai-photo-thumb-del:hover{background:var(--accent3);}
+.ai-photo-count-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(232,255,60,.1);border:1px solid rgba(232,255,60,.2);color:var(--accent);font-size:.68rem;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:20px;margin-top:4px;}
 
 /* SEARCH */
 .search-input-wrap{position:relative;margin-bottom:14px;}
@@ -576,13 +605,23 @@ input,select,button,textarea{font-family:var(--font-b);}
             <div class="card-title">📸 Análisis de puntos débiles por foto</div>
             <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;">Sube una foto de postura (frontal, lateral o posterior) y la IA detectará desequilibrios musculares y zonas a mejorar.</p>
 
-            <div class="ai-upload-zone" id="ai-upload-zone" onclick="document.getElementById('ai-photo-input').click()">
-              <input type="file" id="ai-photo-input" accept="image/*" style="display:none" onchange="onAiPhotoSelected(event)">
-              <div id="ai-upload-preview">
-                <div style="font-size:2.5rem;margin-bottom:8px;">📷</div>
-                <div style="font-family:var(--font-h);font-size:1rem;font-weight:800;color:var(--text2);">Haz clic o arrastra una foto</div>
-                <div style="font-size:.72rem;color:var(--text3);margin-top:4px;">Frontal · Lateral · Posterior</div>
-              </div>
+            <input type="file" id="ai-photo-input" accept="image/*" multiple style="display:none" onchange="onAiPhotosSelected(event)">
+
+            <!-- Thumbnails container (filled dynamically, never replaced) -->
+            <div id="ai-photos-grid" class="ai-photos-grid">
+              <!-- thumbnails injected here -->
+            </div>
+
+            <!-- Add slot: always present, hidden when 4 photos -->
+            <div class="ai-photo-add-slot" id="ai-photo-add-btn" onclick="document.getElementById('ai-photo-input').click()" style="margin-top:0;">
+              <div style="font-size:2rem;margin-bottom:6px;">📷</div>
+              <div style="font-family:var(--font-h);font-size:.82rem;font-weight:800;color:var(--text2);" id="ai-add-label">Agregar foto</div>
+              <div style="font-size:.62rem;color:var(--text3);margin-top:3px;" id="ai-add-hint">Frontal · Lateral · Posterior</div>
+            </div>
+
+            <div id="ai-photo-count-row" style="display:none;margin-top:8px;">
+              <span class="ai-photo-count-badge" id="ai-photo-count-badge">0 fotos</span>
+              <span style="font-size:.65rem;color:var(--text3);margin-left:8px;">Máx. 4 fotos · Puedes subir varias a la vez</span>
             </div>
 
             <div class="field-group mt-12">
@@ -601,6 +640,7 @@ input,select,button,textarea{font-family:var(--font-b);}
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
               <button class="btn btn-ghost btn-sm" onclick="switchAiTab('routine');applyAnalysisToRoutine()">→ Crear rutina basada en este análisis</button>
               <button class="btn btn-ghost btn-sm" onclick="copyAiResult('analysis')">📋 Copiar</button>
+              <button class="btn btn-orange btn-sm" onclick="exportAiContentPDF('analysis')">📄 Exportar PDF</button>
             </div>
           </div>
         </div>
@@ -738,6 +778,7 @@ input,select,button,textarea{font-family:var(--font-b);}
             <div id="ai-routine-text" class="ai-result-body"></div>
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
               <button class="btn btn-ghost btn-sm" onclick="copyAiResult('routine')">📋 Copiar rutina</button>
+              <button class="btn btn-orange btn-sm" onclick="exportAiContentPDF('routine')">📄 Exportar PDF</button>
             </div>
           </div>
         </div>
@@ -926,6 +967,7 @@ input,select,button,textarea{font-family:var(--font-b);}
             <div id="ai-mealplan-text" class="ai-result-body"></div>
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
               <button class="btn btn-ghost btn-sm" onclick="copyAiResult('mealplan')">📋 Copiar plan</button>
+              <button class="btn btn-orange btn-sm" onclick="exportAiContentPDF('mealplan')">📄 Exportar PDF</button>
             </div>
           </div>
         </div>
@@ -2403,10 +2445,10 @@ function renderPDFPreview(){
     <div class="pdf-section">
       <div class="pdf-section-title">Plan Nutricional — ${goalLabels[client.goal]||'—'}</div>
       <div class="pdf-macros">
-        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#000">${macros.kcal}</div><div class="pdf-macro-lbl">Calorías</div></div>
-        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#0a9">${macros.prot}g</div><div class="pdf-macro-lbl">Proteína</div></div>
-        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#c60">${macros.carbs}g</div><div class="pdf-macro-lbl">Carbos</div></div>
-        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#c05">${macros.fat}g</div><div class="pdf-macro-lbl">Grasas</div></div>
+        <div class="pdf-macro-box"><div class="pdf-macro-val">${macros.kcal}</div><div class="pdf-macro-lbl">Calorías</div></div>
+        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#3cffc8">${macros.prot}g</div><div class="pdf-macro-lbl">Proteína</div></div>
+        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#ffaa44">${macros.carbs}g</div><div class="pdf-macro-lbl">Carbos</div></div>
+        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#ff3c6e">${macros.fat}g</div><div class="pdf-macro-lbl">Grasas</div></div>
       </div>
       <table class="pdf-meals">
         <tr><th>Comida</th><th>Calorías</th><th>Proteína</th><th>Carbos</th><th>Grasas</th></tr>
@@ -2423,10 +2465,10 @@ function renderPDFPreview(){
 
   const routinesSection=routines.map(r=>`
     <div class="pdf-day">
-      <div class="pdf-day-title">${r.icon||'📋'} ${r.name}${r.day?' — '+r.day:''}</div>
+      <div class="pdf-day-title">${r.icon||'📋'} ${r.name}${r.day?`<span class="pdf-day-title-sub"> — ${r.day}</span>`:''}</div>
       ${r.notes?`<div class="pdf-note">${r.notes}</div>`:''}
       <table class="pdf-ex-table">
-        <tr><th>Ejercicio</th><th>Series</th><th>Reps</th><th>Peso (kg)</th><th>Descanso</th><th>Notas</th></tr>
+        <tr><th>Ejercicio</th><th>Series</th><th>Reps</th><th>Peso kg</th><th>Descanso</th><th>Notas</th></tr>
         ${r.exercises.map(rte=>{
           const ex=gEx(rte.id);
           const sets=rte.sets.length;
@@ -2434,12 +2476,12 @@ function renderPDFPreview(){
           const wList=[...new Set(rte.sets.map(s=>s.weight||'—'))];
           const restList=[...new Set(rte.sets.map(s=>s.rest||'90'))];
           return `<tr>
-            <td><strong>${ex.n}</strong><br><span style="font-size:.65rem;color:#888">${ex.cat}</span></td>
-            <td style="text-align:center">${sets}</td>
-            <td style="text-align:center">${repsList.join('/')}</td>
+            <td><div class="pdf-ex-name">${ex.n}</div><div class="pdf-ex-cat">${ex.cat}</div></td>
+            <td style="text-align:center"><span class="pdf-badge-set">${sets}</span></td>
+            <td style="text-align:center;font-weight:700">${repsList.join('/')}</td>
             <td style="text-align:center">${wList.join('/')}</td>
             <td style="text-align:center">${restList.join('/')}s</td>
-            <td style="font-size:.7rem;color:#666">${rte.notes||''}</td>
+            <td style="font-size:.68rem;color:#777">${rte.notes||'—'}</td>
           </tr>`;
         }).join('')}
       </table>
@@ -2448,23 +2490,23 @@ function renderPDFPreview(){
   const html=`
     <div class="pdf-preview" id="pdf-content">
       <div class="pdf-header">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
             <div class="pdf-logo">JELIAN<span>FT</span></div>
-            <div style="font-size:.65rem;letter-spacing:3px;color:#888;text-transform:uppercase;margin-top:2px;">Personal Training</div>
+            <div class="pdf-logo-sub">Personal Training</div>
           </div>
           <div style="text-align:right">
             <div class="pdf-date">${today}</div>
-            ${client?`<div class="pdf-client">${client.name}</div>`:''}
-            ${client&&client.weight?`<div style="font-size:.72rem;color:#888">${client.weight}kg · ${client.height||'—'}cm · ${client.age||'—'} años</div>`:''}
+            ${client?`<div class="pdf-client">${client.name}</div>`:'<div class="pdf-client" style="color:#aaa;">Sin cliente asignado</div>'}
+            ${client&&client.weight?`<div class="pdf-client-meta">${client.weight}kg · ${client.height||'—'}cm · ${client.age||'—'} años</div>`:''}
           </div>
         </div>
       </div>
       ${macrosSection}
-      ${routinesSection?`<div class="pdf-section"><div class="pdf-section-title">Programa de Entrenamiento</div>${routinesSection}</div>`:'<div style="color:#888;padding:20px 0;text-align:center;">No hay rutinas asignadas</div>'}
+      ${routinesSection?`<div class="pdf-section"><div class="pdf-section-title">🏋️ Programa de Entrenamiento <span class="pdf-badge">${routines.length} ${routines.length===1?'rutina':'rutinas'}</span></div>${routinesSection}</div>`:'<div style="color:#888;padding:20px 0;text-align:center;">No hay rutinas asignadas</div>'}
       <div class="pdf-footer">
-        <div>JELIAN FT — Coach Panel</div>
-        <div>${today}</div>
+        <div class="pdf-footer-brand">JELIAN<span>FT</span></div>
+        <div style="font-size:.65rem;color:#999;">${today}</div>
       </div>
     </div>`;
 
@@ -2481,28 +2523,38 @@ function downloadPDF(){
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111;font-size:13px;line-height:1.5;}
     .pdf-preview{max-width:100%;padding:0;}
-    .pdf-header{border-bottom:3px solid #ccc;padding-bottom:14px;margin-bottom:18px;}
-    .pdf-logo{font-size:2rem;font-weight:900;color:#0a0a0b;letter-spacing:-2px;}
-    .pdf-logo span{color:#888;}
-    .pdf-client{font-size:1.1rem;font-weight:700;margin-top:4px;}
-    .pdf-date{font-size:.72rem;color:#666;margin-top:2px;}
-    .pdf-section{margin-bottom:18px;}
-    .pdf-section-title{font-size:.85rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#111;border-left:4px solid #999;padding-left:8px;margin-bottom:10px;}
+    .pdf-header{background:#0a0a0b;border-radius:0;padding:18px 22px 16px;margin-bottom:0;}
+    .pdf-logo{font-size:2rem;font-weight:900;color:#fff;letter-spacing:-2px;}
+    .pdf-logo span{color:#e8ff3c;}
+    .pdf-logo-sub{font-size:.5rem;letter-spacing:4px;text-transform:uppercase;color:#666;margin-top:1px;}
+    .pdf-client{font-size:1.1rem;font-weight:800;color:#fff;margin-top:5px;}
+    .pdf-client-meta{font-size:.7rem;color:#aaa;margin-top:1px;}
+    .pdf-date{font-size:.65rem;color:#aaa;background:rgba(255,255,255,.08);padding:2px 8px;border-radius:10px;display:inline-block;}
+    .pdf-badge{display:inline-block;background:#e8ff3c;color:#000;font-size:.5rem;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;padding:2px 8px;border-radius:10px;margin-left:6px;vertical-align:middle;}
+    .pdf-section{margin:16px 0;}
+    .pdf-section-title{font-size:.85rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#0a0a0b;background:linear-gradient(90deg,#e8ff3c22,transparent);border-left:4px solid #e8ff3c;padding:7px 12px;border-radius:0 5px 5px 0;margin-bottom:10px;}
     .pdf-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
-    .pdf-macro-box{background:#f5f5f5;border-radius:6px;padding:10px;text-align:center;border:1px solid #eee;}
-    .pdf-macro-val{font-size:1.4rem;font-weight:900;line-height:1.2;}
-    .pdf-macro-lbl{font-size:.58rem;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:2px;}
-    .pdf-day{margin-bottom:14px;page-break-inside:avoid;}
-    .pdf-day-title{font-size:.9rem;font-weight:800;background:#f0f0f0;padding:5px 10px;border-radius:5px;margin-bottom:5px;}
-    .pdf-note{font-size:.72rem;color:#666;font-style:italic;padding:6px 8px;background:#fff9e6;border-left:2px solid #ccc;margin-bottom:6px;}
-    .pdf-ex-table{width:100%;border-collapse:collapse;font-size:.75rem;margin-bottom:4px;}
-    .pdf-ex-table th{background:#e8e8e8;padding:4px 7px;text-align:left;font-size:.6rem;letter-spacing:1px;text-transform:uppercase;color:#555;border-bottom:2px solid #ddd;}
-    .pdf-ex-table td{padding:5px 7px;border-bottom:1px solid #eee;vertical-align:top;}
+    .pdf-macro-box{background:#0a0a0b;border-radius:6px;padding:10px;text-align:center;}
+    .pdf-macro-val{font-size:1.4rem;font-weight:900;line-height:1.2;color:#e8ff3c;}
+    .pdf-macro-lbl{font-size:.55rem;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:2px;}
+    .pdf-day{margin-bottom:14px;border-radius:6px;overflow:hidden;border:1px solid #e0e0e0;page-break-inside:avoid;}
+    .pdf-day-title{font-size:.9rem;font-weight:900;background:#0a0a0b;color:#e8ff3c;padding:7px 12px;letter-spacing:1px;text-transform:uppercase;}
+    .pdf-note{font-size:.7rem;color:#666;font-style:italic;padding:5px 12px 5px;background:#fffbea;border-left:3px solid #e8ff3c;margin:0;}
+    .pdf-ex-table{width:100%;border-collapse:collapse;font-size:.75rem;}
+    .pdf-ex-table th{background:#f5f5f5;padding:5px 10px;text-align:left;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:#555;border-bottom:2px solid #e8ff3c;}
+    .pdf-ex-table td{padding:6px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+    .pdf-ex-table tr:nth-child(even) td{background:#fafafa;}
+    .pdf-ex-name{font-weight:700;color:#0a0a0b;}
+    .pdf-ex-cat{font-size:.58rem;color:#999;text-transform:uppercase;letter-spacing:.5px;}
+    .pdf-badge-set{display:inline-block;background:#e8ff3c;color:#000;font-size:.62rem;font-weight:900;padding:2px 7px;border-radius:4px;}
     .pdf-meals{width:100%;border-collapse:collapse;font-size:.75rem;margin-top:6px;}
-    .pdf-meals th{background:#e8e8e8;padding:4px 7px;text-align:left;font-size:.6rem;letter-spacing:1px;text-transform:uppercase;color:#555;border-bottom:2px solid #ddd;}
-    .pdf-meals td{padding:5px 7px;border-bottom:1px solid #eee;}
-    .pdf-footer{margin-top:20px;padding-top:10px;border-top:1px solid #eee;font-size:.65rem;color:#aaa;display:flex;justify-content:space-between;}
-    @page{size:A4;margin:15mm 12mm;}`;
+    .pdf-meals th{background:#0a0a0b;color:#e8ff3c;padding:5px 10px;text-align:left;font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;border-bottom:2px solid #e8ff3c;}
+    .pdf-meals td{padding:6px 10px;border-bottom:1px solid #f0f0f0;}
+    .pdf-meals tr:nth-child(even) td{background:#fafafa;}
+    .pdf-footer{margin-top:18px;padding-top:10px;border-top:3px solid #e8ff3c;font-size:.6rem;color:#aaa;display:flex;justify-content:space-between;align-items:center;}
+    .pdf-footer-brand{font-size:.85rem;font-weight:900;color:#0a0a0b;letter-spacing:-1px;}
+    .pdf-footer-brand span{color:#e8a000;}
+    @page{size:A4;margin:12mm 10mm;}`;
 
   // Eliminar iframe anterior si existe
   const oldFrame=document.getElementById('_pdf_frame');
@@ -2645,8 +2697,7 @@ let AI = {
   analysisResult: '',
   routineResult: '',
   chatHistory: [],
-  photoBase64: null,
-  photoMime: null,
+  photos: [],   // Array of {base64, mime, label}
   weakMuscles: []
 };
 
@@ -2711,54 +2762,95 @@ function saveEquipment() {
   setTimeout(() => { msg.style.display = 'none'; }, 2500);
 }
 
-// Photo upload
-function onAiPhotoSelected(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const dataUrl = e.target.result;
-    AI.photoBase64 = dataUrl.split(',')[1];
-    AI.photoMime = file.type;
-    const zone = document.getElementById('ai-upload-zone');
-    zone.classList.add('has-image');
-    zone.innerHTML = '<img src="' + dataUrl + '" alt="Foto subida">';
-    document.getElementById('ai-analyze-btn').disabled = false;
-  };
-  reader.readAsDataURL(file);
+// Multi-photo upload management
+const PHOTO_LABELS = ['Frontal','Lateral Der.','Posterior','Lateral Izq.'];
+
+function onAiPhotosSelected(event) {
+  const files = Array.from(event.target.files);
+  if (!files.length) return;
+  const remaining = 4 - AI.photos.length;
+  const toLoad = files.slice(0, remaining);
+  toLoad.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      AI.photos.push({ base64: e.target.result.split(',')[1], mime: file.type });
+      renderPhotoGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
 }
 
-// Drag & drop on upload zone
+function removeAiPhoto(idx) {
+  AI.photos.splice(idx, 1);
+  renderPhotoGrid();
+}
+
+function renderPhotoGrid() {
+  const thumbContainer = document.getElementById('ai-photos-grid');
+  const addBtn         = document.getElementById('ai-photo-add-btn');
+  const addLabel       = document.getElementById('ai-add-label');
+  const addHint        = document.getElementById('ai-add-hint');
+  const countRow       = document.getElementById('ai-photo-count-row');
+  const countBadge     = document.getElementById('ai-photo-count-badge');
+  const analyzeBtn     = document.getElementById('ai-analyze-btn');
+
+  // Rebuild only the thumbnails — never touch the add button DOM node
+  if (thumbContainer) {
+    thumbContainer.innerHTML = AI.photos.map((p, i) => `
+      <div class="ai-photo-thumb-wrap">
+        <img src="data:${p.mime};base64,${p.base64}" alt="Foto ${i+1}">
+        <div class="ai-photo-thumb-label">${PHOTO_LABELS[i] || 'Vista '+(i+1)}</div>
+        <button class="ai-photo-thumb-del" onclick="removeAiPhoto(${i})" type="button">✕</button>
+      </div>`).join('');
+  }
+
+  // Show/hide the add button; update its text
+  if (addBtn) {
+    addBtn.style.display = AI.photos.length >= 4 ? 'none' : 'flex';
+    addBtn.style.flexDirection = 'column';
+    addBtn.style.alignItems = 'center';
+    addBtn.style.justifyContent = 'center';
+  }
+  if (addLabel) addLabel.textContent = AI.photos.length === 0 ? 'Agregar foto' : '+ Agregar otra';
+  if (addHint)  addHint.textContent  = PHOTO_LABELS[AI.photos.length] || 'Vista ' + (AI.photos.length + 1);
+
+  // Counter badge
+  if (countRow)    countRow.style.display  = AI.photos.length > 0 ? 'block' : 'none';
+  if (countBadge)  countBadge.textContent  = AI.photos.length + (AI.photos.length === 1 ? ' foto' : ' fotos');
+  if (analyzeBtn)  analyzeBtn.disabled     = AI.photos.length === 0;
+}
+
+// Drag & drop on upload zone — attach to the card container
 document.addEventListener('DOMContentLoaded', () => {
-  const zone = document.getElementById('ai-upload-zone');
-  if (zone) {
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--accent)'; });
-    zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
-    zone.addEventListener('drop', e => {
+  const panel = document.getElementById('aipanel-analysis');
+  if (panel) {
+    panel.addEventListener('dragover', e => { e.preventDefault(); const b = document.getElementById('ai-photo-add-btn'); if(b) b.style.borderColor='var(--accent)'; });
+    panel.addEventListener('dragleave', () => { const b = document.getElementById('ai-photo-add-btn'); if(b) b.style.borderColor=''; });
+    panel.addEventListener('drop', e => {
       e.preventDefault();
-      zone.style.borderColor = '';
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('image/')) {
-        const fakeEvent = { target: { files: [file] } };
-        onAiPhotoSelected(fakeEvent);
-      }
+      const b = document.getElementById('ai-photo-add-btn'); if(b) b.style.borderColor='';
+      if (AI.photos.length >= 4) return;
+      const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      if (files.length) onAiPhotosSelected({ target: { files } });
     });
   }
 });
 
 // ─── BODY ANALYSIS ─────────────────────────────────────────────────
 async function runBodyAnalysis() {
-  if (!AI.photoBase64) return;
+  if (!AI.photos.length) return;
   const btn = document.getElementById('ai-analyze-btn');
   const resultBox = document.getElementById('ai-analysis-result');
   const textEl = document.getElementById('ai-analysis-text');
   btn.disabled = true;
-  btn.textContent = '⏳ Analizando...';
+  btn.innerHTML = '⏳ Analizando...';
   resultBox.style.display = 'block';
   textEl.innerHTML = '<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Analizando composición corporal y postura...</div>';
 
   const context = document.getElementById('ai-analysis-context').value.trim();
-  const prompt = `Eres un coach de fitness experto en biomecánica, análisis postural y diagnóstico muscular. Analiza esta imagen corporal/postura y proporciona:
+  const views = AI.photos.map((_, i) => PHOTO_LABELS[i] || 'Vista '+(i+1));
+  const prompt = `Eres un coach de fitness experto en biomecánica, análisis postural y diagnóstico muscular. Analiza ${AI.photos.length > 1 ? 'estas '+AI.photos.length+' imágenes corporales ('+views.join(', ')+')' : 'esta imagen corporal/postura'} y proporciona:
 
 1. **EVALUACIÓN POSTURAL** - Observaciones sobre alineación, postura y simetría
 2. **GRUPOS MUSCULARES DÉBILES** - Lista los músculos o grupos musculares que aparecen subdesarrollados o con desequilibrios visibles
@@ -2772,14 +2864,14 @@ ${context ? 'Contexto del cliente: ' + context : ''}
 Sé específico, técnico y constructivo. Usa formato markdown con emojis para mejor legibilidad.`;
 
   try {
-    const resp = await callClaudeWithImage(prompt, AI.photoBase64, AI.photoMime);
+    const resp = await callClaudeWithImages(prompt, AI.photos);
     AI.analysisResult = resp;
     textEl.innerHTML = markdownToHtml(resp);
   } catch (e) {
     textEl.innerHTML = '<span style="color:var(--accent3)">❌ Error al analizar: ' + e.message + '</span>';
   }
   btn.disabled = false;
-  btn.textContent = '🔍 Analizar puntos débiles';
+  btn.innerHTML = '🔍 Analizar puntos débiles';
 }
 
 function applyAnalysisToRoutine() {
@@ -2961,23 +3053,23 @@ async function callClaude(prompt) {
 }
 
 async function callClaudeWithImage(prompt, base64, mime) {
+  return callClaudeWithImages(prompt, [{ base64, mime }]);
+}
+
+async function callClaudeWithImages(prompt, photos) {
   const key = getApiKey();
   const headers = { 'Content-Type': 'application/json' };
   if(!key){ openApiKeyModal(); throw new Error('Configura tu API Key para usar la IA. Haz clic en Configurar API Key.'); }
   headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  const content = photos.map(p => ({ type: 'image', source: { type: 'base64', media_type: p.mime, data: p.base64 } }));
+  content.push({ type: 'text', text: prompt });
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 4096,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
-          { type: 'text', text: prompt }
-        ]
-      }]
+      messages: [{ role: 'user', content }]
     })
   });
   if (!resp.ok) {
@@ -3316,6 +3408,272 @@ Genera el plan COMPLETO con:
     mealPlanResult=resp;
     textEl.innerHTML=markdownToHtml(resp);
   } catch(e){ textEl.innerHTML=`<span style="color:var(--accent3)">❌ Error: ${e.message}</span>`; }
+}
+
+// ── EXPORT AI RESULT AS BEAUTIFUL PDF ────────────────────────────────
+function mdEsc(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function mdInline(t){
+  return mdEsc(t)
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/`(.+?)`/g,'<code style="background:#f0f0f0;padding:1px 5px;border-radius:3px;font-size:.85em;">$1</code>');
+}
+
+// Accent palette cycling for section headers
+const SECTION_COLORS = ['#e8ff3c','#3cffc8','#a78bfa','#ffaa44','#ff3c6e'];
+
+function buildPdfHtml(rawText, which) {
+  const lines = rawText.split('\n');
+  let html = '';
+  let inList = false;
+  let listType = '';
+  let sectionIdx = 0;
+  let inTable = false;
+  let tableRows = [];
+
+  function flushList() {
+    if (!inList) return;
+    html += listType === 'ul'
+      ? `<ul class="plist">${tableRows.map(r=>`<li>${r}</li>`).join('')}</ul>`
+      : `<ol class="plist">${tableRows.map(r=>`<li>${r}</li>`).join('')}</ol>`;
+    inList = false; listType = ''; tableRows = [];
+  }
+  function flushTable() {
+    if (!inTable || tableRows.length < 2) {
+      if (inTable && tableRows.length) {
+        // fallback: render as list
+        tableRows.forEach(r => { html += `<p class="body-p">${mdInline(r)}</p>`; });
+      }
+      inTable = false; tableRows = []; return;
+    }
+    // Parse markdown table
+    const rows = tableRows.filter(r => !/^\s*\|?[-:| ]+\|?\s*$/.test(r));
+    const parseRow = r => r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+    const header = parseRow(rows[0]);
+    const body   = rows.slice(1);
+    const color  = SECTION_COLORS[sectionIdx % SECTION_COLORS.length];
+    html += `<div class="tbl-wrap"><table class="dtbl">
+      <thead><tr>${header.map(h=>`<th style="border-bottom:3px solid ${color}">${mdInline(h)}</th>`).join('')}</tr></thead>
+      <tbody>${body.map((r,i)=>{
+        const cells = parseRow(r);
+        return `<tr class="${i%2===1?'even':''}">${cells.map(c=>`<td>${mdInline(c)}</td>`).join('')}</tr>`;
+      }).join('')}</tbody></table></div>`;
+    inTable = false; tableRows = [];
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Markdown table detection
+    if (/^\|.+\|/.test(trimmed)) {
+      flushList();
+      inTable = true;
+      tableRows.push(trimmed);
+      continue;
+    }
+    if (inTable) { flushTable(); }
+
+    // HR
+    if (/^---+$/.test(trimmed) || /^\*\*\*+$/.test(trimmed)) {
+      flushList();
+      html += `<div class="hr"></div>`;
+      continue;
+    }
+
+    // H1
+    if (/^# /.test(trimmed)) {
+      flushList();
+      const txt = trimmed.slice(2);
+      html += `<div class="h1-block"><span>${mdInline(txt)}</span></div>`;
+      continue;
+    }
+
+    // H2 — big section card
+    if (/^## /.test(trimmed)) {
+      flushList();
+      const txt = trimmed.slice(3);
+      const color = SECTION_COLORS[sectionIdx++ % SECTION_COLORS.length];
+      const emoji = txt.match(/^[\p{Emoji}]/u)?.[0] || '';
+      const label = emoji ? txt.slice([...txt][0].length).trim() : txt;
+      html += `<div class="section-card" style="border-left-color:${color}">
+        <div class="section-card-title" style="color:${color}">${emoji ? `<span class="sec-icon">${emoji}</span>` : ''}${mdInline(label)}</div>`;
+      // peek ahead for direct paragraph after h2
+      continue;
+    }
+
+    // H3 — sub-section
+    if (/^### /.test(trimmed)) {
+      flushList();
+      const txt = trimmed.slice(4);
+      html += `<div class="subsec">${mdInline(txt)}</div>`;
+      continue;
+    }
+
+    // H4
+    if (/^#### /.test(trimmed)) {
+      flushList();
+      html += `<div class="subsubsec">${mdInline(trimmed.slice(5))}</div>`;
+      continue;
+    }
+
+    // Unordered list
+    if (/^[-*] /.test(trimmed)) {
+      if (inList && listType !== 'ul') flushList();
+      if (!inList) { inList = true; listType = 'ul'; tableRows = []; }
+      tableRows.push(mdInline(trimmed.slice(2)));
+      continue;
+    }
+
+    // Ordered list
+    if (/^\d+\. /.test(trimmed)) {
+      if (inList && listType !== 'ol') flushList();
+      if (!inList) { inList = true; listType = 'ol'; tableRows = []; }
+      tableRows.push(mdInline(trimmed.replace(/^\d+\. /,'')));
+      continue;
+    }
+
+    flushList();
+
+    // Empty line — close open section cards
+    if (trimmed === '') {
+      // Check if next non-empty is a new section → close card
+      let j = i+1;
+      while(j<lines.length && lines[j].trim()==='') j++;
+      if (j<lines.length && /^## /.test(lines[j].trim())) {
+        html += `</div>`; // close section-card
+      }
+      html += `<div class="spacer"></div>`;
+      continue;
+    }
+
+    // Normal paragraph
+    html += `<p class="body-p">${mdInline(trimmed)}</p>`;
+  }
+  flushList();
+  flushTable();
+  // Close any open section-card (last section)
+  if (sectionIdx > 0) html += `</div>`;
+  return html;
+}
+
+function exportAiContentPDF(which) {
+  const meta = {
+    analysis: { title:'Análisis Corporal',     icon:'📸', sub:'Evaluación postural y muscular' },
+    routine:  { title:'Rutina Generada por IA', icon:'📋', sub:'Programa de entrenamiento personalizado' },
+    mealplan: { title:'Plan de Comidas',         icon:'🥗', sub:'Planificación nutricional semanal' }
+  };
+  let rawText = which==='mealplan' ? mealPlanResult : which==='analysis' ? AI.analysisResult : AI.routineResult;
+  if (!rawText) { showToast('⚠️ Genera el contenido primero'); return; }
+
+  const today = new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+  const fname = meta[which].title.replace(/\s+/g,'_') + '_JELIANFT_' + new Date().toISOString().slice(0,10);
+  const bodyHtml = buildPdfHtml(rawText, which);
+
+  const styles = `
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600;700&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Barlow',Arial,sans-serif;background:#e8e8e8;color:#111;font-size:12.5px;line-height:1.65;}
+    .page{max-width:820px;margin:0 auto;background:#fff;box-shadow:0 0 30px rgba(0,0,0,.18);}
+
+    /* ── HEADER ── */
+    .pdf-top{background:#0a0a0b;padding:22px 30px 18px;display:flex;justify-content:space-between;align-items:center;}
+    .pdf-logo{font-family:'Barlow Condensed',Arial,sans-serif;font-size:2.4rem;font-weight:900;color:#fff;letter-spacing:-2px;line-height:1;}
+    .pdf-logo em{color:#e8ff3c;font-style:normal;}
+    .pdf-logo-sub{font-size:.48rem;letter-spacing:4px;text-transform:uppercase;color:#555;margin-top:3px;}
+    .pdf-top-right{text-align:right;}
+    .pdf-badge{display:inline-block;background:#e8ff3c;color:#000;font-family:'Barlow Condensed',Arial,sans-serif;font-size:.62rem;font-weight:900;letter-spacing:2px;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:5px;}
+    .pdf-date{font-size:.62rem;color:#666;margin-top:3px;}
+
+    /* ── TITLE BAND ── */
+    .pdf-titleband{background:linear-gradient(90deg,#111 0%,#1c1c20 100%);padding:14px 30px;border-bottom:3px solid #e8ff3c;display:flex;align-items:center;gap:14px;}
+    .pdf-titleband-icon{font-size:2rem;line-height:1;}
+    .pdf-titleband-text h1{font-family:'Barlow Condensed',Arial,sans-serif;font-size:1.6rem;font-weight:900;color:#fff;letter-spacing:-0.5px;line-height:1;}
+    .pdf-titleband-text p{font-size:.62rem;color:#888;text-transform:uppercase;letter-spacing:2px;margin-top:3px;}
+
+    /* ── BODY ── */
+    .pdf-body{padding:24px 30px 28px;}
+
+    /* section card */
+    .section-card{background:#fafafa;border:1px solid #eee;border-left:5px solid #e8ff3c;border-radius:0 8px 8px 0;padding:14px 16px 14px;margin:16px 0 0;page-break-inside:avoid;}
+    .section-card-title{font-family:'Barlow Condensed',Arial,sans-serif;font-size:1.05rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+    .sec-icon{font-size:1.1rem;}
+    .subsec{font-family:'Barlow Condensed',Arial,sans-serif;font-size:.88rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#333;background:#f0f0f0;padding:5px 10px;border-radius:5px;margin:10px 0 6px;}
+    .subsubsec{font-size:.82rem;font-weight:700;color:#555;margin:8px 0 4px;text-decoration:underline;}
+    .h1-block{background:#0a0a0b;border-radius:6px;padding:10px 16px;margin:14px 0 10px;}
+    .h1-block span{font-family:'Barlow Condensed',Arial,sans-serif;font-size:1.15rem;font-weight:900;color:#fff;letter-spacing:-0.5px;}
+    .body-p{font-size:.88rem;color:#333;margin:5px 0;line-height:1.7;}
+    .spacer{height:6px;}
+    .hr{border:none;border-top:2px solid #e8ff3c;margin:16px 0;}
+
+    /* lists */
+    .plist{padding-left:20px;margin:6px 0 8px;}
+    .plist li{font-size:.87rem;color:#333;margin-bottom:5px;line-height:1.6;}
+    .plist li::marker{color:#e8a000;font-weight:700;}
+
+    /* tables */
+    .tbl-wrap{overflow:hidden;border-radius:8px;border:1px solid #e0e0e0;margin:12px 0;page-break-inside:avoid;}
+    .dtbl{width:100%;border-collapse:collapse;font-size:.82rem;}
+    .dtbl thead tr{background:#0a0a0b;}
+    .dtbl th{padding:8px 12px;text-align:left;font-family:'Barlow Condensed',Arial,sans-serif;font-size:.75rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#fff;}
+    .dtbl td{padding:7px 12px;color:#222;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+    .dtbl tr.even td{background:#f7f7f7;}
+    .dtbl tbody tr:last-child td{border-bottom:none;}
+    .dtbl strong{color:#0a0a0b;font-weight:700;}
+
+    /* ── FOOTER ── */
+    .pdf-foot{background:#f5f5f5;border-top:3px solid #e8ff3c;padding:10px 30px;display:flex;justify-content:space-between;align-items:center;}
+    .pdf-foot-brand{font-family:'Barlow Condensed',Arial,sans-serif;font-size:.95rem;font-weight:900;color:#0a0a0b;letter-spacing:-1px;}
+    .pdf-foot-brand em{color:#e8a000;font-style:normal;}
+    .pdf-foot-info{font-size:.6rem;color:#aaa;text-align:right;}
+
+    @page{size:A4;margin:8mm;}
+    @media print{body{background:#fff;}.page{box-shadow:none;max-width:100%;margin:0;}}`;
+
+  const fullHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${fname}</title><style>${styles}</style></head><body>
+<div class="page">
+  <div class="pdf-top">
+    <div>
+      <div class="pdf-logo">JELIAN<em>FT</em></div>
+      <div class="pdf-logo-sub">Personal Training · Coach Panel</div>
+    </div>
+    <div class="pdf-top-right">
+      <div class="pdf-badge">${meta[which].icon} ${meta[which].title}</div>
+      <div class="pdf-date">📅 ${today}</div>
+    </div>
+  </div>
+  <div class="pdf-titleband">
+    <div class="pdf-titleband-icon">${meta[which].icon}</div>
+    <div class="pdf-titleband-text">
+      <h1>${meta[which].title}</h1>
+      <p>${meta[which].sub} · Generado con IA · JELIAN FT</p>
+    </div>
+  </div>
+  <div class="pdf-body">${bodyHtml}</div>
+  <div class="pdf-foot">
+    <div class="pdf-foot-brand">JELIAN<em>FT</em> Coach Panel</div>
+    <div class="pdf-foot-info">Generado el ${today}<br>IA · Uso personal del coach</div>
+  </div>
+</div>
+</body></html>`;
+
+  const oldFrame = document.getElementById('_ai_pdf_frame');
+  if (oldFrame) oldFrame.remove();
+  const iframe = document.createElement('iframe');
+  iframe.id = '_ai_pdf_frame';
+  iframe.style.cssText = 'position:fixed;width:1px;height:1px;border:none;left:-9999px;top:-9999px;opacity:0;';
+  try { iframe.srcdoc = fullHtml; }
+  catch(e) {
+    const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+    iframe.src = URL.createObjectURL(blob);
+  }
+  iframe.onload = () => {
+    try { iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+    catch(e) { alert('No se pudo abrir el diálogo de impresión. Intenta desde Chrome o Edge.'); }
+    setTimeout(() => { if (iframe.parentNode) iframe.remove(); }, 4000);
+  };
+  document.body.appendChild(iframe);
 }
 
 // ── COPY AI RESULT (analysis / routine / mealplan) ───────────────────
