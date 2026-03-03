@@ -1630,14 +1630,20 @@ async function sbGet(table){
   } catch(e){ return null; }
 }
 
-async function sbUpsert(table, row){
+async function sbUpsert(table, row, pk){
+  // pk defaults to 'id', but settings table uses 'key'
+  var onConflict = pk || 'id';
   try{
-    await fetch(`${SB_URL}/rest/v1/${table}`, {
+    const resp = await fetch(`${SB_URL}/rest/v1/${table}`, {
       method:'POST',
-      headers:{ ...SB_HEADERS, 'Prefer':'resolution=merge-duplicates' },
+      headers:{ ...SB_HEADERS, 'Prefer':'resolution=merge-duplicates,return=minimal' },
       body: JSON.stringify(row)
     });
-  } catch(e){}
+    if(!resp.ok){
+      const err = await resp.text();
+      console.warn('sbUpsert error on', table, err);
+    }
+  } catch(e){ console.warn('sbUpsert exception', e); }
 }
 
 async function sbDelete(table, id){
@@ -2003,18 +2009,15 @@ function renderSection(sec){
 async function initApp(){
   buildExPickerFilter();
   buildExLibFilter();
-  loadAiCache();
   goTo('dashboard');
-  await load();
+  // Load data and AI cache in parallel
+  await Promise.all([ load(), loadAiCache() ]);
   renderDashboard();
   renderClients();
   renderRoutinesSection();
   renderWlogSection();
-  // Render AI history panels after load
-  setTimeout(()=>{
-    renderAiHistory('routine');
-    renderAiHistory('analysis');
-  }, 500);
+  renderAiHistory('routine');
+  renderAiHistory('analysis');
 }
 
 // =====================================================================
@@ -3199,8 +3202,26 @@ let AI = {
   savedResults: {} // Cache: { routine: [...], analysis: [...], mealplan: [...] }
 };
 
-// Load AI cache from localStorage on startup
-function loadAiCache(){
+// Load AI cache — Supabase first, localStorage fallback
+async function loadAiCache(){
+  try{
+    const rows = await sbGet('settings');
+    if(rows && Array.isArray(rows)){
+      const row = rows.find(r=>r.key==='ai_cache');
+      if(row && row.data){
+        const cache = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+        AI.savedResults = cache.savedResults || {};
+        AI.equipment    = cache.equipment    || [];
+        AI.equipExtra   = cache.equipExtra   || '';
+        AI.selectedType = cache.selectedType || 'PPL';
+        AI.selectedSpace= cache.selectedSpace|| 'Gimnasio completo';
+        // Also update localStorage
+        localStorage.setItem('jft_ai_cache', JSON.stringify(cache));
+        return;
+      }
+    }
+  } catch(e){}
+  // Fallback: localStorage
   try{
     const raw = localStorage.getItem('jft_ai_cache');
     if(raw){
@@ -3214,6 +3235,7 @@ function loadAiCache(){
   } catch(e){}
 }
 
+let _aiCacheTimer = null;
 function saveAiCache(){
   try{
     const cache = {
@@ -3224,6 +3246,11 @@ function saveAiCache(){
       selectedSpace:AI.selectedSpace,
     };
     localStorage.setItem('jft_ai_cache', JSON.stringify(cache));
+    // Sync to Supabase with debounce
+    clearTimeout(_aiCacheTimer);
+    _aiCacheTimer = setTimeout(()=>{
+      sbUpsert('settings', { key:'ai_cache', data: cache, updated_at: new Date().toISOString() }, 'key');
+    }, 1000);
   } catch(e){}
 }
 
@@ -3605,79 +3632,134 @@ function updateSaveRoutinePreview(){
     return;
   }
   previewEl.innerHTML = `<div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;">Se crearán ${days.length} rutinas:</div>` +
-    days.map(d=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
-      <span style="font-size:.8rem;">📋</span>
-      <span style="font-size:.8rem;font-weight:600;">${prefix ? prefix + ' · ' : ''}Día ${d.num} — ${d.title}</span>
-    </div>`).join('');
+    days.map(d=>{
+      const exs = parseExercisesFromDayContent(d.content);
+      return `<div style="padding:7px 0;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:.82rem;font-weight:700;">📋 ${prefix ? prefix + ' · ' : ''}Día ${d.num} — ${d.title}</span>
+          <span style="font-size:.7rem;color:${exs.length>0?'var(--accent2)':'var(--accent3)'};">
+            ${exs.length>0 ? exs.length+' ejercicios ✓' : '0 ejercicios ⚠️'}
+          </span>
+        </div>
+        ${exs.length>0 ? `<div style="font-size:.65rem;color:var(--text3);margin-top:3px;">${exs.map(e=>gEx(e.id).n).join(', ')}</div>` : ''}
+      </div>`;
+    }).join('');
+}
+
+// ── Clean exercise name for matching ────────────────────────────────
+function cleanExName(raw){
+  return raw
+    .toLowerCase()
+    .replace(/\*\*/g,'')                    // remove bold markers
+    .replace(/^\s*[-\u2022*\d\.]+\s*/,'')   // remove list prefixes
+    .replace(/\s*[\u2014\u2013\-]\s*\d.*$/,'')  // remove "— 4x10" suffix
+    .replace(/\s*[:(]\s*\d.*$/,'')          // remove ": 4x10" or "(4 series"
+    .replace(/\s*[xX\u00d7]\s*\d.*$/,'')   // remove "x10" suffix
+    .replace(/\d+\s*(series?|sets?|reps?|repeticiones?).*$/i,'') // remove series/reps text
+    .replace(/\s*[\(\[（【].*?[\)\]）】]/g,'') // remove parentheses
+    .trim();
 }
 
 // ── Match exercise name to EX_DB ────────────────────────────────────
-function matchExerciseFromText(line){
-  const clean = line.toLowerCase()
-    .replace(/^\s*[-•*\d\.]+\s*/,'')
-    .replace(/\s*[\(（].*?[\)）]/g,'')
-    .trim();
+function matchExerciseFromText(raw){
+  var clean = cleanExName(raw);
   if(!clean || clean.length < 3) return null;
 
-  // Try exact or partial match in EX_DB
-  let best = null, bestScore = 0;
-  for(const ex of EX_DB){
-    const name = ex.n.toLowerCase();
+  var best = null, bestScore = 0;
+  for(var ei=0; ei<EX_DB.length; ei++){
+    var ex = EX_DB[ei];
+    var name = ex.n.toLowerCase();
+
     // Exact match
-    if(name === clean){ return ex; }
-    // Contains match
+    if(name === clean) return ex;
+
+    // Clean name contains db name or vice versa
     if(name.includes(clean) || clean.includes(name)){
-      const score = Math.min(name.length, clean.length) / Math.max(name.length, clean.length);
+      var score = Math.min(name.length, clean.length) / Math.max(name.length, clean.length);
       if(score > bestScore){ bestScore = score; best = ex; }
     }
-    // Word overlap
-    const nameWords = name.split(/\s+/);
-    const cleanWords = clean.split(/\s+/);
-    const common = nameWords.filter(w => w.length > 3 && cleanWords.some(cw => cw.includes(w) || w.includes(cw)));
-    if(common.length >= 2){
-      const score = common.length / Math.max(nameWords.length, cleanWords.length) * 0.8;
-      if(score > bestScore){ bestScore = score; best = ex; }
+
+    // Word overlap — require 2+ significant words in common
+    var nameWords = name.split(/\s+/).filter(function(w){ return w.length > 2; });
+    var cleanWords = clean.split(/\s+/).filter(function(w){ return w.length > 2; });
+    var common = 0;
+    for(var ni=0; ni<nameWords.length; ni++){
+      for(var ci=0; ci<cleanWords.length; ci++){
+        if(nameWords[ni].includes(cleanWords[ci]) || cleanWords[ci].includes(nameWords[ni])){ common++; break; }
+      }
+    }
+    if(common >= 2){
+      var score2 = common / Math.max(nameWords.length, cleanWords.length) * 0.85;
+      if(score2 > bestScore){ bestScore = score2; best = ex; }
     }
   }
-  return bestScore > 0.35 ? best : null;
+  return bestScore > 0.3 ? best : null;
 }
 
-// ── Parse sets/reps from text like "4x10", "3 series x 12 reps", "4 × 8-10" ──
+// ── Parse sets/reps ──────────────────────────────────────────────────
 function parseSetsReps(text){
-  const m = text.match(/(\d+)\s*[xX×\*]\s*(\d+(?:-\d+)?)/);
+  // "4x10", "4×10", "4 x 10-12"
+  var m = text.match(/(\d+)\s*[xX\u00d7\*]\s*(\d+(?:[–\-]\d+)?)/);
   if(m) return { sets: parseInt(m[1]), reps: m[2] };
-  const s = text.match(/(\d+)\s*serie/i);
-  const r = text.match(/(\d+(?:-\d+)?)\s*rep/i);
+  // "4 series de 10"
+  var s = text.match(/(\d+)\s*serie/i);
+  var r = text.match(/(\d+(?:[–\-]\d+)?)\s*rep/i);
   if(s) return { sets: parseInt(s[1]), reps: r ? r[1] : '10' };
   return { sets: 4, reps: '10' };
 }
 
-// ── Parse rest seconds from text ─────────────────────────────────────
+// ── Parse rest ───────────────────────────────────────────────────────
 function parseRest(text){
-  const m = text.match(/(\d+)\s*(?:s(?:eg)?|segundo|min(?:uto)?)/i);
+  var m = text.match(/(\d+)\s*(?:seg(?:undo)?s?|min(?:uto)?s?)/i);
   if(!m) return '90';
-  const val = parseInt(m[1]);
-  // if in minutes, convert
+  var val = parseInt(m[1]);
   if(/min/i.test(m[0]) && val < 10) return String(val * 60);
   return String(val);
 }
 
-// ── Parse exercises from day content ─────────────────────────────────
+// ── Extract exercise name from a line ───────────────────────────────
+function extractExNameFromLine(line){
+  // Remove list bullets and numbers
+  var s = line.replace(/^\s*[-\u2022*\d\.]+\s*/,'').replace(/\*\*/g,'').trim();
+  // Take only text before sets/reps indicators
+  var m = s.match(/^([^:\-\u2014\u2013\(]+?)(?:\s*[-:\u2014\u2013(]|\s+\d+\s*[xX\u00d7]|\s+\d+\s*serie)/i);
+  if(m) return m[1].trim();
+  // Fallback: take first 5 words
+  return s.split(/\s+/).slice(0,5).join(' ');
+}
+
+// ── Parse exercises from day content ────────────────────────────────
 function parseExercisesFromDayContent(text){
   var lines = text.split('\n');
   var exercises = [];
-  var exLinePattern = /^[\s\-\u2022\*\d\.]+(.{4,})/;
+
   for(var i=0; i<lines.length; i++){
     var line = lines[i];
     var trimmed = line.trim();
-    if(!trimmed) continue;
-    if(/^#{1,3}\s/.test(trimmed) || /^\*\*[^*]+\*\*\s*$/.test(trimmed)) continue;
-    var m = exLinePattern.exec(trimmed);
-    if(!m) continue;
-    var exText = m[1];
-    var ex = matchExerciseFromText(exText);
+    if(!trimmed || trimmed.length < 4) continue;
+
+    // Skip section headers and pure-bold lines
+    if(/^#{1,4}\s/.test(trimmed)) continue;
+    if(/^\*\*[^*]+\*\*\s*$/.test(trimmed) && !/[xX\u00d7\d]/.test(trimmed)) continue;
+    // Skip lines that are clearly notes/tips (no exercise pattern)
+    if(/^(nota|tip|consejo|descanso general|calentamiento|enfriamiento):/i.test(trimmed)) continue;
+
+    // Must have some indicator of being an exercise line:
+    // - starts with bullet/number, OR
+    // - contains sets×reps pattern, OR
+    // - contains bold exercise name **...**
+    var hasListPrefix = /^[-\u2022*\d\.]/.test(trimmed);
+    var hasSetsReps   = /\d+\s*[xX\u00d7]\s*\d/.test(trimmed);
+    var hasBoldName   = /\*\*.+\*\*/.test(trimmed);
+    var hasSeriesWord = /serie|repeticion|descanso/i.test(trimmed);
+
+    if(!hasListPrefix && !hasSetsReps && !hasBoldName && !hasSeriesWord) continue;
+
+    var exName = extractExNameFromLine(trimmed);
+    var ex = matchExerciseFromText(exName);
     if(!ex) continue;
-    var sr = parseSetsReps(trimmed);
+
+    var sr   = parseSetsReps(trimmed);
     var rest = parseRest(trimmed);
     var sets = [];
     for(var j=0; j<sr.sets; j++){
