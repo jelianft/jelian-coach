@@ -2941,7 +2941,7 @@ Equipamiento configurado: ${AI.equipment.length > 0 ? AI.equipment.join(', ') : 
 async function callClaude(prompt) {
   const key = getApiKey();
   const headers = { 'Content-Type': 'application/json' };
-  if(!key){ openApiKeyModal(); throw new Error('Configura tu API Key primero. Haz clic en Configurar API Key.'); }
+  if(!key){ openApiKeyModal(); throw new Error('Configura tu API Key para usar la IA. Haz clic en Configurar API Key.'); }
   headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true';
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -2963,7 +2963,8 @@ async function callClaude(prompt) {
 async function callClaudeWithImage(prompt, base64, mime) {
   const key = getApiKey();
   const headers = { 'Content-Type': 'application/json' };
-  if(key){ headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true'; }
+  if(!key){ openApiKeyModal(); throw new Error('Configura tu API Key para usar la IA. Haz clic en Configurar API Key.'); }
+  headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true';
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers,
@@ -2990,7 +2991,8 @@ async function callClaudeWithImage(prompt, base64, mime) {
 async function callClaudeChat(messages, system) {
   const key = getApiKey();
   const headers = { 'Content-Type': 'application/json' };
-  if(key){ headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true'; }
+  if(!key){ openApiKeyModal(); throw new Error('Configura tu API Key para usar la IA. Haz clic en Configurar API Key.'); }
+  headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true';
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers,
