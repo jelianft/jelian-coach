@@ -669,6 +669,8 @@ input,select,button,textarea{font-family:var(--font-b);}
               <button class="btn btn-orange btn-sm" onclick="exportAiContentPDF('analysis')">📄 Exportar PDF</button>
             </div>
           </div>
+          <!-- Historial análisis -->
+          <div id="ai-history-analysis" class="mt-8"></div>
         </div>
 
         <!-- TAB: GENERAR RUTINA -->
@@ -808,6 +810,8 @@ input,select,button,textarea{font-family:var(--font-b);}
               <button class="btn btn-accent btn-sm" onclick="openSaveRoutineToClient()">💾 Guardar en asesorado</button>
             </div>
           </div>
+          <!-- Historial rutinas -->
+          <div id="ai-history-routine" class="mt-8"></div>
 
           <!-- MODAL: Guardar rutina IA en asesorado -->
           <div id="save-routine-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:center;justify-content:center;">
@@ -1999,12 +2003,18 @@ function renderSection(sec){
 async function initApp(){
   buildExPickerFilter();
   buildExLibFilter();
+  loadAiCache();
   goTo('dashboard');
   await load();
   renderDashboard();
   renderClients();
   renderRoutinesSection();
   renderWlogSection();
+  // Render AI history panels after load
+  setTimeout(()=>{
+    renderAiHistory('routine');
+    renderAiHistory('analysis');
+  }, 500);
 }
 
 // =====================================================================
@@ -2243,7 +2253,8 @@ function openClientDetail(id){
       <div class="flex-gap mt-12">
         <button class="btn btn-ghost btn-sm" onclick="openEditClient('${id}')">✏️ Editar</button>
         <button class="btn btn-accent btn-sm" onclick="openCreateRoutine('${id}')">+ Rutina</button>
-        <button class="btn btn-orange btn-sm" onclick="openPDFForClient('${id}')">📄 PDF</button>
+        <button class="btn btn-green btn-sm" onclick="generateClientReport('${id}')">📊 Reporte PDF</button>
+        <button class="btn btn-orange btn-sm" onclick="openPDFForClient('${id}')">📄 Rutinas PDF</button>
       </div>
     </div>
 
@@ -2801,6 +2812,280 @@ function downloadPDF(){
 }
 
 // =====================================================================
+// FULL CLIENT REPORT PDF
+// =====================================================================
+function generateClientReport(clientId){
+  const c = ST.clients.find(x=>x.id===clientId);
+  if(!c){ showToast('Cliente no encontrado'); return; }
+
+  const macros   = calcMacros(c);
+  const routines = ST.routines.filter(r=>r.clientId===clientId);
+  const progress = (ST.progress||[]).filter(p=>p.clientId===clientId).sort((a,b)=>a.date.localeCompare(b.date));
+  const wlogs    = (ST.workoutLogs||[]).filter(l=>l.clientId===clientId).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+  const today    = new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+
+  const goalLabels = {cut:'Definición / Pérdida de grasa',maintain:'Mantenimiento',bulk:'Volumen Magro',agbulk:'Volumen Agresivo'};
+  const actLabels  = {'1.2':'Sedentario','1.375':'Ligero (1-2d/sem)','1.55':'Moderado (3-5d/sem)','1.725':'Activo (6-7d/sem)','1.9':'Muy activo'};
+
+  // ── COVER ──────────────────────────────────────────────────────────
+  const coverHtml = `
+  <div class="rpt-cover">
+    <div class="rpt-brand">JELIAN<em>FT</em></div>
+    <div class="rpt-brand-sub">Personal Training · Coach Panel</div>
+    <div class="rpt-cover-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
+    <div class="rpt-cover-name">${c.name}</div>
+    <div class="rpt-cover-meta">${[c.age?c.age+' años':null, c.sex==='M'?'Masculino':c.sex==='F'?'Femenina':null, c.weight?c.weight+' kg':null, c.height?c.height+' cm':null].filter(Boolean).join(' · ')}</div>
+    ${c.notes?`<div class="rpt-cover-note">"${c.notes}"</div>`:''}
+    <div class="rpt-cover-date">Reporte generado el ${today}</div>
+    <div class="rpt-cover-tags">
+      ${c.goal?`<span class="rpt-tag">${goalLabels[c.goal]||c.goal}</span>`:''}
+      ${c.activity?`<span class="rpt-tag">${actLabels[c.activity]||c.activity}</span>`:''}
+      ${routines.length?`<span class="rpt-tag">${routines.length} rutina${routines.length!==1?'s':''}</span>`:''}
+    </div>
+  </div>`;
+
+  // ── BODY DATA ───────────────────────────────────────────────────────
+  const dataHtml = `
+  <div class="rpt-section">
+    <div class="rpt-section-title">📋 Datos del cliente</div>
+    <div class="rpt-data-grid">
+      ${[
+        ['Nombre', c.name],
+        ['Edad', c.age?c.age+' años':'—'],
+        ['Sexo', c.sex==='M'?'Masculino':c.sex==='F'?'Femenina':'—'],
+        ['Peso', c.weight?c.weight+' kg':'—'],
+        ['Altura', c.height?c.height+' cm':'—'],
+        ['% Grasa corporal', c.bf?c.bf+'%':'—'],
+        ['Nivel de actividad', actLabels[c.activity]||c.activity||'—'],
+        ['Objetivo', goalLabels[c.goal]||c.goal||'—'],
+        ['Multiplicador proteína', c.proteinMultiplier?c.proteinMultiplier+'g/kg':'2g/kg'],
+        ['Notas', c.notes||'—'],
+      ].map(([k,v])=>`<div class="rpt-data-row"><span class="rpt-data-key">${k}</span><span class="rpt-data-val">${v}</span></div>`).join('')}
+    </div>
+  </div>`;
+
+  // ── MACROS ──────────────────────────────────────────────────────────
+  let macrosHtml = '';
+  if(macros){
+    const meals = [{n:'Desayuno',p:.25},{n:'Almuerzo',p:.35},{n:'Merienda',p:.15},{n:'Cena',p:.25}];
+    macrosHtml = `
+  <div class="rpt-section">
+    <div class="rpt-section-title">🥗 Plan nutricional — ${goalLabels[c.goal]||''}</div>
+    <div class="rpt-macro-grid">
+      <div class="rpt-macro-box"><div class="rpt-macro-val" style="color:#e8ff3c">${macros.kcal}</div><div class="rpt-macro-lbl">Calorías</div><div class="rpt-macro-sub">kcal/día</div></div>
+      <div class="rpt-macro-box"><div class="rpt-macro-val" style="color:#3cffc8">${macros.prot}g</div><div class="rpt-macro-lbl">Proteína</div><div class="rpt-macro-sub">${c.proteinMultiplier||2}g/kg</div></div>
+      <div class="rpt-macro-box"><div class="rpt-macro-val" style="color:#ffaa44">${macros.carbs}g</div><div class="rpt-macro-lbl">Carbohidratos</div><div class="rpt-macro-sub">${Math.round(macros.carbs*4*100/macros.kcal)}% kcal</div></div>
+      <div class="rpt-macro-box"><div class="rpt-macro-val" style="color:#ff6b9d">${macros.fat}g</div><div class="rpt-macro-lbl">Grasas</div><div class="rpt-macro-sub">${Math.round(macros.fat*9*100/macros.kcal)}% kcal</div></div>
+    </div>
+    <div class="rpt-mini-row"><span>🔥 TDEE</span><strong>${macros.tdee} kcal</strong></div>
+    <div class="rpt-mini-row"><span>📊 TMB (Mifflin-St Jeor)</span><strong>${macros.bmr} kcal</strong></div>
+    <div class="rpt-mini-row"><span>⚖️ Ajuste calórico</span><strong style="color:${macros.adj>0?'#3cffc8':macros.adj<0?'#ff6b9d':'#aaa'}">${macros.adj>=0?'+':''}${macros.adj} kcal</strong></div>
+    <div class="rpt-sub-title" style="margin-top:14px;">Distribución por comidas</div>
+    <table class="rpt-tbl">
+      <thead><tr><th>Comida</th><th>Calorías</th><th>Proteína</th><th>Carbos</th><th>Grasas</th></tr></thead>
+      <tbody>
+        ${meals.map(m=>`<tr>
+          <td><strong>${m.n}</strong></td>
+          <td>${Math.round(macros.kcal*m.p)} kcal</td>
+          <td style="color:#3cffc8;font-weight:700">${Math.round(macros.prot*m.p)}g</td>
+          <td style="color:#ffaa44;font-weight:700">${Math.round(macros.carbs*m.p)}g</td>
+          <td style="color:#ff6b9d;font-weight:700">${Math.round(macros.fat*m.p)}g</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+  }
+
+  // ── ROUTINES ────────────────────────────────────────────────────────
+  let routinesHtml = '';
+  if(routines.length){
+    routinesHtml = `<div class="rpt-section"><div class="rpt-section-title">💪 Rutinas de entrenamiento (${routines.length})</div>` +
+    routines.map(r=>{
+      const exRows = r.exercises.map(rte=>{
+        const ex = gEx(rte.id);
+        const sets = rte.sets.length;
+        const repsSet = [...new Set(rte.sets.map(s=>s.reps||'—'))].join('/');
+        const wSet    = [...new Set(rte.sets.map(s=>s.weight?s.weight+'kg':'—'))].join('/');
+        const restSet = [...new Set(rte.sets.map(s=>s.rest||'90'))].join('/');
+        return `<tr>
+          <td><div class="rpt-ex-name">${ex.e} ${ex.n}</div><div class="rpt-ex-cat">${ex.cat} · ${ex.m}</div></td>
+          <td style="text-align:center"><span class="rpt-badge">${sets}</span></td>
+          <td style="text-align:center;font-weight:700">${repsSet}</td>
+          <td style="text-align:center;color:#3cffc8;font-weight:700">${wSet}</td>
+          <td style="text-align:center;color:#aaa">${restSet}s</td>
+          <td style="font-size:.7em;color:#777">${rte.notes||'—'}</td>
+        </tr>`;
+      }).join('');
+      return `<div class="rpt-routine-block">
+        <div class="rpt-routine-header">${r.icon||'📋'} ${r.name}${r.day?' <span class="rpt-day-tag">'+r.day+'</span>':''}</div>
+        ${r.notes?`<div class="rpt-routine-note">"${r.notes}"</div>`:''}
+        ${r.exercises.length?`<table class="rpt-tbl">
+          <thead><tr><th>Ejercicio</th><th>Series</th><th>Reps</th><th>Peso</th><th>Desc.</th><th>Notas</th></tr></thead>
+          <tbody>${exRows}</tbody>
+        </table>`:'<div style="color:#aaa;font-size:.8em;padding:6px 0;">Sin ejercicios definidos</div>'}
+      </div>`;
+    }).join('') + '</div>';
+  }
+
+  // ── PROGRESS ────────────────────────────────────────────────────────
+  let progressHtml = '';
+  if(progress.length){
+    const latest = progress[progress.length-1];
+    const first  = progress[0];
+    const weightDiff = (latest.weight && first.weight) ? (latest.weight - first.weight).toFixed(1) : null;
+    progressHtml = `
+  <div class="rpt-section">
+    <div class="rpt-section-title">📈 Historial de progreso (${progress.length} registros)</div>
+    ${weightDiff!==null?`<div class="rpt-progress-summary">
+      <div class="rpt-prog-stat"><div class="rpt-prog-val">${first.weight}kg</div><div class="rpt-prog-lbl">Peso inicial</div></div>
+      <div class="rpt-prog-stat"><div class="rpt-prog-val">${latest.weight}kg</div><div class="rpt-prog-lbl">Peso actual</div></div>
+      <div class="rpt-prog-stat"><div class="rpt-prog-val" style="color:${parseFloat(weightDiff)<0?'#3cffc8':'#ffaa44'}">${weightDiff>0?'+':''}${weightDiff}kg</div><div class="rpt-prog-lbl">Cambio total</div></div>
+    </div>`:''}
+    <table class="rpt-tbl">
+      <thead><tr><th>Fecha</th><th>Peso</th><th>% Grasa</th><th>Cintura</th><th>Pecho</th><th>Bíceps</th><th>Notas</th></tr></thead>
+      <tbody>
+        ${progress.slice().reverse().slice(0,12).map(p=>`<tr>
+          <td><strong>${p.date}</strong></td>
+          <td>${p.weight?p.weight+' kg':'—'}</td>
+          <td>${p.bf?p.bf+'%':'—'}</td>
+          <td>${p.waist?p.waist+' cm':'—'}</td>
+          <td>${p.chest?p.chest+' cm':'—'}</td>
+          <td>${p.bicep?p.bicep+' cm':'—'}</td>
+          <td style="font-size:.75em;color:#777">${p.notes||'—'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+  }
+
+  // ── WORKOUT LOG ─────────────────────────────────────────────────────
+  let wlogHtml = '';
+  if(wlogs.length){
+    wlogHtml = `
+  <div class="rpt-section">
+    <div class="rpt-section-title">🏋️ Últimas sesiones (${wlogs.length})</div>
+    <table class="rpt-tbl">
+      <thead><tr><th>Fecha</th><th>Rutina</th><th>Duración</th><th>Nota</th></tr></thead>
+      <tbody>
+        ${wlogs.map(l=>{
+          const r = l.routineId ? ST.routines.find(x=>x.id===l.routineId) : null;
+          return `<tr>
+            <td><strong>${l.date}</strong></td>
+            <td>${r?r.icon+' '+r.name:'Sesión libre'}</td>
+            <td>${l.duration?l.duration+' min':'—'}</td>
+            <td style="font-size:.78em;color:#777">${l.note||'—'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+  </div>`;
+  }
+
+  // ── STYLES ──────────────────────────────────────────────────────────
+  const styles = `
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Arial',Helvetica,sans-serif;background:#fff;color:#111;font-size:13px;line-height:1.5;}
+  @page{size:A4;margin:10mm;}
+
+  /* Cover */
+  .rpt-cover{background:#0a0a0b;color:#fff;padding:48px 40px;text-align:center;border-radius:0;min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:0;page-break-after:always;}
+  .rpt-brand{font-size:3rem;font-weight:900;letter-spacing:-2px;line-height:1;}
+  .rpt-brand em{color:#e8ff3c;font-style:normal;}
+  .rpt-brand-sub{font-size:.55rem;letter-spacing:4px;text-transform:uppercase;color:#555;margin-top:4px;margin-bottom:32px;}
+  .rpt-cover-avatar{width:72px;height:72px;background:rgba(232,255,60,.15);border:3px solid #e8ff3c;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;color:#e8ff3c;margin-bottom:16px;}
+  .rpt-cover-name{font-size:2rem;font-weight:900;letter-spacing:-1px;}
+  .rpt-cover-meta{color:#888;font-size:.8rem;margin-top:6px;}
+  .rpt-cover-note{color:#aaa;font-style:italic;font-size:.8rem;margin-top:10px;max-width:400px;}
+  .rpt-cover-date{color:#555;font-size:.65rem;margin-top:20px;letter-spacing:1px;}
+  .rpt-cover-tags{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center;}
+  .rpt-tag{background:rgba(232,255,60,.1);border:1px solid rgba(232,255,60,.3);color:#e8ff3c;font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;}
+
+  /* Sections */
+  .rpt-section{margin:20px 0;page-break-inside:avoid;}
+  .rpt-section-title{font-size:.88rem;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#0a0a0b;background:linear-gradient(90deg,rgba(232,255,60,.15),transparent);border-left:4px solid #e8ff3c;padding:8px 14px;border-radius:0 6px 6px 0;margin-bottom:12px;}
+
+  /* Data grid */
+  .rpt-data-grid{border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;}
+  .rpt-data-row{display:flex;border-bottom:1px solid #f0f0f0;font-size:.82rem;}
+  .rpt-data-row:last-child{border-bottom:none;}
+  .rpt-data-key{background:#f8f8f8;padding:7px 12px;font-weight:700;color:#555;min-width:180px;text-transform:uppercase;font-size:.7rem;letter-spacing:.5px;}
+  .rpt-data-val{padding:7px 12px;color:#111;}
+
+  /* Macros */
+  .rpt-macro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+  .rpt-macro-box{background:#0a0a0b;border-radius:8px;padding:12px;text-align:center;}
+  .rpt-macro-val{font-size:1.6rem;font-weight:900;line-height:1.1;}
+  .rpt-macro-lbl{font-size:.58rem;letter-spacing:1px;text-transform:uppercase;color:#666;margin-top:3px;}
+  .rpt-macro-sub{font-size:.58rem;color:#444;margin-top:2px;}
+  .rpt-mini-row{display:flex;justify-content:space-between;padding:5px 10px;background:#f9f9f9;border-radius:4px;margin-bottom:3px;font-size:.8rem;}
+  .rpt-sub-title{font-size:.72rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#555;margin-bottom:6px;}
+
+  /* Tables */
+  .rpt-tbl{width:100%;border-collapse:collapse;font-size:.78rem;border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;}
+  .rpt-tbl thead tr{background:#0a0a0b;}
+  .rpt-tbl th{padding:7px 10px;text-align:left;font-size:.62rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#fff;}
+  .rpt-tbl td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+  .rpt-tbl tbody tr:nth-child(even) td{background:#fafafa;}
+  .rpt-tbl tbody tr:last-child td{border-bottom:none;}
+
+  /* Routines */
+  .rpt-routine-block{border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;margin-bottom:14px;page-break-inside:avoid;}
+  .rpt-routine-header{background:#0a0a0b;color:#e8ff3c;padding:9px 14px;font-size:.9rem;font-weight:900;letter-spacing:.5px;text-transform:uppercase;}
+  .rpt-day-tag{background:rgba(232,255,60,.25);color:#e8ff3c;font-size:.62rem;padding:2px 8px;border-radius:4px;margin-left:8px;vertical-align:middle;letter-spacing:.5px;}
+  .rpt-routine-note{font-size:.75rem;color:#666;font-style:italic;padding:6px 14px;background:#fffbea;border-left:3px solid #e8ff3c;}
+  .rpt-ex-name{font-weight:700;color:#111;}
+  .rpt-ex-cat{font-size:.6rem;color:#999;text-transform:uppercase;letter-spacing:.5px;}
+  .rpt-badge{display:inline-block;background:#e8ff3c;color:#000;font-size:.62rem;font-weight:900;padding:2px 7px;border-radius:4px;}
+
+  /* Progress */
+  .rpt-progress-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+  .rpt-prog-stat{background:#0a0a0b;border-radius:8px;padding:12px;text-align:center;}
+  .rpt-prog-val{font-size:1.4rem;font-weight:900;color:#e8ff3c;}
+  .rpt-prog-lbl{font-size:.58rem;color:#666;letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+
+  /* Footer */
+  .rpt-footer{margin-top:24px;padding-top:10px;border-top:3px solid #e8ff3c;display:flex;justify-content:space-between;align-items:center;}
+  .rpt-footer-brand{font-size:.9rem;font-weight:900;color:#0a0a0b;letter-spacing:-1px;}
+  .rpt-footer-brand em{color:#e8a000;font-style:normal;}
+  .rpt-footer-info{font-size:.6rem;color:#aaa;text-align:right;}`;
+
+  const bodyHtml = `
+  ${coverHtml}
+  <div style="padding:0 2mm;">
+    ${dataHtml}
+    ${macrosHtml}
+    ${routinesHtml}
+    ${progressHtml}
+    ${wlogHtml}
+    <div class="rpt-footer">
+      <div class="rpt-footer-brand">JELIAN<em>FT</em> Coach Panel</div>
+      <div class="rpt-footer-info">Reporte generado el ${today}<br>${c.name} · Uso personal del coach</div>
+    </div>
+  </div>`;
+
+  const fname = (c.name||'Cliente').replace(/\s+/g,'_') + '_Reporte_JELIANFT_' + new Date().toISOString().slice(0,10);
+  const fullHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${fname}</title><style>${styles}</style></head><body>${bodyHtml}</body></html>`;
+
+  const oldFrame = document.getElementById('_rpt_frame');
+  if(oldFrame) oldFrame.remove();
+  const iframe = document.createElement('iframe');
+  iframe.id = '_rpt_frame';
+  iframe.style.cssText = 'position:fixed;width:1px;height:1px;border:none;left:-9999px;top:-9999px;opacity:0;';
+  try{ iframe.srcdoc = fullHtml; }
+  catch(e){
+    const blob = new Blob([fullHtml],{type:'text/html;charset=utf-8'});
+    iframe.src = URL.createObjectURL(blob);
+  }
+  iframe.onload = ()=>{
+    try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }
+    catch(e){ alert('No se pudo imprimir. Usa Chrome o Edge.'); }
+    setTimeout(()=>{ if(iframe.parentNode) iframe.remove(); }, 5000);
+  };
+  document.body.appendChild(iframe);
+  showToast('📊 Generando reporte de ' + c.name + '...');
+}
+
+// =====================================================================
 // EXPORT / IMPORT DATA
 // =====================================================================
 function openDataManager(){
@@ -2907,10 +3192,50 @@ let AI = {
   equipExtra: '',
   analysisResult: '',
   routineResult: '',
+  mealPlanResult: '',
   chatHistory: [],
-  photos: [],   // Array of {base64, mime, label}
-  weakMuscles: []
+  photos: [],
+  weakMuscles: [],
+  savedResults: {} // Cache: { routine: [...], analysis: [...], mealplan: [...] }
 };
+
+// Load AI cache from localStorage on startup
+function loadAiCache(){
+  try{
+    const raw = localStorage.getItem('jft_ai_cache');
+    if(raw){
+      const cache = JSON.parse(raw);
+      AI.savedResults = cache.savedResults || {};
+      AI.equipment    = cache.equipment    || [];
+      AI.equipExtra   = cache.equipExtra   || '';
+      AI.selectedType = cache.selectedType || 'PPL';
+      AI.selectedSpace= cache.selectedSpace|| 'Gimnasio completo';
+    }
+  } catch(e){}
+}
+
+function saveAiCache(){
+  try{
+    const cache = {
+      savedResults: AI.savedResults,
+      equipment:    AI.equipment,
+      equipExtra:   AI.equipExtra,
+      selectedType: AI.selectedType,
+      selectedSpace:AI.selectedSpace,
+    };
+    localStorage.setItem('jft_ai_cache', JSON.stringify(cache));
+  } catch(e){}
+}
+
+// Save a result to cache
+function cacheAiResult(type, params, result){
+  if(!AI.savedResults[type]) AI.savedResults[type] = [];
+  AI.savedResults[type].unshift({ id: uid(), date: new Date().toISOString(), params, result });
+  // Keep max 10 per type
+  if(AI.savedResults[type].length > 10) AI.savedResults[type] = AI.savedResults[type].slice(0,10);
+  saveAiCache();
+  renderAiHistory(type);
+}
 
 // Navigation tab switch
 function switchAiTab(name) {
@@ -3048,6 +3373,79 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// ─── AI HISTORY RENDER ──────────────────────────────────────────────
+function renderAiHistory(type){
+  const el = document.getElementById('ai-history-' + type);
+  if(!el) return;
+  const items = (AI.savedResults[type] || []);
+  if(!items.length){ el.innerHTML=''; return; }
+
+  const typeLabel = {routine:'Rutina', analysis:'Análisis', mealplan:'Plan de comidas'}[type] || type;
+  el.innerHTML = `<div class="card">
+    <div class="card-title flex-between">
+      <span>🗂️ Historial guardado (${items.length})</span>
+      <button class="btn btn-danger btn-xs" onclick="clearAiHistory('${type}')">🗑 Limpiar</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${items.map((item,i)=>{
+        const date = new Date(item.date).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        const paramStr = type==='routine'
+          ? `${item.params.days||'?'} días · ${item.params.goal||''} · ${item.params.level||''}`
+          : type==='analysis'
+          ? `${item.params.photos||1} foto(s)`
+          : '';
+        return `<div style="background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <div>
+              <div style="font-size:.78rem;font-weight:700;">${typeLabel} — ${date}</div>
+              ${paramStr?`<div style="font-size:.65rem;color:var(--text3);">${paramStr}</div>`:''}
+            </div>
+            <div style="display:flex;gap:5px;">
+              <button class="btn btn-ghost btn-xs" onclick="loadAiHistoryItem('${type}',${i})">📂 Cargar</button>
+              <button class="btn btn-danger btn-xs" onclick="deleteAiHistoryItem('${type}',${i})">✕</button>
+            </div>
+          </div>
+          <div style="font-size:.72rem;color:var(--text2);max-height:60px;overflow:hidden;line-height:1.5;">${item.result.substring(0,200).replace(/[<>]/g,'')}...</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+function loadAiHistoryItem(type, idx){
+  const item = (AI.savedResults[type]||[])[idx];
+  if(!item) return;
+  if(type==='routine'){
+    AI.routineResult = item.result;
+    const box = document.getElementById('ai-routine-result');
+    const txt = document.getElementById('ai-routine-text');
+    if(box) box.style.display='block';
+    if(txt) txt.innerHTML = markdownToHtml(item.result);
+    showToast('📂 Rutina cargada del historial');
+  } else if(type==='analysis'){
+    AI.analysisResult = item.result;
+    const box = document.getElementById('ai-analysis-result');
+    const txt = document.getElementById('ai-analysis-text');
+    if(box) box.style.display='block';
+    if(txt) txt.innerHTML = markdownToHtml(item.result);
+    showToast('📂 Análisis cargado del historial');
+  }
+}
+
+function deleteAiHistoryItem(type, idx){
+  if(!AI.savedResults[type]) return;
+  AI.savedResults[type].splice(idx,1);
+  saveAiCache();
+  renderAiHistory(type);
+}
+
+function clearAiHistory(type){
+  if(!confirm('¿Limpiar todo el historial de '+type+'?')) return;
+  AI.savedResults[type] = [];
+  saveAiCache();
+  renderAiHistory(type);
+}
+
 // ─── BODY ANALYSIS ─────────────────────────────────────────────────
 async function runBodyAnalysis() {
   if (!AI.photos.length) return;
@@ -3078,6 +3476,8 @@ Sé específico, técnico y constructivo. Usa formato markdown con emojis para m
     const resp = await callClaudeWithImages(prompt, AI.photos);
     AI.analysisResult = resp;
     textEl.innerHTML = markdownToHtml(resp);
+    cacheAiResult('analysis', {photos: AI.photos.length, context}, resp);
+    renderAiHistory('analysis');
   } catch (e) {
     textEl.innerHTML = '<span style="color:var(--accent3)">❌ Error al analizar: ' + e.message + '</span>';
   }
@@ -3148,6 +3548,8 @@ IMPORTANTE: Incluye TODOS los ${days} días completos. Usa SOLO el equipamiento 
     const resp = await callClaude(prompt);
     AI.routineResult = resp;
     textEl.innerHTML = markdownToHtml(resp);
+    cacheAiResult('routine', {days, goal, level, duration, type: AI.selectedType}, resp);
+    renderAiHistory('routine');
   } catch (e) {
     textEl.innerHTML = '<span style="color:var(--accent3)">❌ Error: ' + e.message + '</span>';
   }
@@ -3209,6 +3611,85 @@ function updateSaveRoutinePreview(){
     </div>`).join('');
 }
 
+// ── Match exercise name to EX_DB ────────────────────────────────────
+function matchExerciseFromText(line){
+  const clean = line.toLowerCase()
+    .replace(/^\s*[-•*\d\.]+\s*/,'')
+    .replace(/\s*[\(（].*?[\)）]/g,'')
+    .trim();
+  if(!clean || clean.length < 3) return null;
+
+  // Try exact or partial match in EX_DB
+  let best = null, bestScore = 0;
+  for(const ex of EX_DB){
+    const name = ex.n.toLowerCase();
+    // Exact match
+    if(name === clean){ return ex; }
+    // Contains match
+    if(name.includes(clean) || clean.includes(name)){
+      const score = Math.min(name.length, clean.length) / Math.max(name.length, clean.length);
+      if(score > bestScore){ bestScore = score; best = ex; }
+    }
+    // Word overlap
+    const nameWords = name.split(/\s+/);
+    const cleanWords = clean.split(/\s+/);
+    const common = nameWords.filter(w => w.length > 3 && cleanWords.some(cw => cw.includes(w) || w.includes(cw)));
+    if(common.length >= 2){
+      const score = common.length / Math.max(nameWords.length, cleanWords.length) * 0.8;
+      if(score > bestScore){ bestScore = score; best = ex; }
+    }
+  }
+  return bestScore > 0.35 ? best : null;
+}
+
+// ── Parse sets/reps from text like "4x10", "3 series x 12 reps", "4 × 8-10" ──
+function parseSetsReps(text){
+  const m = text.match(/(\d+)\s*[xX×\*]\s*(\d+(?:-\d+)?)/);
+  if(m) return { sets: parseInt(m[1]), reps: m[2] };
+  const s = text.match(/(\d+)\s*serie/i);
+  const r = text.match(/(\d+(?:-\d+)?)\s*rep/i);
+  if(s) return { sets: parseInt(s[1]), reps: r ? r[1] : '10' };
+  return { sets: 4, reps: '10' };
+}
+
+// ── Parse rest seconds from text ─────────────────────────────────────
+function parseRest(text){
+  const m = text.match(/(\d+)\s*(?:s(?:eg)?|segundo|min(?:uto)?)/i);
+  if(!m) return '90';
+  const val = parseInt(m[1]);
+  // if in minutes, convert
+  if(/min/i.test(m[0]) && val < 10) return String(val * 60);
+  return String(val);
+}
+
+// ── Parse exercises from day content ─────────────────────────────────
+function parseExercisesFromDayContent(text){
+  var lines = text.split('\n');
+  var exercises = [];
+  var exLinePattern = /^[\s\-\u2022\*\d\.]+(.{4,})/;
+  for(var i=0; i<lines.length; i++){
+    var line = lines[i];
+    var trimmed = line.trim();
+    if(!trimmed) continue;
+    if(/^#{1,3}\s/.test(trimmed) || /^\*\*[^*]+\*\*\s*$/.test(trimmed)) continue;
+    var m = exLinePattern.exec(trimmed);
+    if(!m) continue;
+    var exText = m[1];
+    var ex = matchExerciseFromText(exText);
+    if(!ex) continue;
+    var sr = parseSetsReps(trimmed);
+    var rest = parseRest(trimmed);
+    var sets = [];
+    for(var j=0; j<sr.sets; j++){
+      sets.push({ reps: sr.reps, weight: '', rest: rest, rpe: '' });
+    }
+    if(!exercises.find(function(e){ return e.id === ex.id; })){
+      exercises.push({ id: ex.id, notes: '', sets: sets });
+    }
+  }
+  return exercises;
+}
+
 async function confirmSaveRoutineToClient(){
   const clientId = document.getElementById('save-routine-client-sel').value;
   if(!clientId){ showToast('⚠️ Selecciona un asesorado'); return; }
@@ -3216,28 +3697,30 @@ async function confirmSaveRoutineToClient(){
   if(!client) return;
 
   const prefix = document.getElementById('save-routine-prefix').value.trim();
-  const days = parseAiRoutineDays(AI.routineResult || '');
-  const icons = ['💪','🏋️','🔥','⚡','🎯','🏃','💥','🌟'];
+  const days   = parseAiRoutineDays(AI.routineResult || '');
+  const icons  = ['💪','🏋️','🔥','⚡','🎯','🏃','💥','🌟'];
 
   if(days.length === 0){
-    // Save as single routine
+    const exercises = parseExercisesFromDayContent(AI.routineResult || '');
     const r = {
       id: uid(), name: (prefix || 'Rutina IA') + ' — ' + client.name,
       day: '', icon: '🤖', clientId,
-      notes: AI.routineResult.substring(0, 300),
-      exercises: [], updatedAt: new Date().toISOString(), createdAt: new Date().toISOString()
+      notes: AI.routineResult.substring(0, 400),
+      exercises,
+      updatedAt: new Date().toISOString(), createdAt: new Date().toISOString()
     };
     ST.routines.push(r);
   } else {
     for(const d of days){
+      const exercises = parseExercisesFromDayContent(d.content);
       const r = {
         id: uid(),
         name: (prefix ? prefix + ' · ' : '') + 'Día ' + d.num + ' — ' + d.title,
         day: 'Día ' + d.num,
         icon: icons[(d.num-1) % icons.length],
         clientId,
-        notes: d.content.substring(0, 500),
-        exercises: [],
+        notes: d.content.substring(0, 400),
+        exercises,
         updatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString()
       };
@@ -3247,13 +3730,13 @@ async function confirmSaveRoutineToClient(){
 
   save();
   document.getElementById('save-routine-modal').style.display = 'none';
-  showToast(`✅ ${days.length || 1} rutina(s) guardadas para ${client.name}`);
+  const totalEx = ST.routines.slice(-days.length||undefined).reduce((s,r)=>s+r.exercises.length,0);
+  showToast(`✅ ${days.length||1} rutina(s) con ~${totalEx} ejercicios para ${client.name}`);
   renderRoutinesSection();
   renderDashboard();
 
-  // Ask if user wants to go to the client
   setTimeout(()=>{
-    if(confirm(`¿Ir al perfil de ${client.name} para ver las rutinas guardadas?`)){
+    if(confirm(`¿Ir al perfil de ${client.name} para ver las rutinas?`)){
       openClientDetail(clientId);
     }
   }, 400);
