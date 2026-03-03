@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>JELIAN FT | Coach Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0b;--surface:#111114;--surface2:#1a1a1f;--surface3:#222228;--surface4:#2a2a32;
+  --border:#2a2a32;--border2:#333340;
+  --accent:#e8ff3c;--accent2:#3cffc8;--accent3:#ff3c6e;--accent4:#a78bfa;--accent5:#ffaa44;
+  --text:#f0f0f0;--text2:#888894;--text3:#55555f;
+  --font-h:'Barlow Condensed',sans-serif;--font-b:'Barlow',sans-serif;
+  --sidebar-w:240px;--topbar-h:56px;--nav-h:64px;
+  --radius:10px;--radius-lg:14px;--shadow:0 2px 12px rgba(0,0,0,.4);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;overflow-x:hidden;}
+input,select,button,textarea{font-family:var(--font-b);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-wrap{width:90%;max-width:400px;text-align:center;}
+.login-logo{font-family:var(--font-h);font-size:5rem;font-weight:900;letter-spacing:-3px;line-height:1;}
+.login-logo span{color:var(--accent);}
+.login-badge{display:inline-block;background:rgba(232,255,60,.1);border:1px solid rgba(232,255,60,.2);color:var(--accent);font-size:.65rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin:8px 0 2rem;}
+.login-field{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:14px 18px;border-radius:var(--radius);font-size:1rem;outline:none;transition:.2s;text-align:center;letter-spacing:4px;}
+.login-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,255,60,.1);}
+.login-err{color:var(--accent3);font-size:.8rem;font-weight:600;min-height:1.4em;margin-top:8px;}
+.login-btn{width:100%;margin-top:10px;background:var(--accent);color:#000;font-family:var(--font-h);font-weight:900;font-size:1.15rem;letter-spacing:3px;padding:15px;border:none;border-radius:var(--radius);cursor:pointer;transition:.2s;}
+.login-btn:hover{background:#f0ff60;transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,255,60,.25);}
+
+/* APP SHELL */
+#app{display:none;min-height:100vh;}
+@media(min-width:900px){
+  #app{flex-direction:row;}
+  #app.visible{display:flex;}
+  .sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;display:flex;flex-direction:column;overflow:hidden;}
+  .sidebar-logo{padding:20px 22px 16px;border-bottom:1px solid var(--border);font-family:var(--font-h);font-size:1.5rem;font-weight:900;letter-spacing:-.5px;}
+  .sidebar-logo span{color:var(--accent);}
+  .sidebar-logo-sub{font-size:.58rem;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-top:2px;}
+  .sidebar-nav{flex:1;padding:12px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+  .sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:.88rem;font-weight:600;letter-spacing:.3px;border:none;background:none;width:100%;text-align:left;transition:.15s;}
+  .sidebar-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0;}
+  .sidebar-item:hover{background:var(--surface2);color:var(--text);}
+  .sidebar-item.active{background:rgba(232,255,60,.1);color:var(--accent);}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--border);flex-shrink:0;}
+  .main-area{flex:1;overflow-y:auto;height:100vh;}
+  .topbar{display:flex;}
+  .nav-bottom{display:none;}
+  .main-content{max-width:1100px;margin:0 auto;padding:28px 32px;}
+  .section{padding:0;}
+}
+@media(max-width:899px){
+  #app.visible{display:block;}
+  .sidebar{display:none;}
+  .main-area{padding-bottom:var(--nav-h);}
+  .main-content{padding:0;}
+  .section{padding:16px;}
+  .topbar{display:flex;}
+  .nav-bottom{display:flex;}
+}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:40;background:rgba(10,10,11,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);height:var(--topbar-h);padding:0 18px;align-items:center;justify-content:space-between;flex-shrink:0;}
+.topbar-left{font-family:var(--font-h);font-weight:900;font-size:1.3rem;letter-spacing:-.3px;}
+.topbar-left span{color:var(--accent);}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+@media(min-width:900px){.topbar-left{display:none;}}
+
+/* BOTTOM NAV */
+.nav-bottom{position:fixed;bottom:0;left:0;right:0;background:rgba(10,10,11,.98);backdrop-filter:blur(16px);border-top:1px solid var(--border);height:calc(var(--nav-h) + env(safe-area-inset-bottom));z-index:40;padding-bottom:env(safe-area-inset-bottom);}
+.nav-bottom-inner{display:flex;height:var(--nav-h);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--text3);font-size:.45rem;font-weight:700;letter-spacing:0;text-transform:uppercase;border:none;background:none;transition:.15s;padding:0 4px;min-width:0;}
+.nav-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;flex-shrink:0;}
+.nav-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;display:block;}
+.nav-item.active{color:var(--accent);}
+
+/* SECTIONS */
+.section{display:none;}
+.section.active{display:block;animation:fadeUp .22s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.section-header{margin-bottom:20px;}
+.section-title{font-family:var(--font-h);font-size:2rem;font-weight:900;letter-spacing:-1px;line-height:1;}
+.section-sub{color:var(--text3);font-size:.68rem;letter-spacing:2px;text-transform:uppercase;margin-top:3px;}
+
+/* CARDS */
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;}
+.card+.card{margin-top:10px;}
+.card-title{font-family:var(--font-h);font-size:.8rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+
+/* STATS */
+.stats-grid{display:grid;gap:8px;margin-bottom:16px;}
+.stats-grid-3{grid-template-columns:repeat(3,1fr);}
+.stats-grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:500px){.stats-grid-4{grid-template-columns:repeat(2,1fr);}}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 8px;text-align:center;}
+.stat-val{font-family:var(--font-h);font-size:1.7rem;font-weight:900;color:var(--accent);line-height:1;}
+.stat-label{font-size:.56rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;border:none;border-radius:var(--radius);font-family:var(--font-h);font-weight:800;letter-spacing:1px;text-transform:uppercase;transition:.2s;font-size:.9rem;}
+.btn:hover{transform:translateY(-1px);}
+.btn-full{width:100%;padding:13px;}
+.btn-md{padding:10px 18px;}
+.btn-sm{padding:6px 11px;font-size:.75rem;}
+.btn-xs{padding:4px 8px;font-size:.65rem;letter-spacing:.5px;}
+.btn-accent{background:var(--accent);color:#000;}
+.btn-accent:hover{background:#f0ff60;box-shadow:0 4px 14px rgba(232,255,60,.2);}
+.btn-green{background:var(--accent2);color:#000;}
+.btn-green:hover{background:#6fffd8;}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text);}
+.btn-danger{background:rgba(255,60,110,.1);color:var(--accent3);border:1px solid rgba(255,60,110,.18);}
+.btn-danger:hover{background:rgba(255,60,110,.22);}
+.btn-purple{background:rgba(167,139,250,.12);color:var(--accent4);border:1px solid rgba(167,139,250,.2);}
+.btn-purple:hover{background:rgba(167,139,250,.22);}
+.btn-orange{background:rgba(255,170,68,.12);color:var(--accent5);border:1px solid rgba(255,170,68,.2);}
+.btn-orange:hover{background:rgba(255,170,68,.22);}
+
+/* FORM ELEMENTS */
+.field-label{font-size:.72rem;font-weight:700;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.field-input{width:100%;background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:var(--radius);font-size:.9rem;outline:none;transition:.2s;}
+.field-input:focus{border-color:var(--accent);background:rgba(232,255,60,.03);}
+.field-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;}
+.field-group{margin-bottom:14px;}
+.field-row{display:grid;gap:10px;margin-bottom:14px;}
+.field-row-2{grid-template-columns:1fr 1fr;}
+.field-row-3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:500px){.field-row-3{grid-template-columns:1fr 1fr;}}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;}
+.badge-green{background:rgba(60,255,200,.08);border:1px solid rgba(60,255,200,.2);color:var(--accent2);}
+.badge-yellow{background:rgba(232,255,60,.08);border:1px solid rgba(232,255,60,.2);color:var(--accent);}
+.badge-red{background:rgba(255,60,110,.08);border:1px solid rgba(255,60,110,.2);color:var(--accent3);}
+.badge-purple{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);color:var(--accent4);}
+.badge-orange{background:rgba(255,170,68,.08);border:1px solid rgba(255,170,68,.2);color:var(--accent5);}
+
+/* UTILS */
+.flex-between{display:flex;align-items:center;justify-content:space-between;}
+.flex-gap{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.mt-8{margin-top:8px;}
+.mt-12{margin-top:12px;}
+.mt-16{margin-top:16px;}
+.mb-8{margin-bottom:8px;}
+.mb-12{margin-bottom:12px;}
+.mb-16{margin-bottom:16px;}
+.text-sm{font-size:.78rem;}
+.text-muted{color:var(--text2);}
+.empty{text-align:center;padding:40px 20px;}
+.empty-icon{font-size:2.5rem;margin-bottom:10px;}
+.empty-ttl{font-family:var(--font-h);font-size:1.2rem;font-weight:800;margin-bottom:6px;}
+.empty-txt{color:var(--text3);font-size:.8rem;margin-bottom:16px;}
+
+/* HOME DASHBOARD */
+.home-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;}
+@media(max-width:899px){.home-grid{display:block;}}
+.dashboard-stat{background:linear-gradient(135deg,var(--surface2),var(--surface3));border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;position:relative;overflow:hidden;}
+.dashboard-stat::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,255,60,.03),transparent);pointer-events:none;}
+.ds-val{font-family:var(--font-h);font-size:3rem;font-weight:900;line-height:1;color:var(--accent);}
+.ds-lbl{font-size:.65rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.ds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+
+/* CLIENT CARDS */
+.client-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px;cursor:pointer;transition:.15s;position:relative;}
+.client-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.client-avatar{width:42px;height:42px;border-radius:50%;background:rgba(232,255,60,.1);border:1px solid rgba(232,255,60,.2);display:flex;align-items:center;justify-content:center;font-family:var(--font-h);font-size:1.3rem;font-weight:900;color:var(--accent);flex-shrink:0;}
+.client-name{font-family:var(--font-h);font-weight:800;font-size:1.05rem;}
+.client-meta{font-size:.7rem;color:var(--text3);margin-top:2px;}
+.client-tags{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;}
+.client-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+
+/* CLIENT DETAIL */
+.client-detail-header{background:linear-gradient(135deg,rgba(232,255,60,.07),rgba(60,255,200,.04));border:1px solid rgba(232,255,60,.14);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;}
+.cd-name{font-family:var(--font-h);font-size:2.2rem;font-weight:900;letter-spacing:-1px;}
+.cd-meta{color:var(--text2);font-size:.78rem;margin-top:4px;}
+
+/* ROUTINE CARDS */
+.routine-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:10px;cursor:pointer;transition:.15s;}
+.routine-card:hover{border-color:rgba(232,255,60,.3);box-shadow:0 0 0 1px rgba(232,255,60,.1);}
+.routine-card-name{font-family:var(--font-h);font-weight:800;font-size:1.05rem;margin-bottom:4px;}
+.routine-card-meta{font-size:.7rem;color:var(--text3);}
+.routine-day-badge{background:rgba(232,255,60,.08);border:1px solid rgba(232,255,60,.18);color:var(--accent);font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:4px;}
+
+/* OVERLAYS / SHEETS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;animation:ofade .18s ease;}
+@keyframes ofade{from{opacity:0;}to{opacity:1;}}
+.sheet{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-width:580px;max-height:90vh;display:flex;flex-direction:column;animation:oslide .22s ease;}
+@keyframes oslide{from{transform:translateY(20px);}to{transform:translateY(0);}}
+.sheet-head{padding:15px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sheet-title{font-family:var(--font-h);font-weight:800;font-size:1.1rem;}
+.sheet-close{background:var(--surface3);border:1px solid var(--border);color:var(--text2);width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:.15s;}
+.sheet-close:hover{background:var(--surface4);color:var(--text);}
+.sheet-body{flex:1;overflow-y:auto;padding:18px;}
+.sheet-footer{padding:14px 18px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px;}
+
+/* EXERCISE PICKER */
+.fchip{background:var(--surface3);border:1px solid var(--border);color:var(--text2);font-size:.7rem;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;transition:.15s;white-space:nowrap;}
+.fchip.on{background:rgba(232,255,60,.1);border-color:rgba(232,255,60,.3);color:var(--accent);}
+.fchip-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.ex-pick-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:.1s;}
+.ex-pick-row:hover{padding-left:4px;}
+.ex-pick-icon{width:32px;height:32px;background:var(--surface3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.ex-pick-name{font-size:.85rem;font-weight:600;}
+.ex-pick-sub{font-size:.6rem;color:var(--text3);}
+.ex-group-hdr{font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px 0 4px;}
+
+/* ROUTINE BUILDER */
+.rout-ex-item{background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;}
+.rout-ex-name{font-family:var(--font-h);font-weight:800;font-size:.95rem;color:var(--accent2);margin-bottom:8px;}
+.set-plan-row{display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:6px;align-items:center;margin-bottom:5px;}
+.set-plan-num{font-family:var(--font-h);font-weight:700;color:var(--text3);font-size:.8rem;text-align:center;min-width:20px;}
+.set-plan-inp{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 6px;border-radius:6px;font-size:.82rem;text-align:center;outline:none;width:100%;transition:.15s;}
+.set-plan-inp:focus{border-color:var(--accent);}
+.set-plan-lbl{font-size:.55rem;color:var(--text3);text-align:center;letter-spacing:.5px;text-transform:uppercase;}
+.set-plan-head{display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:6px;padding-bottom:4px;margin-bottom:4px;border-bottom:1px solid var(--border);}
+
+/* MACRO BOX */
+.macro-results{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;}
+@media(max-width:500px){.macro-results{grid-template-columns:repeat(2,1fr);}}
+.macro-box{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center;}
+.macro-val{font-family:var(--font-h);font-size:1.5rem;font-weight:900;line-height:1;}
+.macro-lbl{font-size:.6rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.macro-sub{font-size:.58rem;color:var(--text3);margin-top:1px;}
+.meal-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);}
+
+/* SELECT OVERLAY */
+#select-overlay .sheet-body{padding:12px;}
+
+/* PDF PREVIEW */
+.pdf-preview{background:#fff;color:#111;border-radius:var(--radius-lg);padding:32px;font-family:'Barlow',sans-serif;}
+.pdf-header{border-bottom:3px solid #e8ff3c;padding-bottom:16px;margin-bottom:20px;}
+.pdf-logo{font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:900;color:#0a0a0b;}
+.pdf-logo span{color:#555;}
+.pdf-client{font-size:1.3rem;font-weight:700;margin-top:4px;}
+.pdf-date{font-size:.75rem;color:#666;margin-top:2px;}
+.pdf-section{margin-bottom:20px;}
+.pdf-section-title{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#0a0a0b;border-left:3px solid #e8ff3c;padding-left:8px;margin-bottom:10px;}
+.pdf-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.pdf-macro-box{background:#f5f5f5;border-radius:8px;padding:10px;text-align:center;}
+.pdf-macro-val{font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;}
+.pdf-macro-lbl{font-size:.6rem;letter-spacing:1px;text-transform:uppercase;color:#666;}
+.pdf-day{margin-bottom:16px;}
+.pdf-day-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;background:#f0f0f0;padding:6px 10px;border-radius:6px;margin-bottom:6px;}
+.pdf-ex-table{width:100%;border-collapse:collapse;font-size:.8rem;}
+.pdf-ex-table th{background:#e8e8e8;padding:5px 8px;text-align:left;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:#555;}
+.pdf-ex-table td{padding:6px 8px;border-bottom:1px solid #eee;}
+.pdf-ex-table tr:last-child td{border:none;}
+.pdf-note{font-size:.75rem;color:#666;font-style:italic;margin-top:4px;padding:8px;background:#fff9e6;border-left:2px solid #ffaa44;border-radius:0 4px 4px 0;}
+.pdf-meals{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:8px;}
+.pdf-meals th{background:#e8e8e8;padding:5px 8px;text-align:left;font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:#555;}
+.pdf-meals td{padding:6px 8px;border-bottom:1px solid #eee;}
+.pdf-footer{margin-top:24px;padding-top:14px;border-top:1px solid #eee;font-size:.7rem;color:#999;display:flex;justify-content:space-between;}
+
+/* SEARCH */
+.search-input-wrap{position:relative;margin-bottom:14px;}
+.search-input-wrap input{padding-left:32px;}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.85rem;pointer-events:none;}
+
+/* ── AI COACH STYLES ─────────────────────────────── */
+.ai-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;}
+.ai-tab{background:transparent;border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:700;letter-spacing:.5px;transition:.15s;white-space:nowrap;}
+.ai-tab:hover{border-color:var(--accent);color:var(--accent);}
+.ai-tab.active{background:rgba(232,255,60,.1);border-color:rgba(232,255,60,.35);color:var(--accent);}
+.ai-panel{display:none;}
+.ai-panel.active{display:block;animation:fadeUp .22s ease;}
+.ai-upload-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:32px 16px;text-align:center;cursor:pointer;transition:.2s;background:var(--surface3);position:relative;overflow:hidden;}
+.ai-upload-zone:hover{border-color:var(--accent);background:rgba(232,255,60,.04);}
+.ai-upload-zone.has-image{border-style:solid;border-color:rgba(232,255,60,.4);padding:0;}
+.ai-upload-zone img{width:100%;max-height:320px;object-fit:contain;border-radius:calc(var(--radius-lg) - 2px);}
+.ai-type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+@media(min-width:600px){.ai-type-grid{grid-template-columns:repeat(4,1fr);}}
+.ai-type-btn{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 8px;cursor:pointer;text-align:center;transition:.2s;color:var(--text2);}
+.ai-type-btn:hover{border-color:var(--border2);color:var(--text);}
+.ai-type-btn.active{background:rgba(232,255,60,.08);border-color:rgba(232,255,60,.35);color:var(--accent);}
+.ai-type-icon{font-size:1.5rem;margin-bottom:4px;}
+.ai-type-name{font-family:var(--font-h);font-size:.85rem;font-weight:800;letter-spacing:.5px;}
+.ai-type-desc{font-size:.6rem;color:var(--text3);margin-top:2px;line-height:1.3;}
+.ai-type-btn.active .ai-type-desc{color:rgba(232,255,60,.6);}
+.ai-muscle-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.ai-mchip{background:var(--surface3);border:1px solid var(--border);color:var(--text2);font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer;transition:.15s;user-select:none;}
+.ai-mchip:hover{border-color:var(--border2);color:var(--text);}
+.ai-mchip.on{background:rgba(255,60,110,.1);border-color:rgba(255,60,110,.35);color:var(--accent3);}
+.ai-equip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+@media(min-width:500px){.ai-equip-grid{grid-template-columns:repeat(4,1fr);}}
+.ai-equip-btn{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 8px;cursor:pointer;text-align:center;transition:.2s;color:var(--text2);}
+.ai-equip-btn:hover{border-color:var(--border2);}
+.ai-equip-btn.active{background:rgba(60,255,200,.08);border-color:rgba(60,255,200,.35);color:var(--accent2);}
+.ai-equip-check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+@media(min-width:600px){.ai-equip-check-grid{grid-template-columns:repeat(3,1fr);}}
+.ai-equip-check{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--text2);cursor:pointer;padding:6px 8px;background:var(--surface3);border:1px solid var(--border);border-radius:6px;transition:.15s;}
+.ai-equip-check:hover{border-color:var(--border2);color:var(--text);}
+.ai-equip-check input[type=checkbox]{accent-color:var(--accent);cursor:pointer;}
+.ai-equip-check:has(input:checked){background:rgba(232,255,60,.05);border-color:rgba(232,255,60,.2);color:var(--text);}
+.ai-equip-summary-box{background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:.78rem;color:var(--text2);}
+.ai-result-body{font-size:.85rem;line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word;}
+.ai-result-body strong,.ai-result-body b{color:var(--accent);font-weight:700;}
+.ai-result-body h1,.ai-result-body h2,.ai-result-body h3{font-family:var(--font-h);font-weight:800;color:var(--accent2);margin:12px 0 4px;letter-spacing:.5px;}
+.ai-result-body ul,.ai-result-body ol{padding-left:18px;margin:6px 0;}
+.ai-result-body li{margin-bottom:3px;}
+.ai-result-body hr{border:none;border-top:1px solid var(--border);margin:12px 0;}
+.ai-loading{display:flex;align-items:center;gap:10px;padding:16px;color:var(--text3);font-size:.82rem;}
+.ai-loading-dots{display:flex;gap:4px;}
+.ai-loading-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:aiDot 1.2s ease infinite;}
+.ai-loading-dot:nth-child(2){animation-delay:.2s;}
+.ai-loading-dot:nth-child(3){animation-delay:.4s;}
+@keyframes aiDot{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
+/* Chat */
+.ai-chat-box{height:380px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.ai-chat-msg{display:flex;gap:10px;align-items:flex-end;}
+.ai-chat-msg.ai-msg-user{flex-direction:row-reverse;}
+.ai-chat-avatar{width:32px;height:32px;border-radius:50%;background:var(--surface3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.ai-msg-user .ai-chat-avatar{background:rgba(232,255,60,.1);border-color:rgba(232,255,60,.25);}
+.ai-chat-bubble{background:var(--surface3);border:1px solid var(--border);border-radius:12px 12px 12px 4px;padding:10px 14px;font-size:.82rem;line-height:1.6;max-width:85%;color:var(--text);}
+.ai-msg-user .ai-chat-bubble{background:rgba(232,255,60,.08);border-color:rgba(232,255,60,.2);border-radius:12px 12px 4px 12px;color:var(--text);}
+.ai-chat-input-area{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);align-items:flex-end;}
+.ai-chat-input{flex:1;background:var(--surface3);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:var(--radius);font-size:.85rem;outline:none;resize:none;line-height:1.4;transition:.2s;font-family:var(--font-b);}
+.ai-chat-input:focus{border-color:var(--accent);}
+.ai-chat-send{background:var(--accent);color:#000;width:40px;height:40px;border:none;border-radius:var(--radius);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;}
+.ai-chat-send:hover{background:#f0ff60;transform:scale(1.05);}
+.ai-chat-send:disabled{background:var(--surface4);color:var(--text3);cursor:default;transform:none;}
+.ai-typing{color:var(--text3);font-size:.75rem;font-style:italic;padding:4px 14px;}
+
+
+
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-logo">JELIAN<span>FT</span></div>
+    <div class="login-badge">COACH PANEL</div>
+    <input type="password" class="login-field" id="login-pass" placeholder="••••••">
+    <div class="login-err" id="login-err"></div>
+    <button class="login-btn" onclick="doLogin()">ENTRAR →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- SIDEBAR (desktop) -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      JELIAN<span>FT</span>
+      <div class="sidebar-logo-sub">Coach Panel</div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-item active" id="sn-dashboard" onclick="goTo('dashboard')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard
+      </button>
+      <button class="sidebar-item" id="sn-clients" onclick="goTo('clients')">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Asesorados
+      </button>
+      <button class="sidebar-item" id="sn-routines" onclick="goTo('routines')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>Rutinas
+      </button>
+      <button class="sidebar-item" id="sn-exercises" onclick="goTo('exercises')">
+        <svg viewBox="0 0 24 24"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>Ejercicios
+      </button>
+      <button class="sidebar-item" id="sn-ai" onclick="goTo('ai')" style="position:relative;">
+        <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>IA Coach
+        <span style="position:absolute;top:6px;right:8px;background:var(--accent);color:#000;font-size:.45rem;font-weight:900;padding:1px 5px;border-radius:8px;letter-spacing:.5px;">NEW</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div style="font-size:.7rem;color:var(--text3);text-align:center;margin-bottom:8px;">JELIAN FT Coach v2.0</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;font-size:.7rem;" onclick="openDataManager()">💾 Exportar / Importar</button>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">JELIAN<span>FT</span></div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" onclick="goTo('clients')">👥</button>
+        <button class="btn btn-ghost btn-sm" onclick="openDataManager()" title="Exportar / Importar">💾</button>
+      </div>
+    </div>
+
+    <div class="main-content">
+
+      <!-- DASHBOARD -->
+      <div class="section active" id="sec-dashboard">
+        <div class="section-header flex-between">
+          <div>
+            <div class="section-title">Dashboard</div>
+            <div class="section-sub">Resumen de tu práctica</div>
+          </div>
+          <button class="btn btn-accent btn-md" onclick="openNewClient()">+ Asesorado</button>
+        </div>
+        <div class="ds-grid" id="dash-stats-grid"></div>
+        <div class="home-grid">
+          <div>
+            <div class="card mb-12">
+              <div class="card-title">Asesorados recientes</div>
+              <div id="dash-recent-clients"></div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-title">Acciones rápidas</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+                <button class="btn btn-accent btn-full" onclick="openNewClient()">+ Nuevo asesorado</button>
+                <button class="btn btn-ghost btn-full" onclick="goTo('routines')">📋 Crear rutina</button>
+                <button class="btn btn-purple btn-full" onclick="goTo('clients')">👥 Ver todos los clientes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CLIENTS LIST -->
+      <div class="section" id="sec-clients">
+        <div class="section-header flex-between">
+          <div>
+            <div class="section-title">Asesorados</div>
+            <div class="section-sub" id="clients-count-sub">0 clientes</div>
+          </div>
+          <button class="btn btn-accent btn-md" onclick="openNewClient()">+ Nuevo</button>
+        </div>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="field-input" id="client-search" placeholder="Buscar asesorado..." oninput="renderClients()">
+        </div>
+        <div id="clients-list"></div>
+      </div>
+
+      <!-- CLIENT DETAIL -->
+      <div class="section" id="sec-client-detail">
+        <div class="flex-gap mb-16">
+          <button class="btn btn-ghost btn-sm" onclick="goTo('clients')">← Volver</button>
+        </div>
+        <div id="client-detail-content"></div>
+      </div>
+
+      <!-- ROUTINES -->
+      <div class="section" id="sec-routines">
+        <div class="section-header flex-between">
+          <div>
+            <div class="section-title">Rutinas</div>
+            <div class="section-sub">Plantillas para tus asesorados</div>
+          </div>
+          <button class="btn btn-accent btn-md" onclick="openCreateRoutine(null)">+ Crear</button>
+        </div>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="field-input" id="routine-search" placeholder="Buscar rutina..." oninput="renderRoutinesSection()">
+        </div>
+        <div id="routines-section-list"></div>
+      </div>
+
+      <!-- EXERCISES LIBRARY -->
+      <div class="section" id="sec-exercises">
+        <div class="section-header">
+          <div class="section-title">Ejercicios</div>
+          <div class="section-sub">Biblioteca completa</div>
+        </div>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="field-input" id="ex-lib-search" placeholder="Buscar ejercicio..." oninput="renderExLib()">
+        </div>
+        <div class="fchip-bar" id="ex-lib-filter"></div>
+        <div id="ex-lib-list"></div>
+      </div>
+
+      <!-- IA COACH -->
+      <div class="section" id="sec-ai">
+        <div class="section-header">
+          <div class="section-title">IA <span style="color:var(--accent)">Coach</span></div>
+          <div class="section-sub">Análisis corporal · Rutinas inteligentes · Equipamiento</div>
+        </div>
+
+        <!-- TABS -->
+        <div class="ai-tabs" id="ai-tabs">
+          <button class="ai-tab active" onclick="switchAiTab('analysis')" id="aitab-analysis">📸 Análisis Corporal</button>
+          <button class="ai-tab" onclick="switchAiTab('routine')" id="aitab-routine">📋 Generar Rutina</button>
+          <button class="ai-tab" onclick="switchAiTab('equipment')" id="aitab-equipment">🏋️ Equipamiento</button>
+          <button class="ai-tab" onclick="switchAiTab('chat')" id="aitab-chat">💬 Consulta Libre</button>
+        </div>
+
+        <!-- TAB: ANÁLISIS CORPORAL -->
+        <div class="ai-panel active" id="aipanel-analysis">
+          <div class="card">
+            <div class="card-title">📸 Análisis de puntos débiles por foto</div>
+            <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;">Sube una foto de postura (frontal, lateral o posterior) y la IA detectará desequilibrios musculares y zonas a mejorar.</p>
+
+            <div class="ai-upload-zone" id="ai-upload-zone" onclick="document.getElementById('ai-photo-input').click()">
+              <input type="file" id="ai-photo-input" accept="image/*" style="display:none" onchange="onAiPhotoSelected(event)">
+              <div id="ai-upload-preview">
+                <div style="font-size:2.5rem;margin-bottom:8px;">📷</div>
+                <div style="font-family:var(--font-h);font-size:1rem;font-weight:800;color:var(--text2);">Haz clic o arrastra una foto</div>
+                <div style="font-size:.72rem;color:var(--text3);margin-top:4px;">Frontal · Lateral · Posterior</div>
+              </div>
+            </div>
+
+            <div class="field-group mt-12">
+              <label class="field-label">Contexto del cliente (opcional)</label>
+              <textarea class="field-input" id="ai-analysis-context" rows="2" placeholder="Ej: Hombre, 28 años, objetivo volumen, entrena 4 días/semana..."></textarea>
+            </div>
+
+            <button class="btn btn-accent btn-full mt-8" onclick="runBodyAnalysis()" id="ai-analyze-btn" disabled>
+              🔍 Analizar puntos débiles
+            </button>
+          </div>
+
+          <div id="ai-analysis-result" style="display:none;" class="card mt-8">
+            <div class="card-title">Resultado del análisis</div>
+            <div id="ai-analysis-text" class="ai-result-body"></div>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm" onclick="switchAiTab('routine');applyAnalysisToRoutine()">→ Crear rutina basada en este análisis</button>
+              <button class="btn btn-ghost btn-sm" onclick="copyAiResult('analysis')">📋 Copiar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: GENERAR RUTINA -->
+        <div class="ai-panel" id="aipanel-routine">
+          <div class="card">
+            <div class="card-title">📋 Configuración de la rutina</div>
+
+            <div class="field-group">
+              <label class="field-label">Tipo de entrenamiento</label>
+              <div class="ai-type-grid" id="ai-train-types">
+                <button class="ai-type-btn active" data-type="PPL" onclick="selectTrainType(this)">
+                  <div class="ai-type-icon">🔁</div>
+                  <div class="ai-type-name">PPL</div>
+                  <div class="ai-type-desc">Push · Pull · Legs</div>
+                </button>
+                <button class="ai-type-btn" data-type="Arnold" onclick="selectTrainType(this)">
+                  <div class="ai-type-icon">💪</div>
+                  <div class="ai-type-name">Arnold Split</div>
+                  <div class="ai-type-desc">Pecho/Espalda · Hombros/Brazos · Piernas</div>
+                </button>
+                <button class="ai-type-btn" data-type="Upper Lower" onclick="selectTrainType(this)">
+                  <div class="ai-type-icon">⚡</div>
+                  <div class="ai-type-name">Upper / Lower</div>
+                  <div class="ai-type-desc">Tren superior · Tren inferior</div>
+                </button>
+                <button class="ai-type-btn" data-type="Full Body" onclick="selectTrainType(this)">
+                  <div class="ai-type-icon">🏋️</div>
+                  <div class="ai-type-name">Full Body</div>
+                  <div class="ai-type-desc">Cuerpo completo</div>
+                </button>
+                <button class="ai-type-btn" data-type="Bro Split" onclick="selectTrainType(this)">
+                  <div class="ai-type-icon">🎯</div>
+                  <div class="ai-type-name">Bro Split</div>
+                  <div class="ai-type-desc">1 músculo por día</div>
+                </button>
+                <button class="ai-type-btn" data-type="Híbrido PPL + Upper Lower" onclick="selectTrainType(this)">
+                  <div class="ai-type-icon">🔀</div>
+                  <div class="ai-type-name">Híbrido PPL + UL</div>
+                  <div class="ai-type-desc">Combinación inteligente</div>
+                </button>
+                <button class="ai-type-btn" data-type="Híbrido Arnold + PPL" onclick="selectTrainType(this)">
+                  <div class="ai-type-icon">🧬</div>
+                  <div class="ai-type-name">Híbrido Arnold + PPL</div>
+                  <div class="ai-type-desc">Alta frecuencia + volumen</div>
+                </button>
+                <button class="ai-type-btn" data-type="Híbrido Full Body + PPL" onclick="selectTrainType(this)">
+                  <div class="ai-type-icon">⚗️</div>
+                  <div class="ai-type-name">Híbrido Full + PPL</div>
+                  <div class="ai-type-desc">Fuerza + hipertrofia</div>
+                </button>
+              </div>
+            </div>
+
+            <div class="field-row field-row-2 mt-12">
+              <div>
+                <label class="field-label">Días por semana</label>
+                <select class="field-input field-select" id="ai-days-week">
+                  <option value="3">3 días</option>
+                  <option value="4" selected>4 días</option>
+                  <option value="5">5 días</option>
+                  <option value="6">6 días</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Objetivo</label>
+                <select class="field-input field-select" id="ai-goal">
+                  <option value="hipertrofia">💪 Hipertrofia</option>
+                  <option value="fuerza">🏋️ Fuerza</option>
+                  <option value="definicion">🔥 Definición</option>
+                  <option value="resistencia">🏃 Resistencia muscular</option>
+                  <option value="atletico">⚡ Rendimiento atlético</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-row field-row-2 mt-8">
+              <div>
+                <label class="field-label">Nivel</label>
+                <select class="field-input field-select" id="ai-level">
+                  <option value="principiante">🌱 Principiante</option>
+                  <option value="intermedio" selected>📈 Intermedio</option>
+                  <option value="avanzado">🔥 Avanzado</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Duración por sesión</label>
+                <select class="field-input field-select" id="ai-duration">
+                  <option value="45 minutos">45 min</option>
+                  <option value="60 minutos" selected>60 min</option>
+                  <option value="75 minutos">75 min</option>
+                  <option value="90 minutos">90 min</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group mt-8">
+              <label class="field-label">Grupos musculares a priorizar (puntos débiles)</label>
+              <div class="ai-muscle-chips" id="ai-muscle-chips">
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Pecho">Pecho</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Espalda">Espalda</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Hombros">Hombros</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Bíceps">Bíceps</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Tríceps">Tríceps</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Cuádriceps">Cuádriceps</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Isquiotibiales">Isquiotibiales</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Glúteos">Glúteos</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Pantorrillas">Pantorrillas</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Core/Abdomen">Core</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Antebrazo">Antebrazo</span>
+                <span class="ai-mchip" onclick="toggleMuscle(this)" data-m="Trapecio">Trapecio</span>
+              </div>
+            </div>
+
+            <div class="field-group mt-8">
+              <label class="field-label">Equipamiento disponible</label>
+              <div id="ai-equip-summary" class="ai-equip-summary-box">
+                <span style="color:var(--text3);font-size:.78rem;">⚠️ No has configurado equipamiento. Ve a la pestaña <strong style="color:var(--accent)">Equipamiento</strong> primero.</span>
+              </div>
+            </div>
+
+            <div class="field-group mt-8">
+              <label class="field-label">Instrucciones adicionales</label>
+              <textarea class="field-input" id="ai-routine-extra" rows="2" placeholder="Ej: evitar sentadilla por rodilla, incluir trabajo de movilidad, basado en análisis de puntos débiles..."></textarea>
+            </div>
+
+            <button class="btn btn-accent btn-full mt-8" onclick="generateAiRoutine()">
+              ✨ Generar rutina con IA
+            </button>
+          </div>
+
+          <div id="ai-routine-result" style="display:none;" class="card mt-8">
+            <div class="card-title">Rutina generada</div>
+            <div id="ai-routine-text" class="ai-result-body"></div>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm" onclick="copyAiResult('routine')">📋 Copiar rutina</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB: EQUIPAMIENTO -->
+        <div class="ai-panel" id="aipanel-equipment">
+          <div class="card">
+            <div class="card-title">🏋️ Describe tu equipamiento</div>
+            <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;">Indica qué equipos tienes disponibles. La IA adaptará todas las rutinas y recomendaciones a tu equipo.</p>
+
+            <div class="field-group">
+              <label class="field-label">Tipo de espacio</label>
+              <div class="ai-equip-grid" id="ai-space-types">
+                <button class="ai-equip-btn active" data-space="Gimnasio completo" onclick="selectSpace(this)">
+                  <div style="font-size:1.5rem">🏟️</div>
+                  <div style="font-size:.75rem;font-weight:700;margin-top:4px;">Gimnasio completo</div>
+                </button>
+                <button class="ai-equip-btn" data-space="Gimnasio casero" onclick="selectSpace(this)">
+                  <div style="font-size:1.5rem">🏠</div>
+                  <div style="font-size:.75rem;font-weight:700;margin-top:4px;">Gimnasio casero</div>
+                </button>
+                <button class="ai-equip-btn" data-space="Sin equipamiento" onclick="selectSpace(this)">
+                  <div style="font-size:1.5rem">🤸</div>
+                  <div style="font-size:.75rem;font-weight:700;margin-top:4px;">Sin equipo (calistenia)</div>
+                </button>
+                <button class="ai-equip-btn" data-space="Equipamiento mixto" onclick="selectSpace(this)">
+                  <div style="font-size:1.5rem">⚗️</div>
+                  <div style="font-size:.75rem;font-weight:700;margin-top:4px;">Mixto</div>
+                </button>
+              </div>
+            </div>
+
+            <div class="field-group mt-12">
+              <label class="field-label">Equipamiento específico disponible</label>
+              <div class="ai-equip-check-grid" id="ai-equip-checks">
+                <label class="ai-equip-check"><input type="checkbox" value="Barra olímpica" onchange="updateEquipSummary()"> Barra olímpica</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Mancuernas" onchange="updateEquipSummary()" checked> Mancuernas</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Rack / Jaula" onchange="updateEquipSummary()"> Rack / Jaula</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Banco plano" onchange="updateEquipSummary()" checked> Banco plano</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Banco ajustable" onchange="updateEquipSummary()"> Banco ajustable</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Polea alta" onchange="updateEquipSummary()"> Polea alta</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Polea baja" onchange="updateEquipSummary()"> Polea baja</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Polea cruzada" onchange="updateEquipSummary()"> Polea cruzada</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Máquina press pecho" onchange="updateEquipSummary()"> Máq. press pecho</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Máquina de remos" onchange="updateEquipSummary()"> Máq. remos</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Máquina press hombro" onchange="updateEquipSummary()"> Máq. press hombro</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Leg press" onchange="updateEquipSummary()"> Leg press</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Extensora de piernas" onchange="updateEquipSummary()"> Extensora piernas</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Curl femoral" onchange="updateEquipSummary()"> Curl femoral</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Hip thrust / Glute drive" onchange="updateEquipSummary()"> Hip thrust</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Máquina de dominadas asistida" onchange="updateEquipSummary()"> Máq. dominadas</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Fondos en paralelas" onchange="updateEquipSummary()"> Paralelas / Dip bar</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Barra de dominadas" onchange="updateEquipSummary()"> Barra dominadas</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Kettlebells" onchange="updateEquipSummary()"> Kettlebells</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Bandas elásticas" onchange="updateEquipSummary()"> Bandas elásticas</label>
+                <label class="ai-equip-check"><input type="checkbox" value="TRX / Anillas" onchange="updateEquipSummary()"> TRX / Anillas</label>
+                <label class="ai-equip-check"><input type="checkbox" value="Caminadora / Cardio" onchange="updateEquipSummary()"> Caminadora / Cardio</label>
+              </div>
+            </div>
+
+            <div class="field-group mt-8">
+              <label class="field-label">Equipamiento adicional o restricciones</label>
+              <textarea class="field-input" id="ai-equip-extra" rows="2" placeholder="Ej: no tenemos sentadilla libre pero sí hack squat, tenemos Smith Machine..."></textarea>
+            </div>
+
+            <button class="btn btn-accent btn-full mt-8" onclick="saveEquipment()">
+              💾 Guardar configuración de equipamiento
+            </button>
+            <div id="ai-equip-saved-msg" style="display:none;text-align:center;color:var(--accent2);font-size:.8rem;margin-top:8px;font-weight:700;">✅ Equipamiento guardado correctamente</div>
+          </div>
+
+          <div class="card mt-8">
+            <div class="card-title">💡 Recomendaciones para tu equipamiento</div>
+            <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;">La IA analizará tu equipo disponible y dará recomendaciones de compra, sustituciones y optimización.</p>
+            <button class="btn btn-purple btn-full" onclick="getEquipRecommendations()">
+              🤖 Obtener recomendaciones de equipamiento
+            </button>
+            <div id="ai-equip-reco-result" style="display:none;" class="ai-result-body mt-8"></div>
+          </div>
+        </div>
+
+        <!-- TAB: CHAT LIBRE -->
+        <div class="ai-panel" id="aipanel-chat">
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div id="ai-chat-messages" class="ai-chat-box">
+              <div class="ai-chat-msg ai-msg-bot">
+                <div class="ai-chat-avatar">🤖</div>
+                <div class="ai-chat-bubble">
+                  ¡Hola! Soy tu asistente IA de coaching. Puedo ayudarte con:<br><br>
+                  • 🔍 Análisis de puntos débiles<br>
+                  • 📋 Diseño de rutinas personalizadas<br>
+                  • 🥗 Consejos de nutrición<br>
+                  • 📊 Periodización y progresión<br>
+                  • ❓ Cualquier pregunta sobre fitness<br><br>
+                  ¿En qué puedo ayudarte hoy?
+                </div>
+              </div>
+            </div>
+            <div class="ai-chat-input-area">
+              <textarea class="ai-chat-input" id="ai-chat-input" placeholder="Escribe tu consulta..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg();}"></textarea>
+              <button class="ai-chat-send" onclick="sendChatMsg()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sec-ai -->
+
+    </div><!-- /main-content -->
+
+    <!-- BOTTOM NAV (mobile) -->
+    <nav class="nav-bottom">
+      <div class="nav-bottom-inner">
+        <button class="nav-item active" id="nn-dashboard" onclick="goTo('dashboard')">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span>INICIO</span>
+        </button>
+        <button class="nav-item" id="nn-clients" onclick="goTo('clients')">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>CLIENTES</span>
+        </button>
+        <button class="nav-item" id="nn-routines" onclick="goTo('routines')">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span>RUTINAS</span>
+        </button>
+        <button class="nav-item" id="nn-exercises" onclick="goTo('exercises')">
+          <svg viewBox="0 0 24 24"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+          <span>EJERC.</span>
+        </button>
+        <button class="nav-item" id="nn-ai" onclick="goTo('ai')">
+          <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+          <span>IA</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+</div>
+
+<!-- ======== OVERLAYS ======== -->
+
+<!-- NEW / EDIT CLIENT -->
+<div class="overlay" id="client-overlay">
+  <div class="sheet" style="max-width:540px;">
+    <div class="sheet-head">
+      <div class="sheet-title" id="client-sheet-title">Nuevo asesorado</div>
+      <button class="sheet-close" onclick="closeOverlay('client-overlay')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="field-group">
+        <label class="field-label">Nombre completo *</label>
+        <input class="field-input" id="cl-name" placeholder="Ej: María García">
+      </div>
+      <div class="field-row field-row-2">
+        <div>
+          <label class="field-label">Edad (años)</label>
+          <input class="field-input" id="cl-age" type="number" placeholder="25" oninput="liveCalcMacros()">
+        </div>
+        <div>
+          <label class="field-label">Sexo</label>
+          <select class="field-input field-select" id="cl-sex" oninput="liveCalcMacros()">
+            <option value="">Seleccionar</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row field-row-3">
+        <div>
+          <label class="field-label">Peso (kg)</label>
+          <input class="field-input" id="cl-weight" type="number" placeholder="70" oninput="liveCalcMacros()">
+        </div>
+        <div>
+          <label class="field-label">Altura (cm)</label>
+          <input class="field-input" id="cl-height" type="number" placeholder="170" oninput="liveCalcMacros()">
+        </div>
+        <div>
+          <label class="field-label">Grasa corporal %</label>
+          <input class="field-input" id="cl-bf" type="number" placeholder="20">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Nivel de actividad</label>
+        <select class="field-input field-select" id="cl-activity" oninput="liveCalcMacros()">
+          <option value="">Seleccionar</option>
+          <option value="1.2">Sedentario</option>
+          <option value="1.375">Ligero (1-3 días/sem)</option>
+          <option value="1.55">Moderado (3-5 días/sem)</option>
+          <option value="1.725">Activo (6-7 días/sem)</option>
+          <option value="1.9">Muy activo (2x/día)</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Objetivo</label>
+        <select class="field-input field-select" id="cl-goal" oninput="liveCalcMacros()">
+          <option value="">Seleccionar</option>
+          <option value="cut">Definición (-500 kcal)</option>
+          <option value="maintain">Mantenimiento</option>
+          <option value="bulk">Volumen magro (+250 kcal)</option>
+          <option value="agbulk">Volumen agresivo (+500 kcal)</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Proteína target</label>
+        <select class="field-input field-select" id="cl-prot" oninput="liveCalcMacros()">
+          <option value="1.6">1.6g/kg — Mínimo eficaz</option>
+          <option value="2.0" selected>2.0g/kg — Recomendado</option>
+          <option value="2.4">2.4g/kg — Alta intensidad</option>
+          <option value="2.8">2.8g/kg — Máximo</option>
+        </select>
+      </div>
+      <!-- LIVE MACRO PREVIEW -->
+      <div id="cl-macro-preview" style="display:none;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px;margin-bottom:14px;">
+        <div style="font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Vista previa de macros</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="cl-macro-boxes"></div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Notas / observaciones</label>
+        <textarea class="field-input" id="cl-notes" rows="2" placeholder="Lesiones, preferencias, notas importantes..."></textarea>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeOverlay('client-overlay')">Cancelar</button>
+      <button class="btn btn-accent btn-md" style="flex:1" onclick="saveClient()">Guardar asesorado</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE / EDIT ROUTINE -->
+<div class="overlay" id="routine-overlay">
+  <div class="sheet" style="max-width:600px;">
+    <div class="sheet-head">
+      <div class="sheet-title" id="routine-sheet-title">Nueva rutina</div>
+      <button class="sheet-close" onclick="closeOverlay('routine-overlay')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="field-row field-row-2 mb-8">
+        <div>
+          <label class="field-label">Nombre de la rutina *</label>
+          <input class="field-input" id="rt-name" placeholder="Ej: PPL Semana A">
+        </div>
+        <div>
+          <label class="field-label">Día / Etiqueta</label>
+          <input class="field-input" id="rt-day" placeholder="Ej: Lunes - Empuje">
+        </div>
+      </div>
+      <div class="field-row field-row-2 mb-12">
+        <div>
+          <label class="field-label">Asignar a (opcional)</label>
+          <select class="field-input field-select" id="rt-client">
+            <option value="">Sin asignar</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Icono</label>
+          <select class="field-input field-select" id="rt-icon">
+            <option value="💪">💪 Fuerza</option>
+            <option value="🏋️">🏋️ Pesas</option>
+            <option value="🔥">🔥 Intenso</option>
+            <option value="🎯">🎯 Técnica</option>
+            <option value="⚡">⚡ Potencia</option>
+            <option value="🏃">🏃 Cardio</option>
+            <option value="🧘">🧘 Movilidad</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group mb-12">
+        <label class="field-label">Notas de la rutina</label>
+        <textarea class="field-input" id="rt-notes" rows="2" placeholder="Instrucciones especiales, descanso recomendado..."></textarea>
+      </div>
+
+      <div class="flex-between mb-8">
+        <span style="font-size:.75rem;font-weight:700;color:var(--text2);letter-spacing:1px;text-transform:uppercase;">Ejercicios</span>
+        <button class="btn btn-ghost btn-sm" onclick="openExPickerForRoutine()">+ Agregar ejercicio</button>
+      </div>
+      <div id="rt-exercises-list"></div>
+      <div id="rt-no-ex" style="color:var(--text3);font-size:.78rem;text-align:center;padding:20px 0;">Agrega ejercicios con el botón de arriba</div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeOverlay('routine-overlay')">Cancelar</button>
+      <button class="btn btn-accent btn-md" style="flex:1" onclick="saveRoutine()">Guardar rutina</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXERCISE PICKER FOR ROUTINE -->
+<div class="overlay" id="ex-picker-overlay">
+  <div class="sheet" style="max-width:520px;">
+    <div class="sheet-head">
+      <div class="sheet-title">Agregar ejercicio</div>
+      <button class="sheet-close" onclick="closeOverlay('ex-picker-overlay')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <input class="field-input mb-8" id="ex-picker-search" placeholder="Buscar..." oninput="filterExPicker()">
+      <div class="fchip-bar" id="ex-picker-filter"></div>
+      <div id="ex-picker-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SELECT OVERLAY (generic) -->
+<div class="overlay" id="select-overlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <div class="sheet-title" id="select-title">Seleccionar</div>
+      <button class="sheet-close" onclick="closeOverlay('select-overlay')">✕</button>
+    </div>
+    <div class="sheet-body" id="select-list"></div>
+  </div>
+</div>
+
+<!-- PDF PREVIEW / EXPORT -->
+<div class="overlay" id="pdf-overlay" style="align-items:center;">
+  <div class="sheet" style="max-width:680px;border-radius:14px;max-height:92vh;">
+    <div class="sheet-head">
+      <div class="sheet-title">Vista previa PDF</div>
+      <button class="sheet-close" onclick="closeOverlay('pdf-overlay')">✕</button>
+    </div>
+    <div class="sheet-body" id="pdf-preview-body" style="background:#e0e0e0;padding:16px;"></div>
+    <div class="sheet-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeOverlay('pdf-overlay')">Cancelar</button>
+      <button class="btn btn-green btn-md" style="flex:1" onclick="downloadPDF()">⬇ Descargar PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- DATA MANAGER: EXPORT / IMPORT -->
+<div class="overlay" id="data-overlay">
+  <div class="sheet" style="max-width:520px;">
+    <div class="sheet-head">
+      <div class="sheet-title">💾 Exportar / Importar datos</div>
+      <button class="sheet-close" onclick="closeOverlay('data-overlay')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="stats-grid stats-grid-3 mb-16" id="dm-stats"></div>
+      <div class="card mb-12">
+        <div class="card-title">📤 Exportar</div>
+        <p style="font-size:.8rem;color:var(--text2);margin-bottom:12px;">Descarga un archivo <strong>.json</strong> con todos tus asesorados y rutinas. Úsalo como respaldo o para transferirlo a otro dispositivo (PC ↔ móvil).</p>
+        <button class="btn btn-accent btn-full" onclick="exportData()">⬇ Descargar backup.json</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📥 Importar</div>
+        <p style="font-size:.8rem;color:var(--text2);margin-bottom:12px;">Selecciona un archivo <strong>.json</strong> exportado previamente. Elige si deseas <em>fusionar</em> con los datos actuales o <em>reemplazarlos</em>.</p>
+        <div style="display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.78rem;color:var(--text2);">
+            <input type="radio" name="import-mode" value="merge" checked> Fusionar (conservar actuales)
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.78rem;color:var(--accent3);">
+            <input type="radio" name="import-mode" value="replace"> Reemplazar todo
+          </label>
+        </div>
+        <label class="btn btn-ghost btn-full" style="cursor:pointer;justify-content:center;">
+          📁 Seleccionar archivo JSON
+          <input type="file" accept=".json" style="display:none" onchange="importData(this)">
+        </label>
+        <div id="import-msg" style="margin-top:8px;font-size:.78rem;min-height:1.4em;text-align:center;"></div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-ghost btn-md" style="flex:1" onclick="closeOverlay('data-overlay')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// AUTH
+// =====================================================================
+const PASS = 'jelianft2024';
+function doLogin(){
+  const v=document.getElementById('login-pass').value;
+  if(v===PASS){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').className='visible';
+    initApp();
+  } else {
+    document.getElementById('login-err').textContent='Contraseña incorrecta';
+    setTimeout(()=>document.getElementById('login-err').textContent='',2000);
+  }
+}
+document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// =====================================================================
+// DATA STORAGE
+// =====================================================================
+const STORE_KEY = 'jft_coach_v1';
+let ST = { clients:[], routines:[] };
+
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(ST)); }
+function load(){
+  try{
+    const d=localStorage.getItem(STORE_KEY);
+    if(d){ ST=JSON.parse(d); }
+    // Migrate if needed
+    if(!ST.clients) ST.clients=[];
+    if(!ST.routines) ST.routines=[];
+  } catch(e){ ST={clients:[],routines:[]}; }
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+// =====================================================================
+// =====================================================================
+// BASE DE DATOS COMPLETA DE EJERCICIOS — AUDITORÍA TOTAL
+// =====================================================================
+const EX_DB=[
+// ─── PECHO ──────────────────────────────────────────────────────────
+{id:'pb1',n:'Press Banca Plano (Barra)',m:'Pecho',cat:'Barra',e:'🏋️',tip:'Retracción escapular. Barra a la mitad del esternón.'},
+{id:'pb2',n:'Press Banca Inclinado (Barra)',m:'Pecho',cat:'Barra',e:'🏋️',tip:'30-45°. Énfasis parte alta del pecho.'},
+{id:'pb3',n:'Press Banca Declinado (Barra)',m:'Pecho',cat:'Barra',e:'🏋️',tip:'Énfasis pectoral inferior.'},
+{id:'pm1',n:'Press Banca Plano (Mancuernas)',m:'Pecho',cat:'Mancuernas',e:'🏋️',tip:'Mayor rango de movimiento que barra.'},
+{id:'pm2',n:'Press Inclinado (Mancuernas)',m:'Pecho',cat:'Mancuernas',e:'🏋️',tip:'Gira las manos al subir.'},
+{id:'pm3',n:'Press Declinado (Mancuernas)',m:'Pecho',cat:'Mancuernas',e:'🏋️',tip:'Énfasis pectoral inferior.'},
+{id:'pm4',n:'Aperturas en Banco Plano',m:'Pecho',cat:'Mancuernas',e:'🏋️',tip:'Arco del movimiento. Ligera flexión de codo.'},
+{id:'pm5',n:'Aperturas en Banco Inclinado',m:'Pecho',cat:'Mancuernas',e:'🏋️',tip:'Estira bien en la posición baja.'},
+{id:'pm6',n:'Pullover con Mancuerna',m:'Pecho',cat:'Mancuernas',e:'🏋️',tip:'Trabaja serrato y pectoral.'},
+{id:'pmq1',n:'Press Pecho en Máquina',m:'Pecho',cat:'Máquina',e:'⚙️',tip:'Ajusta el asiento correctamente.'},
+{id:'pmq2',n:'Aperturas en Máquina (Pec Deck)',m:'Pecho',cat:'Máquina',e:'⚙️',tip:'Pausa 1s en contracción máxima.'},
+{id:'pmq3',n:'Aperturas en Polea Alta',m:'Pecho',cat:'Polea',e:'🔗',tip:'Tensión constante todo el recorrido.'},
+{id:'pmq4',n:'Aperturas en Polea Baja',m:'Pecho',cat:'Polea',e:'🔗',tip:'Énfasis en parte superior del pecho.'},
+{id:'pmq5',n:'Press Hammer (Máquina)',m:'Pecho',cat:'Máquina',e:'⚙️',tip:'Controla fase excéntrica.'},
+{id:'pmq6',n:'Press Inclinado en Máquina',m:'Pecho',cat:'Máquina',e:'⚙️',tip:'Seguro para altas cargas.'},
+{id:'pmq7',n:'Cable Crossover',m:'Pecho',cat:'Polea',e:'🔗',tip:'Polea alta a baja. Pecho completo.'},
+{id:'pmq8',n:'Aperturas en Polea Media',m:'Pecho',cat:'Polea',e:'🔗',tip:'Impacto completo en pectoral.'},
+{id:'pc1',n:'Flexiones Clásicas',m:'Pecho',cat:'Calistenia',e:'💪',tip:'Cuerpo recto. Pecho casi toca el suelo.'},
+{id:'pc2',n:'Flexiones Diamante',m:'Pecho',cat:'Calistenia',e:'💪',tip:'Énfasis en tríceps y pecho interno.'},
+{id:'pc3',n:'Flexiones Declinadas',m:'Pecho',cat:'Calistenia',e:'💪',tip:'Pies elevados. Énfasis pecho superior.'},
+{id:'pc4',n:'Flexiones Inclinadas',m:'Pecho',cat:'Calistenia',e:'💪',tip:'Manos elevadas. Énfasis pecho inferior.'},
+{id:'pc5',n:'Fondos en Paralelas (Pecho)',m:'Pecho',cat:'Calistenia',e:'💪',tip:'Torso inclinado al frente.'},
+{id:'pc6',n:'Flexiones Arqueras',m:'Pecho',cat:'Calistenia',e:'💪',tip:'Progresión a flexión a una mano.'},
+{id:'pc7',n:'Flexiones con Palmada',m:'Pecho',cat:'Calistenia',e:'💪',tip:'Explosivo. Potencia del tren superior.'},
+{id:'pc8',n:'Flexiones en Anillas',m:'Pecho',cat:'Calistenia',e:'💪',tip:'Inestabilidad añadida. Mayor activación.'},
+// ─── ESPALDA ────────────────────────────────────────────────────────
+{id:'eb1',n:'Peso Muerto Convencional',m:'Espalda',cat:'Barra',e:'🏋️',tip:'Barra pegada. Empuja el suelo, no jales.'},
+{id:'eb2',n:'Remo con Barra (Pronado)',m:'Espalda',cat:'Barra',e:'🏋️',tip:'Torso 45°. Codos hacia atrás.'},
+{id:'eb3',n:'Remo con Barra (Supinado)',m:'Espalda',cat:'Barra',e:'🏋️',tip:'Mayor activación de bíceps.'},
+{id:'eb4',n:'Remo Pendlay',m:'Espalda',cat:'Barra',e:'🏋️',tip:'Desde el suelo. Explosivo.'},
+{id:'eb5',n:'Remo T-Bar',m:'Espalda',cat:'Barra',e:'🏋️',tip:'Grosor de espalda.'},
+{id:'eb6',n:'Peso Muerto Sumo',m:'Espalda',cat:'Barra',e:'🏋️',tip:'Pies abiertos. Mayor activación de cadera.'},
+{id:'eb7',n:'Peso Muerto Déficit',m:'Espalda',cat:'Barra',e:'🏋️',tip:'De pie en elevación. Mayor rango.'},
+{id:'eb8',n:'Good Morning',m:'Espalda',cat:'Barra',e:'🏋️',tip:'Barra en trapecios. Bisagra de cadera.'},
+{id:'em1',n:'Remo con Mancuerna (Unilateral)',m:'Espalda',cat:'Mancuernas',e:'🏋️',tip:'Estiramiento máximo. Codo a la cadera.'},
+{id:'em2',n:'Remo Mancuerna Banco Inclinado',m:'Espalda',cat:'Mancuernas',e:'🏋️',tip:'Más estable. Énfasis en estiramiento.'},
+{id:'em3',n:'Remo Bilateral con Mancuernas',m:'Espalda',cat:'Mancuernas',e:'🏋️',tip:'Torso paralelo al suelo.'},
+{id:'eq1',n:'Jalón al Pecho Agarre Ancho',m:'Espalda',cat:'Polea',e:'🔗',tip:'Codos hacia la cadera.'},
+{id:'eq2',n:'Jalón al Pecho Agarre Neutro',m:'Espalda',cat:'Polea',e:'🔗',tip:'Mayor activación del dorsal.'},
+{id:'eq3',n:'Jalón al Pecho Agarre Supinado',m:'Espalda',cat:'Polea',e:'🔗',tip:'Mezcla bíceps y dorsal.'},
+{id:'eq4',n:'Remo en Polea Baja',m:'Espalda',cat:'Polea',e:'🔗',tip:'Apretar escápulas al final.'},
+{id:'eq5',n:'Remo en Polea (Cuerda)',m:'Espalda',cat:'Polea',e:'🔗',tip:'Abre las manos al final.'},
+{id:'eq6',n:'Face Pull en Polea',m:'Espalda',cat:'Polea',e:'🔗',tip:'Llevar a la frente. Salud del hombro.'},
+{id:'eq7',n:'Straight Arm Pulldown',m:'Espalda',cat:'Polea',e:'🔗',tip:'Brazos rectos. Dorsal en elongación.'},
+{id:'eq8',n:'Remo en Máquina',m:'Espalda',cat:'Máquina',e:'⚙️',tip:'Pecho en el pad.'},
+{id:'eq9',n:'Jalón al Pecho Agarre Cerrado',m:'Espalda',cat:'Polea',e:'🔗',tip:'Mayor recorrido. Dorsal inferior.'},
+{id:'eq10',n:'Remo Unilateral en Polea',m:'Espalda',cat:'Polea',e:'🔗',tip:'Corrección de asimetrías.'},
+{id:'ec1',n:'Dominadas Agarre Ancho',m:'Espalda',cat:'Calistenia',e:'💪',tip:'Pecho al bar. Codos hacia la cadera.'},
+{id:'ec2',n:'Dominadas Agarre Neutro',m:'Espalda',cat:'Calistenia',e:'💪',tip:'Mezcla dorsal y bíceps.'},
+{id:'ec3',n:'Chin-ups (Agarre Supinado)',m:'Espalda',cat:'Calistenia',e:'💪',tip:'Mayor activación bíceps.'},
+{id:'ec4',n:'Remo Invertido en Barra',m:'Espalda',cat:'Calistenia',e:'💪',tip:'Cuerpo rígido. Pecho a la barra.'},
+{id:'ec5',n:'Dominadas con Peso',m:'Espalda',cat:'Calistenia',e:'💪',tip:'Agrega peso con cinturón o chaleco.'},
+{id:'ec6',n:'Dominadas Explosivas',m:'Espalda',cat:'Calistenia',e:'💪',tip:'Subir por encima de la barra.'},
+{id:'ec7',n:'Remo Supino en Anillas',m:'Espalda',cat:'Calistenia',e:'💪',tip:'Similar al remo invertido. Progresivo.'},
+// ─── HOMBROS ────────────────────────────────────────────────────────
+{id:'hb1',n:'Press Militar (Barra)',m:'Hombros',cat:'Barra',e:'🏋️',tip:'Core activo. Agarre ligeramente ancho.'},
+{id:'hb2',n:'Press Tras Nuca (Barra)',m:'Hombros',cat:'Barra',e:'🏋️',tip:'Cuidado con la movilidad de hombro.'},
+{id:'hq5',n:'Upright Row (Barra)',m:'Hombros',cat:'Barra',e:'🏋️',tip:'Codos por encima de las muñecas.'},
+{id:'hm1',n:'Press Arnold',m:'Hombros',cat:'Mancuernas',e:'🏋️',tip:'Rotación en el movimiento. Deltoide anterior.'},
+{id:'hm2',n:'Press Militar (Mancuernas)',m:'Hombros',cat:'Mancuernas',e:'🏋️',tip:'Control en la fase negativa.'},
+{id:'hm3',n:'Elevaciones Laterales',m:'Hombros',cat:'Mancuernas',e:'🏋️',tip:'Codo ligeramente doblado. No balancear.'},
+{id:'hm4',n:'Elevaciones Frontales',m:'Hombros',cat:'Mancuernas',e:'🏋️',tip:'Deltoide anterior. Control excéntrico.'},
+{id:'hm5',n:'Pájaro (Elevación Posterior)',m:'Hombros',cat:'Mancuernas',e:'🏋️',tip:'Torso paralelo al suelo. Deltoide posterior.'},
+{id:'hm6',n:'Press a Una Mano (Mancuerna)',m:'Hombros',cat:'Mancuernas',e:'🏋️',tip:'Core activo. Corrección de asimetrías.'},
+{id:'hq6',n:'Upright Row (Mancuernas)',m:'Hombros',cat:'Mancuernas',e:'🏋️',tip:'Mayor rango. Trapecio y deltoide.'},
+{id:'hq1',n:'Elevaciones Laterales en Polea',m:'Hombros',cat:'Polea',e:'🔗',tip:'Tensión constante. Sin trampa.'},
+{id:'hq4',n:'Elevación Lateral Polea Cruzada',m:'Hombros',cat:'Polea',e:'🔗',tip:'Tensión desde abajo. Deltoide medio.'},
+{id:'hq2',n:'Press en Máquina',m:'Hombros',cat:'Máquina',e:'⚙️',tip:'Estable. Bueno para alta intensidad.'},
+{id:'hq3',n:'Elevaciones Posteriores en Máquina',m:'Hombros',cat:'Máquina',e:'⚙️',tip:'Deltoide posterior. Cabeza agachada.'},
+{id:'hc1',n:'Pike Push-Ups',m:'Hombros',cat:'Calistenia',e:'💪',tip:'Cuerpo en V. Cabeza entre brazos al bajar.'},
+{id:'hc2',n:'Handstand Push-Ups',m:'Hombros',cat:'Calistenia',e:'💪',tip:'Avanzado. Contra la pared para empezar.'},
+{id:'hba1',n:'Elevaciones Laterales (Banda)',m:'Hombros',cat:'Banda',e:'🟡',tip:'Alto volumen. Fácil de escalar.'},
+{id:'hba2',n:'Face Pull (Banda)',m:'Hombros',cat:'Banda',e:'🟡',tip:'Rotación externa. Salud del manguito.'},
+{id:'hba3',n:'Rotación Externa (Banda)',m:'Hombros',cat:'Banda',e:'🟡',tip:'Manguito rotador. Esencial.'},
+{id:'hba4',n:'Press Frontal (Banda)',m:'Hombros',cat:'Banda',e:'🟡',tip:'Deltoide anterior. Sin equipo.'},
+// ─── BÍCEPS ─────────────────────────────────────────────────────────
+{id:'bib1',n:'Curl Bíceps (Barra)',m:'Bíceps',cat:'Barra',e:'🏋️',tip:'Sin balanceo. Control total.'},
+{id:'bib2',n:'Curl con Barra EZ',m:'Bíceps',cat:'Barra',e:'🏋️',tip:'Menos estrés en muñecas.'},
+{id:'bib3',n:'Curl Predicador (Barra)',m:'Bíceps',cat:'Barra',e:'🏋️',tip:'Banco Scott. Excelente aislamiento.'},
+{id:'bim1',n:'Curl Alternado (Mancuernas)',m:'Bíceps',cat:'Mancuernas',e:'🏋️',tip:'Supina la muñeca al subir.'},
+{id:'bim2',n:'Curl Martillo',m:'Bíceps',cat:'Mancuernas',e:'🏋️',tip:'Braquiorradial y bíceps.'},
+{id:'bim3',n:'Curl Concentrado',m:'Bíceps',cat:'Mancuernas',e:'🏋️',tip:'Máximo aislamiento.'},
+{id:'bim4',n:'Curl Spider',m:'Bíceps',cat:'Mancuernas',e:'🏋️',tip:'Pecho en banco 45°.'},
+{id:'bim5',n:'Curl Inclinado (Stretch)',m:'Bíceps',cat:'Mancuernas',e:'🏋️',tip:'Máximo estiramiento. Hipertrofia.'},
+{id:'bim6',n:'Curl Zottman',m:'Bíceps',cat:'Mancuernas',e:'🏋️',tip:'Sube supinado, baja pronado. Antebrazo.'},
+{id:'biq1',n:'Curl en Polea Baja',m:'Bíceps',cat:'Polea',e:'🔗',tip:'Tensión constante.'},
+{id:'biq2',n:'Curl en Polea Alta (Crucifijo)',m:'Bíceps',cat:'Polea',e:'🔗',tip:'Parte corta del bíceps.'},
+{id:'biq3',n:'Curl con Banda',m:'Bíceps',cat:'Banda',e:'🟡',tip:'Alto tiempo bajo tensión.'},
+{id:'biq4',n:'Curl Predicador en Máquina',m:'Bíceps',cat:'Máquina',e:'⚙️',tip:'Excelente para aislamiento.'},
+{id:'biq5',n:'Curl en Máquina (Sentado)',m:'Bíceps',cat:'Máquina',e:'⚙️',tip:'Estable. Carga progresiva fácil.'},
+// ─── TRÍCEPS ────────────────────────────────────────────────────────
+{id:'trib1',n:'Press Francés (Barra EZ)',m:'Tríceps',cat:'Barra',e:'🏋️',tip:'Codos cerrados y apuntando al techo.'},
+{id:'trib2',n:'Press Francés (Barra Recta)',m:'Tríceps',cat:'Barra',e:'🏋️',tip:'Codos fijos.'},
+{id:'triq2',n:'JM Press',m:'Tríceps',cat:'Barra',e:'🏋️',tip:'Mixto entre press y francés. Masa.'},
+{id:'trib3',n:'Extensión Tríceps Polea (Cuerda)',m:'Tríceps',cat:'Polea',e:'🔗',tip:'Abre la cuerda al final.'},
+{id:'trib4',n:'Extensión Tríceps Polea (Barra)',m:'Tríceps',cat:'Polea',e:'🔗',tip:'Codos pegados al cuerpo.'},
+{id:'trib5',n:'Extensión Tríceps Polea Baja',m:'Tríceps',cat:'Polea',e:'🔗',tip:'Trabaja cabeza larga.'},
+{id:'trib6',n:'Katana / Extensión Lateral Polea',m:'Tríceps',cat:'Polea',e:'🔗',tip:'Excelente aislamiento lateral.'},
+{id:'triq1',n:'Extensión Tríceps Unilateral Polea',m:'Tríceps',cat:'Polea',e:'🔗',tip:'Corrección de asimetrías.'},
+{id:'trim1',n:'Press Francés (Mancuerna)',m:'Tríceps',cat:'Mancuernas',e:'🏋️',tip:'Una o dos manos.'},
+{id:'trim2',n:'Kickback (Patada de Burro)',m:'Tríceps',cat:'Mancuernas',e:'🏋️',tip:'Codo fijo. Extiende completamente.'},
+{id:'trim3',n:'Extensión Tríceps sobre Cabeza (Mancuerna)',m:'Tríceps',cat:'Mancuernas',e:'🏋️',tip:'Cabeza larga. Estira bien.'},
+{id:'tric1',n:'Fondos en Paralelas (Tríceps)',m:'Tríceps',cat:'Calistenia',e:'💪',tip:'Torso erecto. Codos pegados.'},
+{id:'tric2',n:'Fondos en Banco (Dips)',m:'Tríceps',cat:'Calistenia',e:'💪',tip:'Torso erecto para énfasis tríceps.'},
+{id:'tric3',n:'Diamond Push-Ups',m:'Tríceps',cat:'Calistenia',e:'💪',tip:'Manos juntas formando rombo.'},
+{id:'tribnd1',n:'Extensión Tríceps (Banda)',m:'Tríceps',cat:'Banda',e:'🟡',tip:'Sobre la cabeza. Cabeza larga.'},
+// ─── PIERNA ─────────────────────────────────────────────────────────
+{id:'legb1',n:'Sentadilla Trasera (Low Bar)',m:'Pierna',cat:'Barra',e:'🏋️',tip:'Barra baja. Glúteos y cadera.'},
+{id:'legb2',n:'Sentadilla Trasera (High Bar)',m:'Pierna',cat:'Barra',e:'🏋️',tip:'Barra alta. Mayor rango. Cuádriceps.'},
+{id:'legb3',n:'Sentadilla Frontal',m:'Pierna',cat:'Barra',e:'🏋️',tip:'Torso muy erecto. Cuádriceps.'},
+{id:'legb4',n:'Peso Muerto Rumano (Barra)',m:'Pierna',cat:'Barra',e:'🏋️',tip:'Bisagra de cadera. Isquios y glúteo.'},
+{id:'legb5',n:'Hip Thrust (Barra)',m:'Pierna',cat:'Barra',e:'🏋️',tip:'Bloqueo 1s arriba. Rey del glúteo.'},
+{id:'legb6',n:'Zancada con Barra',m:'Pierna',cat:'Barra',e:'🏋️',tip:'Paso largo. Rodilla trasera casi al suelo.'},
+{id:'legb7',n:'Sentadilla Pausa',m:'Pierna',cat:'Barra',e:'🏋️',tip:'Pausa 2s abajo. Fuerza desde el fondo.'},
+{id:'legb8',n:'Peso Muerto a Una Pierna (Barra)',m:'Pierna',cat:'Barra',e:'🏋️',tip:'Equilibrio y fuerza unilateral.'},
+{id:'legm1',n:'Goblet Squat',m:'Pierna',cat:'Mancuernas',e:'🏋️',tip:'Mancuerna en pecho. Espalda erguida.'},
+{id:'legm2',n:'Zancada Caminando (Mancuernas)',m:'Pierna',cat:'Mancuernas',e:'🏋️',tip:'Equilibrio y glúteos.'},
+{id:'legm3',n:'Sentadilla Búlgara (Mancuernas)',m:'Pierna',cat:'Mancuernas',e:'🏋️',tip:'Pie trasero elevado. Cuádriceps.'},
+{id:'legm4',n:'Peso Muerto Rumano (Mancuernas)',m:'Pierna',cat:'Mancuernas',e:'🏋️',tip:'Mayor rango de movimiento.'},
+{id:'legm5',n:'Hip Thrust con Mancuerna',m:'Pierna',cat:'Mancuernas',e:'🏋️',tip:'Versión accesible del Hip Thrust.'},
+{id:'legm6',n:'Step-Up (Mancuernas)',m:'Pierna',cat:'Mancuernas',e:'🏋️',tip:'Sube con el talón. Controla bajada.'},
+{id:'legm7',n:'Peso Muerto a Una Pierna (Mancuernas)',m:'Pierna',cat:'Mancuernas',e:'🏋️',tip:'Isquios y glúteo. Equilibrio.'},
+{id:'legm8',n:'Zancada Estática (Mancuernas)',m:'Pierna',cat:'Mancuernas',e:'🏋️',tip:'Posición fija. Más estable.'},
+{id:'leqm1',n:'Prensa de Piernas',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'No bloquees las rodillas arriba.'},
+{id:'leqm2',n:'Extensión de Cuádriceps',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Pausa 1s arriba.'},
+{id:'leqm3',n:'Curl Femoral Tumbado',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Pega la cadera al banco.'},
+{id:'leqm4',n:'Curl Femoral Sentado',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Mayor rango de movimiento.'},
+{id:'leqm5',n:'Abductor en Máquina',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Glúteo medio y TFL.'},
+{id:'leqm6',n:'Aductor en Máquina',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Aductores internos.'},
+{id:'leqm7',n:'Gemelos de Pie en Máquina',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Pausa en contracción. Estira abajo.'},
+{id:'leqm8',n:'Sóleo Sentado en Máquina',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Trabaja el sóleo directamente.'},
+{id:'leqm9',n:'Hack Squat',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Cuádriceps. Espalda soportada.'},
+{id:'leqm10',n:'Glute Kickback en Máquina',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Excelente aislamiento de glúteo.'},
+{id:'leqm11',n:'Prensa de Piernas (Una pierna)',m:'Pierna',cat:'Máquina',e:'⚙️',tip:'Unilateral. Corrige asimetrías.'},
+{id:'legc1',n:'Sentadilla (peso corporal)',m:'Pierna',cat:'Calistenia',e:'💪',tip:'Perfecto para calentar.'},
+{id:'legc2',n:'Pistol Squat',m:'Pierna',cat:'Calistenia',e:'💪',tip:'Avanzado. Requiere movilidad y equilibrio.'},
+{id:'legc3',n:'Glute Bridge',m:'Pierna',cat:'Calistenia',e:'💪',tip:'Aprieta glúteos 1s arriba.'},
+{id:'legc4',n:'Nordic Curl',m:'Pierna',cat:'Calistenia',e:'💪',tip:'Isquios. Muy difícil.'},
+{id:'legc5',n:'Elevaciones de Talón',m:'Pierna',cat:'Calistenia',e:'💪',tip:'Una o dos piernas. Alto volumen.'},
+{id:'legc6',n:'Box Jump',m:'Pierna',cat:'Calistenia',e:'💪',tip:'Potencia. Aterriza suave.'},
+{id:'legc7',n:'Sentadilla Búlgara (peso corporal)',m:'Pierna',cat:'Calistenia',e:'💪',tip:'Sin equipamiento.'},
+{id:'legba1',n:'Patada de Glúteo (Banda)',m:'Pierna',cat:'Banda',e:'🟡',tip:'Alto volumen. Glúteo.'},
+{id:'legba2',n:'Abducción de Cadera (Banda)',m:'Pierna',cat:'Banda',e:'🟡',tip:'Glúteo medio.'},
+{id:'legba3',n:'Sentadilla con Banda',m:'Pierna',cat:'Banda',e:'🟡',tip:'Banda sobre rodillas para activar glúteo.'},
+{id:'legba4',n:'Curl Femoral (Banda)',m:'Pierna',cat:'Banda',e:'🟡',tip:'Tumbado boca abajo. Isquios.'},
+{id:'legba5',n:'Monster Walk (Banda)',m:'Pierna',cat:'Banda',e:'🟡',tip:'Glúteo medio. Lateral steps.'},
+// ─── GLÚTEO ─────────────────────────────────────────────────────────
+{id:'glu1',n:'Hip Thrust Barra',m:'Glúteo',cat:'Barra',e:'🏋️',tip:'El rey del glúteo.'},
+{id:'glu2',n:'Sentadilla Búlgara',m:'Glúteo',cat:'Mancuernas',e:'🏋️',tip:'Glúteo y cuádriceps.'},
+{id:'glu3',n:'Cable Kickback',m:'Glúteo',cat:'Polea',e:'🔗',tip:'Pausa arriba.'},
+{id:'glu4',n:'Abducción con Banda (de pie)',m:'Glúteo',cat:'Banda',e:'🟡',tip:'Glúteo medio.'},
+{id:'glu5',n:'Clamshell (Almeja)',m:'Glúteo',cat:'Banda',e:'🟡',tip:'Tumbado de lado. Glúteo externo.'},
+{id:'glu6',n:'Hip Thrust Unilateral',m:'Glúteo',cat:'Barra',e:'🏋️',tip:'Una pierna. Mayor activación.'},
+{id:'glu7',n:'Donkey Kick',m:'Glúteo',cat:'Calistenia',e:'💪',tip:'En cuadrupedia. Pausa arriba.'},
+{id:'glu8',n:'Fire Hydrant',m:'Glúteo',cat:'Calistenia',e:'💪',tip:'Abducción en cuadrupedia. Glúteo medio.'},
+{id:'glu9',n:'Frog Pump',m:'Glúteo',cat:'Calistenia',e:'💪',tip:'Pies juntos. Activación intensa del glúteo.'},
+{id:'glu10',n:'Hip Thrust en Máquina',m:'Glúteo',cat:'Máquina',e:'⚙️',tip:'Versión guiada. Más segura.'},
+{id:'glu11',n:'Cable Pull Through',m:'Glúteo',cat:'Polea',e:'🔗',tip:'Bisagra de cadera. Glúteo y posterior.'},
+{id:'glu12',n:'Reverse Hyper',m:'Glúteo',cat:'Máquina',e:'⚙️',tip:'Glúteo y lumbar. Muy efectivo.'},
+// ─── GEMELOS ────────────────────────────────────────────────────────
+{id:'gem1',n:'Gemelos de Pie (Máquina)',m:'Gemelos',cat:'Máquina',e:'⚙️',tip:'Pausa en contracción.'},
+{id:'gem2',n:'Sóleo Sentado (Máquina)',m:'Gemelos',cat:'Máquina',e:'⚙️',tip:'Sóleo directamente.'},
+{id:'gem3',n:'Gemelos en Prensa',m:'Gemelos',cat:'Máquina',e:'⚙️',tip:'Rodillas casi extendidas.'},
+{id:'gem4',n:'Elevación de Talones (peso corporal)',m:'Gemelos',cat:'Calistenia',e:'💪',tip:'En escalón. Una pierna para progresar.'},
+{id:'gem5',n:'Elevación de Talones con Mancuerna',m:'Gemelos',cat:'Mancuernas',e:'🏋️',tip:'Un pie en escalón. Máximo rango.'},
+{id:'gem6',n:'Elevación de Talones con Barra',m:'Gemelos',cat:'Barra',e:'🏋️',tip:'Alta carga. Pausa abajo.'},
+// ─── TRAPECIO ───────────────────────────────────────────────────────
+{id:'trap1',n:'Encogimiento de Hombros (Barra)',m:'Trapecio',cat:'Barra',e:'🏋️',tip:'Sube derecto. No rotar.'},
+{id:'trap2',n:'Encogimiento de Hombros (Mancuernas)',m:'Trapecio',cat:'Mancuernas',e:'🏋️',tip:'Mayor rango.'},
+{id:'trap3',n:'Encogimiento en Máquina',m:'Trapecio',cat:'Máquina',e:'⚙️',tip:'Controla excéntrica.'},
+{id:'trap4',n:'Encogimiento en Polea',m:'Trapecio',cat:'Polea',e:'🔗',tip:'Tensión constante.'},
+{id:'trap5',n:'Remo al Cuello (Barra)',m:'Trapecio',cat:'Barra',e:'🏋️',tip:'Codos altos. Trapecio y deltoide.'},
+// ─── CORE ───────────────────────────────────────────────────────────
+{id:'cor1',n:'Plancha Frontal',m:'Core',cat:'Calistenia',e:'💪',tip:'Core activo. Sin hundir ni elevar caderas.',type:'timed'},
+{id:'cor2',n:'Plancha Lateral',m:'Core',cat:'Calistenia',e:'💪',tip:'Caderas elevadas. Cuerpo en línea.',type:'timed'},
+{id:'cor3',n:'Crunch Abdominal',m:'Core',cat:'Calistenia',e:'💪',tip:'No jales el cuello.'},
+{id:'cor4',n:'Crunch con Rotación',m:'Core',cat:'Calistenia',e:'💪',tip:'Oblicuos externos e internos.'},
+{id:'cor5',n:'Elevaciones de Piernas Colgado',m:'Core',cat:'Calistenia',e:'💪',tip:'Evita balanceo.'},
+{id:'cor6',n:'Elevaciones de Piernas en Banco',m:'Core',cat:'Calistenia',e:'💪',tip:'Más accesible.'},
+{id:'cor7',n:'Ab Wheel (Rueda abdominal)',m:'Core',cat:'Calistenia',e:'💪',tip:'Core anterior. Difícil.'},
+{id:'cor8',n:'Cable Crunch',m:'Core',cat:'Polea',e:'🔗',tip:'Carga progresiva. Muy efectivo.'},
+{id:'cor9',n:'Woodchop (Rotación Polea)',m:'Core',cat:'Polea',e:'🔗',tip:'Oblicuos y core rotacional.'},
+{id:'cor10',n:'Dragon Flag',m:'Core',cat:'Calistenia',e:'💪',tip:'Muy avanzado. Core completo.'},
+{id:'cor11',n:'Hollow Body Hold',m:'Core',cat:'Calistenia',e:'💪',tip:'Base de la gimnasia.',type:'timed'},
+{id:'cor12',n:'Dead Bug',m:'Core',cat:'Calistenia',e:'💪',tip:'Core estabilizador. Seguro.'},
+{id:'cor13',n:'Pallof Press',m:'Core',cat:'Polea',e:'🔗',tip:'Anti-rotación. Fundamental.'},
+{id:'cor14',n:'Russian Twist',m:'Core',cat:'Calistenia',e:'💪',tip:'Con o sin peso. Oblicuos.'},
+{id:'cor15',n:'Mountain Climbers',m:'Core',cat:'Calistenia',e:'💪',tip:'Cardio + core.',type:'timed'},
+{id:'cor16',n:'Sit-Ups',m:'Core',cat:'Calistenia',e:'💪',tip:'Clásico abdominal.'},
+{id:'cor17',n:'Toe Touches',m:'Core',cat:'Calistenia',e:'💪',tip:'Piernas arriba. Toca los pies.'},
+{id:'cor18',n:'Scissors (Tijeras)',m:'Core',cat:'Calistenia',e:'💪',tip:'Piernas alternas. Core bajo.',type:'timed'},
+{id:'cor19',n:'V-Ups',m:'Core',cat:'Calistenia',e:'💪',tip:'Piernas y torso simultáneo.'},
+{id:'cor20',n:'L-Sit',m:'Core',cat:'Calistenia',e:'💪',tip:'En paralelas o suelo. Core total.',type:'timed'},
+// ─── FUNCIONAL ──────────────────────────────────────────────────────
+{id:'fn1',n:'Burpees',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Ejercicio total. Explosivo al saltar.',type:'cardio'},
+{id:'fn2',n:'Kettlebell Swing',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Bisagra explosiva. Glúteo y posterior.'},
+{id:'fn3',n:'Thrusters (Barra)',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Sentadilla + press. CrossFit clásico.'},
+{id:'fn4',n:'Farmer Walk',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Agarre + cardio + core.',type:'cardio'},
+{id:'fn5',n:'Battle Ropes',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Cardio + hombros.',type:'timed'},
+{id:'fn6',n:'Saltar la Cuerda',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Cardio. Coordinación.',type:'cardio'},
+{id:'fn7',n:'Box Jump',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Potencia de tren inferior.'},
+{id:'fn8',n:'Sled Push / Pull',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Potencia y cardio.',type:'cardio'},
+{id:'fn9',n:'Kettlebell Turkish Get-Up',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Movilidad y estabilidad completa.'},
+{id:'fn10',n:'Kettlebell Clean & Press',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Full body. Explosivo.'},
+{id:'fn11',n:'Wall Ball',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Sentadilla + lanzamiento. Cardio.'},
+{id:'fn12',n:'Clean (Barra)',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Olímpico. Técnica imprescindible.'},
+{id:'fn13',n:'Snatch (Barra)',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Olímpico avanzado. Potencia máxima.'},
+{id:'fn14',n:'Bear Crawl',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Core + hombros en movimiento.',type:'cardio'},
+{id:'fn15',n:'Tire Flip',m:'Funcional',cat:'Funcional',e:'🔥',tip:'Fuerza explosiva total.'},
+// ─── CARDIO ─────────────────────────────────────────────────────────
+{id:'cd1',n:'Correr (Cinta/Exterior)',m:'Cardio',cat:'Cardio',e:'🏃',tip:'Ritmo constante. Respira por la nariz.',type:'cardio'},
+{id:'cd2',n:'Bicicleta Estática',m:'Cardio',cat:'Cardio',e:'🚴',tip:'Resistencia moderada. Cadencia alta.',type:'cardio'},
+{id:'cd3',n:'Elíptica',m:'Cardio',cat:'Cardio',e:'🏃',tip:'Bajo impacto. Bueno para rodillas.',type:'cardio'},
+{id:'cd4',n:'Remo Ergómetro',m:'Cardio',cat:'Cardio',e:'🚣',tip:'Cuerpo completo. Excelente cardio.',type:'cardio'},
+{id:'cd5',n:'HIIT (Intervalos)',m:'Cardio',cat:'Cardio',e:'⚡',tip:'Alta intensidad. Máximo 20-30 min.',type:'timed'},
+{id:'cd6',n:'Natación',m:'Cardio',cat:'Cardio',e:'🏊',tip:'Bajo impacto. Cuerpo completo.',type:'cardio'},
+{id:'cd7',n:'Spinning',m:'Cardio',cat:'Cardio',e:'🚴',tip:'Alta intensidad en bicicleta.',type:'cardio'},
+{id:'cd8',n:'Caminata Inclinada',m:'Cardio',cat:'Cardio',e:'🏃',tip:'Cinta inclinada. Glúteos y cardio.',type:'cardio'},
+{id:'cd9',n:'Assault Bike',m:'Cardio',cat:'Cardio',e:'⚡',tip:'Bici de brazo y pierna. Brutal.',type:'cardio'},
+{id:'cd10',n:'SkiErg',m:'Cardio',cat:'Cardio',e:'⛷️',tip:'Tren superior. Cardio intenso.',type:'cardio'},
+// ─── MOVILIDAD ──────────────────────────────────────────────────────
+{id:'mob1',n:'Estiramiento de Pecho',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'Manos entrelazadas atrás. Pecho abierto.',type:'timed'},
+{id:'mob2',n:'Estiramiento de Isquios',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'Pierna extendida. Toca el pie.',type:'timed'},
+{id:'mob3',n:'Pigeon Pose (Glúteo)',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'Estiramiento profundo del glúteo.',type:'timed'},
+{id:'mob4',n:'Estiramiento de Cuádriceps',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'De pie. Talón al glúteo.',type:'timed'},
+{id:'mob5',n:'Hip Flexor Stretch',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'Zancada baja. Cadera adelante.',type:'timed'},
+{id:'mob6',n:'Cat-Cow (Columna)',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'En cuadrupedia. Columna completa.',type:'timed'},
+{id:'mob7',n:'Foam Rolling Cuádriceps',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'Rodillo sobre cuádriceps. Lento.',type:'timed'},
+{id:'mob8',n:'Foam Rolling IT Band',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'Lateral de pierna. Lento y profundo.',type:'timed'},
+{id:'mob9',n:'Dislocaciones de Hombro (Palo)',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'Agarre ancho. Rotación completa.'},
+{id:'mob10',n:'Deep Squat Hold',m:'Movilidad',cat:'Movilidad',e:'🧘',tip:'Cadera abajo. Talones en suelo.',type:'timed'},
+];
+const gEx = id => EX_DB.find(e=>e.id===id)||{n:'Ejercicio',e:'🏋️',m:'',cat:''};
+
+// =====================================================================
+// NAVIGATION
+// =====================================================================
+let currentSection = 'dashboard';
+
+function goTo(sec){
+  showSection(sec);
+  // Sidebar
+  document.querySelectorAll('.sidebar-item').forEach(b=>{
+    b.classList.toggle('active', b.id===('sn-'+sec));
+  });
+  // Bottom nav
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    b.classList.toggle('active', b.id===('nn-'+sec));
+  });
+}
+
+function showSection(sec){
+  currentSection=sec;
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('sec-'+sec);
+  if(el){ el.classList.add('active'); renderSection(sec); }
+}
+
+function renderSection(sec){
+  if(sec==='dashboard') renderDashboard();
+  else if(sec==='clients') renderClients();
+  else if(sec==='routines') renderRoutinesSection();
+  else if(sec==='exercises') renderExLib();
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+function initApp(){
+  load();
+  buildExPickerFilter();
+  buildExLibFilter();
+  goTo('dashboard');
+}
+
+// =====================================================================
+// DASHBOARD
+// =====================================================================
+function renderDashboard(){
+  const cl=ST.clients;
+  const rt=ST.routines;
+  const grid=document.getElementById('dash-stats-grid');
+  grid.innerHTML=`
+    <div class="dashboard-stat"><div class="ds-val">${cl.length}</div><div class="ds-lbl">Asesorados</div></div>
+    <div class="dashboard-stat"><div class="ds-val" style="color:var(--accent2)">${rt.length}</div><div class="ds-lbl">Rutinas</div></div>
+    <div class="dashboard-stat"><div class="ds-val" style="color:var(--accent4)">${rt.reduce((a,r)=>a+r.exercises.length,0)}</div><div class="ds-lbl">Ejercicios totales</div></div>`;
+  const recEl=document.getElementById('dash-recent-clients');
+  if(!cl.length){
+    recEl.innerHTML=`<div class="empty" style="padding:20px 0"><div class="empty-icon">👥</div><div class="empty-ttl">Sin asesorados</div><p class="empty-txt">Agrega tu primer cliente</p><button class="btn btn-accent btn-md" onclick="openNewClient()">+ Agregar</button></div>`;
+    return;
+  }
+  recEl.innerHTML=cl.slice(-4).reverse().map(c=>buildClientCardSmall(c)).join('');
+}
+
+function buildClientCardSmall(c){
+  const macros=calcMacros(c);
+  const goal={cut:'Definición',maintain:'Mantenimiento',bulk:'Volumen',agbulk:'Vol. Agresivo'}[c.goal]||'—';
+  return `<div class="client-card" onclick="openClientDetail('${c.id}')">
+    <div class="flex-between">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="client-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="client-name">${c.name||'—'}</div>
+          <div class="client-meta">${[c.age?c.age+' años':null,c.weight?c.weight+'kg':null,goal||null].filter(Boolean).join(' · ')}</div>
+        </div>
+      </div>
+      ${macros?`<div style="text-align:right"><div style="font-family:var(--font-h);font-size:1.1rem;font-weight:900;color:var(--accent)">${macros.kcal}</div><div style="font-size:.58rem;color:var(--text3);">kcal</div></div>`:''}
+    </div>
+  </div>`;
+}
+
+// =====================================================================
+// CLIENTS
+// =====================================================================
+let editClientId = null;
+
+function renderClients(){
+  const el=document.getElementById('clients-list');
+  const sub=document.getElementById('clients-count-sub');
+  const q=(document.getElementById('client-search')?.value||'').toLowerCase();
+  let cls=ST.clients;
+  if(q) cls=cls.filter(c=>(c.name||'').toLowerCase().includes(q)||(c.notes||'').toLowerCase().includes(q));
+  if(sub) sub.textContent=`${ST.clients.length} cliente${ST.clients.length!==1?'s':''}`;
+  if(!cls.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">👥</div><div class="empty-ttl">${q?'Sin resultados':'Sin asesorados'}</div><p class="empty-txt">${q?'Prueba otro término':'Agrega tu primer asesorado'}</p>${!q?`<button class="btn btn-accent btn-md" onclick="openNewClient()">+ Agregar</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=cls.map(c=>{
+    const macros=calcMacros(c);
+    const goal={cut:'Definición',maintain:'Mantenimiento',bulk:'Volumen',agbulk:'Vol. Agresivo'}[c.goal]||'';
+    const myRoutines=ST.routines.filter(r=>r.clientId===c.id);
+    return `<div class="client-card">
+      <div class="flex-between" style="cursor:pointer" onclick="openClientDetail('${c.id}')">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="client-avatar">${(c.name||'?').charAt(0).toUpperCase()}</div>
+          <div>
+            <div class="client-name">${c.name||'—'}</div>
+            <div class="client-meta">${[c.age?c.age+' años':null, c.weight?c.weight+'kg':null, c.height?c.height+'cm':null, c.sex==='M'?'♂':c.sex==='F'?'♀':null].filter(Boolean).join(' · ')}</div>
+          </div>
+        </div>
+        ${macros?`<div style="text-align:right"><div style="font-family:var(--font-h);font-weight:900;font-size:1.2rem;color:var(--accent)">${macros.kcal}</div><div style="font-size:.58rem;color:var(--text3)">kcal/día</div></div>`:''}
+      </div>
+      <div class="client-tags">
+        ${goal?`<span class="badge badge-yellow">${goal}</span>`:''}
+        ${macros?`<span class="badge badge-green">${macros.prot}g prot</span>`:''}
+        ${myRoutines.length?`<span class="badge badge-purple">${myRoutines.length} rutina${myRoutines.length!==1?'s':''}</span>`:''}
+      </div>
+      <div class="client-actions">
+        <button class="btn btn-ghost btn-xs" onclick="openClientDetail('${c.id}')">👁 Ver</button>
+        <button class="btn btn-ghost btn-xs" onclick="openEditClient('${c.id}')">✏️ Editar</button>
+        <button class="btn btn-orange btn-xs" onclick="openPDFForClient('${c.id}')">📄 PDF</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteClient('${c.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openNewClient(){
+  editClientId=null;
+  document.getElementById('client-sheet-title').textContent='Nuevo asesorado';
+  ['cl-name','cl-age','cl-weight','cl-height','cl-bf','cl-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('cl-sex').value='';
+  document.getElementById('cl-activity').value='';
+  document.getElementById('cl-goal').value='';
+  document.getElementById('cl-prot').value='2.0';
+  const pr=document.getElementById('cl-macro-preview'); if(pr) pr.style.display='none';
+  document.getElementById('client-overlay').classList.add('open');
+}
+
+function openEditClient(id){
+  const c=ST.clients.find(c=>c.id===id); if(!c) return;
+  editClientId=id;
+  document.getElementById('client-sheet-title').textContent='Editar asesorado';
+  document.getElementById('cl-name').value=c.name||'';
+  document.getElementById('cl-age').value=c.age||'';
+  document.getElementById('cl-weight').value=c.weight||'';
+  document.getElementById('cl-height').value=c.height||'';
+  document.getElementById('cl-bf').value=c.bf||'';
+  document.getElementById('cl-sex').value=c.sex||'';
+  document.getElementById('cl-activity').value=c.activity||'';
+  document.getElementById('cl-goal').value=c.goal||'';
+  document.getElementById('cl-prot').value=c.proteinMultiplier||'2.0';
+  document.getElementById('cl-notes').value=c.notes||'';
+  document.getElementById('client-overlay').classList.add('open');
+  setTimeout(liveCalcMacros, 50);
+}
+
+function saveClient(){
+  const name=document.getElementById('cl-name').value.trim();
+  if(!name){ alert('El nombre es obligatorio'); return; }
+  const data={
+    name, age:parseFloat(document.getElementById('cl-age').value)||null,
+    weight:parseFloat(document.getElementById('cl-weight').value)||null,
+    height:parseFloat(document.getElementById('cl-height').value)||null,
+    bf:parseFloat(document.getElementById('cl-bf').value)||null,
+    sex:document.getElementById('cl-sex').value,
+    activity:document.getElementById('cl-activity').value,
+    goal:document.getElementById('cl-goal').value,
+    proteinMultiplier:parseFloat(document.getElementById('cl-prot').value)||2.0,
+    notes:document.getElementById('cl-notes').value,
+    updatedAt:new Date().toISOString()
+  };
+  const wasEditingId = editClientId; // guardar antes de que se limpie
+  if(editClientId){
+    const idx=ST.clients.findIndex(c=>c.id===editClientId);
+    if(idx>-1) ST.clients[idx]={...ST.clients[idx],...data};
+  } else {
+    data.id=uid(); data.createdAt=new Date().toISOString();
+    ST.clients.push(data);
+  }
+  save();
+  closeOverlay('client-overlay');
+  renderClients();
+  renderDashboard();
+  // Siempre refrescar detalle si editamos un cliente existente
+  if(wasEditingId){
+    openClientDetail(wasEditingId);
+  }
+}
+
+function deleteClient(id){
+  if(!confirm('¿Eliminar este asesorado? Sus rutinas asignadas no se eliminarán.')) return;
+  ST.clients=ST.clients.filter(c=>c.id!==id);
+  save(); renderClients(); renderDashboard();
+  if(currentSection==='client-detail') goTo('clients');
+}
+
+function openClientDetail(id){
+  const c=ST.clients.find(c=>c.id===id); if(!c) return;
+  const macros=calcMacros(c);
+  const myRoutines=ST.routines.filter(r=>r.clientId===id);
+  const actLabels={'1.2':'Sedentario','1.375':'Ligero','1.55':'Moderado','1.725':'Activo','1.9':'Muy activo'};
+  const goalLabels={cut:'Definición',maintain:'Mantenimiento',bulk:'Volumen Magro',agbulk:'Volumen Agresivo'};
+
+  let macrosHtml='';
+  if(macros){
+    const meals=[{n:'Desayuno',p:.25},{n:'Almuerzo',p:.35},{n:'Merienda',p:.15},{n:'Cena',p:.25}];
+    macrosHtml=`
+    <div class="card mb-12">
+      <div class="card-title flex-between"><span>Macros calculados</span><span class="badge badge-yellow">${goalLabels[c.goal]||'—'}</span></div>
+      <div class="macro-results">
+        <div class="macro-box"><div class="macro-val" style="color:var(--accent)">${macros.kcal}</div><div class="macro-lbl">Calorías</div><div class="macro-sub">kcal/día</div></div>
+        <div class="macro-box"><div class="macro-val" style="color:var(--accent2)">${macros.prot}g</div><div class="macro-lbl">Proteína</div><div class="macro-sub">${c.proteinMultiplier||2}g/kg</div></div>
+        <div class="macro-box"><div class="macro-val" style="color:var(--accent5)">${macros.carbs}g</div><div class="macro-lbl">Carbos</div><div class="macro-sub">${Math.round(macros.carbs*4*100/macros.kcal)}%</div></div>
+        <div class="macro-box"><div class="macro-val" style="color:#ff6b9d">${macros.fat}g</div><div class="macro-lbl">Grasas</div><div class="macro-sub">${Math.round(macros.fat*9*100/macros.kcal)}%</div></div>
+      </div>
+      <div style="background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:.73rem;color:var(--text2);line-height:1.9;">
+        <div>🔥 TDEE: <strong style="color:var(--text)">${macros.tdee} kcal</strong></div>
+        <div>📊 TMB: <strong style="color:var(--text)">${macros.bmr} kcal</strong></div>
+        <div>⚖️ Ajuste calorico: <strong style="color:var(--accent2)">${macros.adj>=0?'+':''}${macros.adj} kcal</strong></div>
+      </div>
+      <div style="margin-top:12px;">
+        <div style="font-size:.65rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;">Distribución por comidas</div>
+        ${meals.map(m=>`<div class="meal-row"><span style="font-size:.82rem;font-weight:600">${m.n}</span>
+          <div style="font-size:.72rem;color:var(--text2);">
+            <span style="color:var(--accent);font-weight:700">${Math.round(macros.kcal*m.p)}</span> kcal ·
+            <span style="color:var(--accent2)">${Math.round(macros.prot*m.p)}g</span> P ·
+            <span style="color:var(--accent5)">${Math.round(macros.carbs*m.p)}g</span> C ·
+            <span style="color:#ff6b9d">${Math.round(macros.fat*m.p)}g</span> G
+          </div></div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  let routinesHtml='';
+  if(myRoutines.length){
+    routinesHtml=myRoutines.map(r=>`
+      <div class="routine-card" onclick="openEditRoutine('${r.id}')"  style="cursor:pointer">
+        <div class="flex-between">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:1.3rem;">${r.icon||'📋'}</span>
+            <div>
+              <div class="routine-card-name">${r.name}</div>
+              <div class="routine-card-meta">${r.exercises.length} ejercicios${r.day?' · '+r.day:''}</div>
+            </div>
+          </div>
+          <div class="flex-gap">
+            <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();openEditRoutine('${r.id}')">✏️</button>
+            <button class="btn btn-orange btn-xs" onclick="event.stopPropagation();openPDFForRoutine('${r.id}')">📄</button>
+          </div>
+        </div>
+      </div>`).join('');
+  } else {
+    routinesHtml=`<div class="empty" style="padding:16px 0"><div class="empty-icon">📋</div><div class="empty-ttl">Sin rutinas asignadas</div><button class="btn btn-accent btn-sm" onclick="openCreateRoutine('${id}')">+ Crear rutina</button></div>`;
+  }
+
+  document.getElementById('client-detail-content').innerHTML=`
+    <div class="client-detail-header">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div class="client-avatar" style="width:52px;height:52px;font-size:1.5rem;">${(c.name||'?').charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="cd-name">${c.name}</div>
+          <div class="cd-meta">${[c.age?c.age+' años':null,c.sex==='M'?'Masculino':c.sex==='F'?'Femenino':null,c.weight?c.weight+'kg':null,c.height?c.height+'cm':null,c.bf?c.bf+'% BF':null].filter(Boolean).join(' · ')}</div>
+          ${c.notes?`<div style="font-size:.75rem;color:var(--text2);margin-top:4px;font-style:italic;">"${c.notes}"</div>`:''}
+        </div>
+      </div>
+      <div class="flex-gap mt-12">
+        <button class="btn btn-ghost btn-sm" onclick="openEditClient('${id}')">✏️ Editar</button>
+        <button class="btn btn-accent btn-sm" onclick="openCreateRoutine('${id}')">+ Rutina</button>
+        <button class="btn btn-orange btn-sm" onclick="openPDFForClient('${id}')">📄 PDF</button>
+      </div>
+    </div>
+
+    ${macrosHtml}
+
+    <div class="card">
+      <div class="card-title flex-between"><span>Rutinas asignadas</span><span class="badge badge-purple">${myRoutines.length}</span></div>
+      ${routinesHtml}
+    </div>`;
+
+  goTo('client-detail');
+}
+
+// =====================================================================
+// MACROS CALCULATOR
+// =====================================================================
+function calcMacros(c){
+  if(!c.weight||!c.height||!c.age||!c.sex||!c.activity||!c.goal) return null;
+  const w=parseFloat(c.weight), h=parseFloat(c.height), a=parseInt(c.age);
+  if(!w||!h||!a||isNaN(w)||isNaN(h)||isNaN(a)) return null;
+  const act=parseFloat(c.activity), pm=parseFloat(c.proteinMultiplier||2.0);
+  // Mifflin-St Jeor
+  const bmr=c.sex==='M'?(10*w+6.25*h-5*a+5):(10*w+6.25*h-5*a-161);
+  const tdee=Math.round(bmr*act);
+  const adj={cut:-500,maintain:0,bulk:250,agbulk:500}[c.goal]||0;
+  const kcal=Math.max(1200, tdee+adj);
+  const prot=Math.round(w*pm);
+  const kcalProt=prot*4;
+  // Grasa: 25% de kcal, mínimo 0.8g/kg
+  const fatMin=Math.round(w*0.8);
+  const fatFromPct=Math.round((kcal*0.25)/9);
+  const fat=Math.max(fatMin, fatFromPct);
+  const kcalFat=fat*9;
+  // Carbos: resto — mínimo 50g; si proteína+grasa exceden kcal, ajustar proteína
+  let carbsKcal=kcal-kcalProt-kcalFat;
+  let protFinal=prot;
+  if(carbsKcal<50*4){
+    // Reducir proteína para dar espacio a carbos mínimos y grasas
+    const kcalForProt=kcal-kcalFat-(50*4);
+    protFinal=Math.max(Math.round(w*1.2), Math.round(kcalForProt/4));
+    carbsKcal=kcal-(protFinal*4)-kcalFat;
+  }
+  const carbs=Math.max(50, Math.round(carbsKcal/4));
+  const kcalReal=Math.round((protFinal*4)+kcalFat+(carbs*4));
+  return {kcal:kcalReal,prot:protFinal,fat,carbs,tdee,bmr:Math.round(bmr),adj};
+}
+
+function liveCalcMacros(){
+  const preview=document.getElementById('cl-macro-preview');
+  const boxes=document.getElementById('cl-macro-boxes');
+  if(!preview||!boxes) return;
+  const temp={
+    weight:parseFloat(document.getElementById('cl-weight').value)||null,
+    height:parseFloat(document.getElementById('cl-height').value)||null,
+    age:parseFloat(document.getElementById('cl-age').value)||null,
+    sex:document.getElementById('cl-sex').value,
+    activity:document.getElementById('cl-activity').value,
+    goal:document.getElementById('cl-goal').value,
+    proteinMultiplier:parseFloat(document.getElementById('cl-prot').value)||2.0
+  };
+  const m=calcMacros(temp);
+  if(!m){ preview.style.display='none'; return; }
+  preview.style.display='block';
+  const goalLabel={cut:'Definición',maintain:'Mantenimiento',bulk:'Volumen',agbulk:'Vol. Agresivo'}[temp.goal]||'';
+  boxes.innerHTML=`
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">
+      <div style="font-family:var(--font-h);font-size:1.4rem;font-weight:900;color:var(--accent);line-height:1">${m.kcal}</div>
+      <div style="font-size:.55rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">kcal</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">
+      <div style="font-family:var(--font-h);font-size:1.4rem;font-weight:900;color:var(--accent2);line-height:1">${m.prot}g</div>
+      <div style="font-size:.55rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">proteína</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">
+      <div style="font-family:var(--font-h);font-size:1.4rem;font-weight:900;color:var(--accent5);line-height:1">${m.carbs}g</div>
+      <div style="font-size:.55rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">carbos</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">
+      <div style="font-family:var(--font-h);font-size:1.4rem;font-weight:900;color:#ff6b9d;line-height:1">${m.fat}g</div>
+      <div style="font-size:.55rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;">grasas</div>
+    </div>`;
+}
+
+
+// =====================================================================
+// ROUTINES
+// =====================================================================
+let editRoutineId = null;
+let rtExercises = [];
+let exPickerActiveCat = 'Todos';
+
+function renderRoutinesSection(){
+  const el=document.getElementById('routines-section-list');
+  const q=(document.getElementById('routine-search')?.value||'').toLowerCase();
+  let rts=ST.routines;
+  if(q) rts=rts.filter(r=>(r.name||'').toLowerCase().includes(q));
+  if(!rts.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-ttl">${q?'Sin resultados':'Sin rutinas'}</div><p class="empty-txt">Crea la primera rutina</p>${!q?`<button class="btn btn-accent btn-md" onclick="openCreateRoutine(null)">+ Crear rutina</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=rts.map(r=>{
+    const client=ST.clients.find(c=>c.id===r.clientId);
+    return `<div class="routine-card">
+      <div class="flex-between">
+        <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="previewRoutine('${r.id}')">
+          <span style="font-size:1.5rem;">${r.icon||'📋'}</span>
+          <div>
+            <div class="routine-card-name">${r.name}</div>
+            <div class="routine-card-meta">${r.exercises.length} ejercicio${r.exercises.length!==1?'s':''} ${r.day?'· '+r.day:''} ${client?'· 👤 '+client.name:''}</div>
+          </div>
+        </div>
+        <div class="flex-gap">
+          ${r.day?`<span class="routine-day-badge">${r.day}</span>`:''}
+          <button class="btn btn-ghost btn-xs" onclick="openEditRoutine('${r.id}')">✏️</button>
+          <button class="btn btn-orange btn-xs" onclick="openPDFForRoutine('${r.id}')">📄</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteRoutine('${r.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCreateRoutine(forClientId){
+  editRoutineId=null;
+  rtExercises=[];
+  document.getElementById('routine-sheet-title').textContent='Nueva rutina';
+  document.getElementById('rt-name').value='';
+  document.getElementById('rt-day').value='';
+  document.getElementById('rt-notes').value='';
+  document.getElementById('rt-icon').value='💪';
+  // Populate client dropdown
+  const sel=document.getElementById('rt-client');
+  sel.innerHTML='<option value="">Sin asignar</option>'+ST.clients.map(c=>`<option value="${c.id}" ${c.id===forClientId?'selected':''}>${c.name}</option>`).join('');
+  renderRtExercises();
+  document.getElementById('routine-overlay').classList.add('open');
+}
+
+function openEditRoutine(id){
+  const r=ST.routines.find(r=>r.id===id); if(!r) return;
+  editRoutineId=id;
+  rtExercises=r.exercises.map(e=>({...e,sets:e.sets.map(s=>({...s}))}));
+  document.getElementById('routine-sheet-title').textContent='Editar rutina';
+  document.getElementById('rt-name').value=r.name||'';
+  document.getElementById('rt-day').value=r.day||'';
+  document.getElementById('rt-notes').value=r.notes||'';
+  document.getElementById('rt-icon').value=r.icon||'💪';
+  const sel=document.getElementById('rt-client');
+  sel.innerHTML='<option value="">Sin asignar</option>'+ST.clients.map(c=>`<option value="${c.id}" ${c.id===r.clientId?'selected':''}>${c.name}</option>`).join('');
+  renderRtExercises();
+  document.getElementById('routine-overlay').classList.add('open');
+}
+
+function renderRtExercises(){
+  const el=document.getElementById('rt-exercises-list');
+  const noEl=document.getElementById('rt-no-ex');
+  if(!rtExercises.length){ el.innerHTML=''; noEl.style.display='block'; return; }
+  noEl.style.display='none';
+  el.innerHTML=rtExercises.map((rte,ei)=>{
+    const ex=gEx(rte.id);
+    const setsHtml=rte.sets.map((s,si)=>`
+      <div class="set-plan-row" id="spr-${ei}-${si}">
+        <div class="set-plan-num">${si+1}</div>
+        <input class="set-plan-inp" placeholder="—" value="${s.reps||''}" oninput="updateRtSet(${ei},${si},'reps',this.value)" title="Reps">
+        <input class="set-plan-inp" placeholder="—" value="${s.weight||''}" oninput="updateRtSet(${ei},${si},'weight',this.value)" title="Kg">
+        <input class="set-plan-inp" placeholder="${s.rest||90}" value="${s.rest||''}" oninput="updateRtSet(${ei},${si},'rest',this.value)" title="Descanso (s)">
+        <button style="background:none;border:none;color:var(--accent3);cursor:pointer;font-size:.8rem;padding:4px;" onclick="removeRtSet(${ei},${si})">✕</button>
+      </div>`).join('');
+    return `<div class="rout-ex-item">
+      <div class="flex-between mb-8">
+        <div class="rout-ex-name">${ex.e} ${ex.n}</div>
+        <div class="flex-gap">
+          <button class="btn btn-ghost btn-xs" onclick="addRtSet(${ei})">+ Serie</button>
+          <button class="btn btn-danger btn-xs" onclick="removeRtEx(${ei})">✕</button>
+        </div>
+      </div>
+      <div class="set-plan-head">
+        <div></div>
+        <div class="set-plan-lbl">Reps</div>
+        <div class="set-plan-lbl">Kg</div>
+        <div class="set-plan-lbl">Desc(s)</div>
+        <div></div>
+      </div>
+      ${setsHtml}
+      <input class="field-input mt-8" style="font-size:.75rem;" placeholder="Nota del ejercicio (opcional)" value="${rte.notes||''}" oninput="updateRtExNote(${ei},this.value)">
+    </div>`;
+  }).join('');
+}
+
+function updateRtSet(ei,si,field,val){
+  if(rtExercises[ei]&&rtExercises[ei].sets[si]) rtExercises[ei].sets[si][field]=val;
+}
+function updateRtExNote(ei,val){
+  if(rtExercises[ei]) rtExercises[ei].notes=val;
+}
+function addRtSet(ei){
+  if(!rtExercises[ei]) return;
+  const last=rtExercises[ei].sets[rtExercises[ei].sets.length-1]??{};
+  rtExercises[ei].sets.push({reps:last.reps??'',weight:last.weight??'',rest:last.rest??'90',rpe:''});
+  renderRtExercises();
+}
+function removeRtSet(ei,si){
+  if(rtExercises[ei]&&rtExercises[ei].sets.length>1){
+    rtExercises[ei].sets.splice(si,1); renderRtExercises();
+  }
+}
+function removeRtEx(ei){ rtExercises.splice(ei,1); renderRtExercises(); }
+
+function openExPickerForRoutine(){
+  document.getElementById('ex-picker-search').value='';
+  exPickerActiveCat='Todos';
+  document.querySelectorAll('#ex-picker-filter .fchip').forEach(c=>c.classList.remove('on'));
+  const first=document.querySelector('#ex-picker-filter .fchip');
+  if(first) first.classList.add('on');
+  _doFilterExPicker();
+  document.getElementById('ex-picker-overlay').classList.add('open');
+}
+
+function buildExPickerFilter(){
+  const cats=['Todos',...new Set(EX_DB.map(e=>e.cat))];
+  document.getElementById('ex-picker-filter').innerHTML=cats.map((c,i)=>
+    `<div class="fchip${i===0?' on':''}" data-cat="${c}" onclick="setExPickerCat(this)">${c}</div>`).join('');
+}
+function setExPickerCat(el){
+  exPickerActiveCat=el.dataset.cat||'Todos';
+  document.querySelectorAll('#ex-picker-filter .fchip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  filterExPicker();
+}
+let _exPickTimer=null;
+function filterExPicker(){
+  clearTimeout(_exPickTimer);
+  _exPickTimer=setTimeout(_doFilterExPicker,180);
+}
+function _doFilterExPicker(){
+  const q=document.getElementById('ex-picker-search').value.toLowerCase();
+  let list=EX_DB;
+  if(exPickerActiveCat!=='Todos') list=list.filter(e=>e.cat===exPickerActiveCat);
+  if(q) list=list.filter(e=>e.n.toLowerCase().includes(q)||e.m.toLowerCase().includes(q));
+  const groups={};
+  list.forEach(e=>{ if(!groups[e.m]) groups[e.m]=[]; groups[e.m].push(e); });
+  let html='';
+  Object.keys(groups).sort().forEach(g=>{
+    html+=`<div class="ex-group-hdr">${g}</div>`;
+    groups[g].forEach(e=>{
+      html+=`<div class="ex-pick-row" onclick="addExToRoutine('${e.id}')">
+        <div class="ex-pick-icon">${e.e}</div>
+        <div><div class="ex-pick-name">${e.n}</div><div class="ex-pick-sub">${e.cat} · ${e.m}</div></div>
+      </div>`;
+    });
+  });
+  document.getElementById('ex-picker-list').innerHTML=html||'<div style="padding:20px;text-align:center;color:var(--text3);">Sin resultados</div>';
+}
+
+function addExToRoutine(exId){
+  rtExercises.push({id:exId,notes:'',sets:[{reps:'',weight:'',rest:'90',rpe:''}]});
+  closeOverlay('ex-picker-overlay');
+  renderRtExercises();
+}
+
+function saveRoutine(){
+  const name=document.getElementById('rt-name').value.trim();
+  if(!name){ alert('El nombre de la rutina es obligatorio'); return; }
+  if(!rtExercises.length){ alert('Agrega al menos un ejercicio'); return; }
+  const data={
+    name, day:document.getElementById('rt-day').value.trim(),
+    icon:document.getElementById('rt-icon').value,
+    clientId:document.getElementById('rt-client').value||null,
+    notes:document.getElementById('rt-notes').value,
+    exercises:[...rtExercises],
+    updatedAt:new Date().toISOString()
+  };
+  if(editRoutineId){
+    const idx=ST.routines.findIndex(r=>r.id===editRoutineId);
+    if(idx>-1) ST.routines[idx]={...ST.routines[idx],...data};
+  } else {
+    data.id=uid(); data.createdAt=new Date().toISOString();
+    ST.routines.push(data);
+  }
+  save(); closeOverlay('routine-overlay'); renderRoutinesSection(); renderDashboard();
+  const savedClientId=data.clientId;
+  editRoutineId=null; rtExercises=[];
+  if(savedClientId) openClientDetail(savedClientId);
+}
+
+function deleteRoutine(id){
+  if(!confirm('¿Eliminar esta rutina?')) return;
+  const r=ST.routines.find(r=>r.id===id);
+  const clientId=r?.clientId||null;
+  ST.routines=ST.routines.filter(r=>r.id!==id);
+  save(); renderRoutinesSection(); renderDashboard();
+  if(clientId && (currentSection==='client-detail' || currentSection==='clients')) {
+    if(currentSection==='client-detail') openClientDetail(clientId);
+    else renderClients();
+  }
+}
+
+function previewRoutine(id){
+  const r=ST.routines.find(r=>r.id===id); if(!r) return;
+  const client=ST.clients.find(c=>c.id===r.clientId);
+  let html=`
+    <div style="margin-bottom:16px;">
+      <div style="font-family:var(--font-h);font-size:1.5rem;font-weight:900;">${r.icon||'📋'} ${r.name}</div>
+      ${r.day?`<div style="color:var(--accent);font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;">${r.day}</div>`:''}
+      ${client?`<div style="color:var(--text3);font-size:.75rem;margin-top:4px;">Asignada a: <strong style="color:var(--text2)">${client.name}</strong></div>`:''}
+      ${r.notes?`<div style="color:var(--text2);font-size:.8rem;font-style:italic;margin-top:6px;">"${r.notes}"</div>`:''}
+    </div>
+    ${r.exercises.map((rte,i)=>{
+      const ex=gEx(rte.id);
+      const setsStr=rte.sets.map((s,j)=>`${j+1}. ${s.reps||'?'} reps${s.weight?' @ '+s.weight+'kg':''}`).join('  |  ');
+      return `<div style="background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;">
+        <div style="font-family:var(--font-h);font-weight:800;color:var(--accent2);font-size:.95rem;margin-bottom:4px;">${ex.e} ${ex.n}</div>
+        <div style="font-size:.75rem;color:var(--text2);">${setsStr}</div>
+        ${rte.notes?`<div style="font-size:.7rem;color:var(--text3);margin-top:4px;font-style:italic;">${rte.notes}</div>`:''}
+      </div>`;
+    }).join('')}`;
+  document.getElementById('select-title').textContent=r.name;
+  document.getElementById('select-list').innerHTML=`<div style="padding:0 4px;">${html}</div>`;
+  document.getElementById('select-overlay').classList.add('open');
+}
+
+// =====================================================================
+// EXERCISE LIBRARY
+// =====================================================================
+let libActiveMuscle = 'Todos';
+function buildExLibFilter(){
+  const muscles=['Todos',...new Set(EX_DB.map(e=>e.m))].sort((a,b)=>a==='Todos'?-1:b==='Todos'?1:a.localeCompare(b));
+  document.getElementById('ex-lib-filter').innerHTML=muscles.map((m,i)=>
+    `<div class="fchip${i===0?' on':''}" data-m="${m}" onclick="setLibMuscle(this)">${m}</div>`).join('');
+}
+function setLibMuscle(el){
+  libActiveMuscle=el.dataset.m||'Todos';
+  document.querySelectorAll('#ex-lib-filter .fchip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on'); renderExLib();
+}
+let _exLibTimer=null;
+function renderExLib(){
+  clearTimeout(_exLibTimer);
+  _exLibTimer=setTimeout(_doRenderExLib, 180);
+}
+function _doRenderExLib(){
+  const el=document.getElementById('ex-lib-list'); if(!el) return;
+  const q=(document.getElementById('ex-lib-search')?.value||'').toLowerCase();
+  let list=EX_DB;
+  if(libActiveMuscle!=='Todos') list=list.filter(e=>e.m===libActiveMuscle);
+  if(q) list=list.filter(e=>e.n.toLowerCase().includes(q)||e.m.toLowerCase().includes(q)||(e.tip||'').toLowerCase().includes(q));
+  if(!list.length){ el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-ttl">Sin resultados</div></div>'; return; }
+  const groups={};
+  list.forEach(e=>{ if(!groups[e.m]) groups[e.m]=[]; groups[e.m].push(e); });
+  const frag=document.createDocumentFragment();
+  Object.keys(groups).sort().forEach(g=>{
+    const hdr=document.createElement('div');
+    hdr.style.cssText='font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:10px 0 4px;';
+    hdr.textContent=g;
+    frag.appendChild(hdr);
+    groups[g].forEach(e=>{
+      const card=document.createElement('div');
+      card.className='client-card';
+      card.style.cssText='padding:12px;cursor:default;';
+      card.innerHTML=`<div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:38px;height:38px;font-size:1.1rem;background:var(--surface3);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${e.e}</div>
+        <div>
+          <div style="font-weight:600;font-size:.88rem;">${e.n}</div>
+          <div style="font-size:.63rem;color:var(--text3);">${e.cat} · ${e.m}</div>
+          ${e.tip?`<div style="font-size:.68rem;color:var(--text2);margin-top:2px;">${e.tip}</div>`:''}
+        </div>
+      </div>`;
+      frag.appendChild(card);
+    });
+  });
+  el.innerHTML='';
+  el.appendChild(frag);
+}
+
+// =====================================================================
+// PDF GENERATION
+// =====================================================================
+let pdfClientId=null; let pdfRoutineIds=[];
+
+function openPDFForClient(clientId){
+  const c=ST.clients.find(c=>c.id===clientId); if(!c) return;
+  pdfClientId=clientId;
+  const clientRoutines=ST.routines.filter(r=>r.clientId===clientId);
+  pdfRoutineIds=clientRoutines.map(r=>r.id);
+  renderPDFPreview();
+  document.getElementById('pdf-overlay').classList.add('open');
+}
+
+function openPDFForRoutine(routineId){
+  const r=ST.routines.find(r=>r.id===routineId); if(!r) return;
+  pdfClientId=r.clientId||null;
+  pdfRoutineIds=[routineId];
+  renderPDFPreview();
+  document.getElementById('pdf-overlay').classList.add('open');
+}
+
+function renderPDFPreview(){
+  const client=pdfClientId?ST.clients.find(c=>c.id===pdfClientId):null;
+  const routines=pdfRoutineIds.map(id=>ST.routines.find(r=>r.id===id)).filter(Boolean);
+  const macros=client?calcMacros(client):null;
+  const today=new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+  const goalLabels={cut:'Definición',maintain:'Mantenimiento',bulk:'Volumen Magro',agbulk:'Volumen Agresivo'};
+
+  let macrosSection='';
+  if(macros){
+    const meals=[{n:'Desayuno',p:.25},{n:'Almuerzo',p:.35},{n:'Merienda',p:.15},{n:'Cena',p:.25}];
+    macrosSection=`
+    <div class="pdf-section">
+      <div class="pdf-section-title">Plan Nutricional — ${goalLabels[client.goal]||'—'}</div>
+      <div class="pdf-macros">
+        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#000">${macros.kcal}</div><div class="pdf-macro-lbl">Calorías</div></div>
+        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#0a9">${macros.prot}g</div><div class="pdf-macro-lbl">Proteína</div></div>
+        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#c60">${macros.carbs}g</div><div class="pdf-macro-lbl">Carbos</div></div>
+        <div class="pdf-macro-box"><div class="pdf-macro-val" style="color:#c05">${macros.fat}g</div><div class="pdf-macro-lbl">Grasas</div></div>
+      </div>
+      <table class="pdf-meals">
+        <tr><th>Comida</th><th>Calorías</th><th>Proteína</th><th>Carbos</th><th>Grasas</th></tr>
+        ${meals.map(m=>`<tr>
+          <td>${m.n}</td>
+          <td>${Math.round(macros.kcal*m.p)} kcal</td>
+          <td>${Math.round(macros.prot*m.p)}g</td>
+          <td>${Math.round(macros.carbs*m.p)}g</td>
+          <td>${Math.round(macros.fat*m.p)}g</td>
+        </tr>`).join('')}
+      </table>
+    </div>`;
+  }
+
+  const routinesSection=routines.map(r=>`
+    <div class="pdf-day">
+      <div class="pdf-day-title">${r.icon||'📋'} ${r.name}${r.day?' — '+r.day:''}</div>
+      ${r.notes?`<div class="pdf-note">${r.notes}</div>`:''}
+      <table class="pdf-ex-table">
+        <tr><th>Ejercicio</th><th>Series</th><th>Reps</th><th>Peso (kg)</th><th>Descanso</th><th>Notas</th></tr>
+        ${r.exercises.map(rte=>{
+          const ex=gEx(rte.id);
+          const sets=rte.sets.length;
+          const repsList=[...new Set(rte.sets.map(s=>s.reps||'—'))];
+          const wList=[...new Set(rte.sets.map(s=>s.weight||'—'))];
+          const restList=[...new Set(rte.sets.map(s=>s.rest||'90'))];
+          return `<tr>
+            <td><strong>${ex.n}</strong><br><span style="font-size:.65rem;color:#888">${ex.cat}</span></td>
+            <td style="text-align:center">${sets}</td>
+            <td style="text-align:center">${repsList.join('/')}</td>
+            <td style="text-align:center">${wList.join('/')}</td>
+            <td style="text-align:center">${restList.join('/')}s</td>
+            <td style="font-size:.7rem;color:#666">${rte.notes||''}</td>
+          </tr>`;
+        }).join('')}
+      </table>
+    </div>`).join('');
+
+  const html=`
+    <div class="pdf-preview" id="pdf-content">
+      <div class="pdf-header">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <div class="pdf-logo">JELIAN<span>FT</span></div>
+            <div style="font-size:.65rem;letter-spacing:3px;color:#888;text-transform:uppercase;margin-top:2px;">Personal Training</div>
+          </div>
+          <div style="text-align:right">
+            <div class="pdf-date">${today}</div>
+            ${client?`<div class="pdf-client">${client.name}</div>`:''}
+            ${client&&client.weight?`<div style="font-size:.72rem;color:#888">${client.weight}kg · ${client.height||'—'}cm · ${client.age||'—'} años</div>`:''}
+          </div>
+        </div>
+      </div>
+      ${macrosSection}
+      ${routinesSection?`<div class="pdf-section"><div class="pdf-section-title">Programa de Entrenamiento</div>${routinesSection}</div>`:'<div style="color:#888;padding:20px 0;text-align:center;">No hay rutinas asignadas</div>'}
+      <div class="pdf-footer">
+        <div>JELIAN FT — Coach Panel</div>
+        <div>${today}</div>
+      </div>
+    </div>`;
+
+  document.getElementById('pdf-preview-body').innerHTML=html;
+}
+
+function downloadPDF(){
+  const content=document.getElementById('pdf-content');
+  if(!content){ alert('Primero genera la vista previa'); return; }
+  const client=pdfClientId?ST.clients.find(c=>c.id===pdfClientId):null;
+  const fname=(client?client.name.replace(/\s+/g,'_'):'Rutina')+'_JELIANFT_'+new Date().toISOString().slice(0,10);
+
+  const styles=`
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#111;font-size:13px;line-height:1.5;}
+    .pdf-preview{max-width:100%;padding:0;}
+    .pdf-header{border-bottom:3px solid #ccc;padding-bottom:14px;margin-bottom:18px;}
+    .pdf-logo{font-size:2rem;font-weight:900;color:#0a0a0b;letter-spacing:-2px;}
+    .pdf-logo span{color:#888;}
+    .pdf-client{font-size:1.1rem;font-weight:700;margin-top:4px;}
+    .pdf-date{font-size:.72rem;color:#666;margin-top:2px;}
+    .pdf-section{margin-bottom:18px;}
+    .pdf-section-title{font-size:.85rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#111;border-left:4px solid #999;padding-left:8px;margin-bottom:10px;}
+    .pdf-macros{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+    .pdf-macro-box{background:#f5f5f5;border-radius:6px;padding:10px;text-align:center;border:1px solid #eee;}
+    .pdf-macro-val{font-size:1.4rem;font-weight:900;line-height:1.2;}
+    .pdf-macro-lbl{font-size:.58rem;letter-spacing:1px;text-transform:uppercase;color:#888;margin-top:2px;}
+    .pdf-day{margin-bottom:14px;page-break-inside:avoid;}
+    .pdf-day-title{font-size:.9rem;font-weight:800;background:#f0f0f0;padding:5px 10px;border-radius:5px;margin-bottom:5px;}
+    .pdf-note{font-size:.72rem;color:#666;font-style:italic;padding:6px 8px;background:#fff9e6;border-left:2px solid #ccc;margin-bottom:6px;}
+    .pdf-ex-table{width:100%;border-collapse:collapse;font-size:.75rem;margin-bottom:4px;}
+    .pdf-ex-table th{background:#e8e8e8;padding:4px 7px;text-align:left;font-size:.6rem;letter-spacing:1px;text-transform:uppercase;color:#555;border-bottom:2px solid #ddd;}
+    .pdf-ex-table td{padding:5px 7px;border-bottom:1px solid #eee;vertical-align:top;}
+    .pdf-meals{width:100%;border-collapse:collapse;font-size:.75rem;margin-top:6px;}
+    .pdf-meals th{background:#e8e8e8;padding:4px 7px;text-align:left;font-size:.6rem;letter-spacing:1px;text-transform:uppercase;color:#555;border-bottom:2px solid #ddd;}
+    .pdf-meals td{padding:5px 7px;border-bottom:1px solid #eee;}
+    .pdf-footer{margin-top:20px;padding-top:10px;border-top:1px solid #eee;font-size:.65rem;color:#aaa;display:flex;justify-content:space-between;}
+    @page{size:A4;margin:15mm 12mm;}`;
+
+  // Eliminar iframe anterior si existe
+  const oldFrame=document.getElementById('_pdf_frame');
+  if(oldFrame) oldFrame.remove();
+
+  const iframe=document.createElement('iframe');
+  iframe.id='_pdf_frame';
+  iframe.style.cssText='position:fixed;width:1px;height:1px;border:none;left:-9999px;top:-9999px;opacity:0;';
+  
+  const fullHtml=`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${fname}</title><style>${styles}</style></head><body>${content.outerHTML}</body></html>`;
+  
+  // srcdoc is safer than doc.write and doesn't need popups
+  // Use blob URL as fallback for very long content
+  let usedBlob=false;
+  try{
+    iframe.srcdoc=fullHtml;
+  } catch(e){
+    usedBlob=true;
+    const blob=new Blob([fullHtml],{type:'text/html;charset=utf-8'});
+    iframe.src=URL.createObjectURL(blob);
+  }
+  
+  iframe.onload=()=>{
+    try{
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch(e){
+      alert('No se pudo abrir el diálogo de impresión. Intenta desde Chrome o Edge.');
+    }
+    setTimeout(()=>{ if(iframe.parentNode) iframe.remove(); }, 4000);
+  };
+  document.body.appendChild(iframe);
+}
+
+// =====================================================================
+// EXPORT / IMPORT DATA
+// =====================================================================
+function openDataManager(){
+  const el=document.getElementById('dm-stats');
+  if(el) el.innerHTML=`
+    <div class="stat-box"><div class="stat-val">${ST.clients.length}</div><div class="stat-label">Asesorados</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--accent2)">${ST.routines.length}</div><div class="stat-label">Rutinas</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--accent4)">${ST.routines.reduce((a,r)=>a+r.exercises.length,0)}</div><div class="stat-label">Ejercicios</div></div>`;
+  const msg=document.getElementById('import-msg');
+  if(msg) msg.textContent='';
+  document.getElementById('data-overlay').classList.add('open');
+}
+
+function exportData(){
+  const exportObj={
+    version:2,
+    exportedAt:new Date().toISOString(),
+    app:'JELIAN FT Coach',
+    clients:ST.clients,
+    routines:ST.routines
+  };
+  const json=JSON.stringify(exportObj,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  const dateStr=new Date().toISOString().slice(0,10);
+  a.download=`jelianft_backup_${dateStr}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+function importData(input){
+  const file=input.files[0]; if(!file) return;
+  const msg=document.getElementById('import-msg');
+  const mode=document.querySelector('input[name="import-mode"]:checked')?.value||'merge';
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      // Validate
+      if(!data.clients||!data.routines||!Array.isArray(data.clients)||!Array.isArray(data.routines)){
+        msg.style.color='var(--accent3)';
+        msg.textContent='❌ Archivo inválido. Asegúrate de importar un backup de JELIAN FT.';
+        return;
+      }
+      if(mode==='replace'){
+        if(!confirm(`⚠️ Esto reemplazará TODOS tus datos actuales (${ST.clients.length} asesorados, ${ST.routines.length} rutinas) con los del archivo. ¿Continuar?`)){
+          input.value=''; return;
+        }
+        ST.clients=data.clients;
+        ST.routines=data.routines;
+      } else {
+        // Merge: add only IDs not already present
+        const existingClientIds=new Set(ST.clients.map(c=>c.id));
+        const existingRoutineIds=new Set(ST.routines.map(r=>r.id));
+        let addedC=0, addedR=0;
+        data.clients.forEach(c=>{ if(!existingClientIds.has(c.id)){ ST.clients.push(c); addedC++; }});
+        data.routines.forEach(r=>{ if(!existingRoutineIds.has(r.id)){ ST.routines.push(r); addedR++; }});
+        if(!addedC&&!addedR){
+          msg.style.color='var(--accent5)';
+          msg.textContent='ℹ️ No hay datos nuevos para fusionar (todos los IDs ya existen).';
+          input.value=''; return;
+        }
+        msg.style.color='var(--accent2)';
+        msg.textContent=`✅ Fusionado: +${addedC} asesorado${addedC!==1?'s':''}, +${addedR} rutina${addedR!==1?'s':''}.`;
+      }
+      save();
+      renderDashboard(); renderClients(); renderRoutinesSection();
+      if(mode==='replace'){
+        msg.style.color='var(--accent2)';
+        msg.textContent=`✅ Datos reemplazados: ${ST.clients.length} asesorado${ST.clients.length!==1?'s':''}, ${ST.routines.length} rutina${ST.routines.length!==1?'s':''}.`;
+      }
+      // Update stats panel
+      const el=document.getElementById('dm-stats');
+      if(el) el.innerHTML=`
+        <div class="stat-box"><div class="stat-val">${ST.clients.length}</div><div class="stat-label">Asesorados</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--accent2)">${ST.routines.length}</div><div class="stat-label">Rutinas</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--accent4)">${ST.routines.reduce((a,r)=>a+r.exercises.length,0)}</div><div class="stat-label">Ejercicios</div></div>`;
+    } catch(err){
+      msg.style.color='var(--accent3)';
+      msg.textContent='❌ Error al leer el archivo: '+err.message;
+    }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+
+// =====================================================================
+// AI COACH MODULE
+// =====================================================================
+
+// State
+let AI = {
+  selectedType: 'PPL',
+  selectedSpace: 'Gimnasio completo',
+  equipment: [],
+  equipExtra: '',
+  analysisResult: '',
+  routineResult: '',
+  chatHistory: [],
+  photoBase64: null,
+  photoMime: null,
+  weakMuscles: []
+};
+
+// Navigation tab switch
+function switchAiTab(name) {
+  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ai-panel').forEach(p => p.classList.remove('active'));
+  const tab = document.getElementById('aitab-' + name);
+  const panel = document.getElementById('aipanel-' + name);
+  if (tab) tab.classList.add('active');
+  if (panel) panel.classList.add('active');
+  if (name === 'routine') updateEquipSummaryInRoutine();
+}
+
+// Training type selection
+function selectTrainType(btn) {
+  document.querySelectorAll('.ai-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  AI.selectedType = btn.dataset.type;
+}
+
+// Space selection
+function selectSpace(btn) {
+  document.querySelectorAll('.ai-equip-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  AI.selectedSpace = btn.dataset.space;
+}
+
+// Muscle priority chips
+function toggleMuscle(chip) {
+  chip.classList.toggle('on');
+  AI.weakMuscles = Array.from(document.querySelectorAll('.ai-mchip.on')).map(c => c.dataset.m);
+}
+
+// Equipment checkboxes
+function updateEquipSummary() {
+  AI.equipment = Array.from(document.querySelectorAll('#ai-equip-checks input:checked')).map(c => c.value);
+  updateEquipSummaryInRoutine();
+}
+
+function updateEquipSummaryInRoutine() {
+  const box = document.getElementById('ai-equip-summary');
+  if (!box) return;
+  if (AI.equipment.length === 0) {
+    box.innerHTML = '<span style="color:var(--text3);font-size:.78rem;">⚠️ No has configurado equipamiento. Ve a la pestaña <strong style="color:var(--accent)">Equipamiento</strong> primero.</span>';
+  } else {
+    box.innerHTML = '<span style="color:var(--accent2);font-size:.78rem;font-weight:700;">✅ ' + AI.equipment.length + ' equipos configurados:</span><br><span style="font-size:.75rem;color:var(--text2);">' + AI.equipment.join(', ') + (AI.equipExtra ? '. ' + AI.equipExtra : '') + '</span>';
+  }
+}
+
+function saveEquipment() {
+  AI.equipment = Array.from(document.querySelectorAll('#ai-equip-checks input:checked')).map(c => c.value);
+  AI.equipExtra = document.getElementById('ai-equip-extra').value.trim();
+  updateEquipSummaryInRoutine();
+  const msg = document.getElementById('ai-equip-saved-msg');
+  msg.style.display = 'block';
+  setTimeout(() => { msg.style.display = 'none'; }, 2500);
+}
+
+// Photo upload
+function onAiPhotoSelected(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    AI.photoBase64 = dataUrl.split(',')[1];
+    AI.photoMime = file.type;
+    const zone = document.getElementById('ai-upload-zone');
+    zone.classList.add('has-image');
+    zone.innerHTML = '<img src="' + dataUrl + '" alt="Foto subida">';
+    document.getElementById('ai-analyze-btn').disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Drag & drop on upload zone
+document.addEventListener('DOMContentLoaded', () => {
+  const zone = document.getElementById('ai-upload-zone');
+  if (zone) {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--accent)'; });
+    zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.style.borderColor = '';
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const fakeEvent = { target: { files: [file] } };
+        onAiPhotoSelected(fakeEvent);
+      }
+    });
+  }
+});
+
+// ─── BODY ANALYSIS ─────────────────────────────────────────────────
+async function runBodyAnalysis() {
+  if (!AI.photoBase64) return;
+  const btn = document.getElementById('ai-analyze-btn');
+  const resultBox = document.getElementById('ai-analysis-result');
+  const textEl = document.getElementById('ai-analysis-text');
+  btn.disabled = true;
+  btn.textContent = '⏳ Analizando...';
+  resultBox.style.display = 'block';
+  textEl.innerHTML = '<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Analizando composición corporal y postura...</div>';
+
+  const context = document.getElementById('ai-analysis-context').value.trim();
+  const prompt = `Eres un coach de fitness experto en biomecánica, análisis postural y diagnóstico muscular. Analiza esta imagen corporal/postura y proporciona:
+
+1. **EVALUACIÓN POSTURAL** - Observaciones sobre alineación, postura y simetría
+2. **GRUPOS MUSCULARES DÉBILES** - Lista los músculos o grupos musculares que aparecen subdesarrollados o con desequilibrios visibles
+3. **DESEQUILIBRIOS DETECTADOS** - Asimetrías izquierda/derecha, anteroposterior, etc.
+4. **PUNTOS FUERTES** - Qué grupos musculares están bien desarrollados
+5. **PLAN DE ACCIÓN** - 3-5 recomendaciones concretas para corregir los puntos débiles
+6. **EJERCICIOS PRIORITARIOS** - Lista específica de 8-10 ejercicios clave para los grupos débiles detectados
+
+${context ? 'Contexto del cliente: ' + context : ''}
+
+Sé específico, técnico y constructivo. Usa formato markdown con emojis para mejor legibilidad.`;
+
+  try {
+    const resp = await callClaudeWithImage(prompt, AI.photoBase64, AI.photoMime);
+    AI.analysisResult = resp;
+    textEl.innerHTML = markdownToHtml(resp);
+  } catch (e) {
+    textEl.innerHTML = '<span style="color:var(--accent3)">❌ Error al analizar: ' + e.message + '</span>';
+  }
+  btn.disabled = false;
+  btn.textContent = '🔍 Analizar puntos débiles';
+}
+
+function applyAnalysisToRoutine() {
+  if (AI.analysisResult) {
+    const extra = document.getElementById('ai-routine-extra');
+    if (extra) extra.value = 'Basado en análisis corporal: ' + AI.analysisResult.substring(0, 300) + '...';
+  }
+}
+
+// ─── GENERATE ROUTINE ───────────────────────────────────────────────
+async function generateAiRoutine() {
+  const resultBox = document.getElementById('ai-routine-result');
+  const textEl = document.getElementById('ai-routine-text');
+  const days = document.getElementById('ai-days-week').value;
+  const goal = document.getElementById('ai-goal').value;
+  const level = document.getElementById('ai-level').value;
+  const duration = document.getElementById('ai-duration').value;
+  const extra = document.getElementById('ai-routine-extra').value.trim();
+  const weakMuscles = Array.from(document.querySelectorAll('.ai-mchip.on')).map(c => c.dataset.m);
+
+  resultBox.style.display = 'block';
+  textEl.innerHTML = '<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Diseñando rutina personalizada...</div>';
+
+  const equipList = AI.equipment.length > 0
+    ? AI.equipment.join(', ') + (AI.equipExtra ? '. Notas adicionales: ' + AI.equipExtra : '')
+    : 'Gimnasio completo (todos los equipos disponibles)';
+
+  const prompt = `Eres un coach de fitness élite. Crea una rutina de entrenamiento completa con estos parámetros:
+
+**TIPO DE ENTRENAMIENTO:** ${AI.selectedType}
+**DÍAS POR SEMANA:** ${days} días
+**OBJETIVO:** ${goal}
+**NIVEL:** ${level}
+**DURACIÓN POR SESIÓN:** ${duration}
+**TIPO DE ESPACIO:** ${AI.selectedSpace}
+**EQUIPAMIENTO DISPONIBLE:** ${equipList}
+${weakMuscles.length > 0 ? '**MÚSCULOS A PRIORIZAR (puntos débiles):** ' + weakMuscles.join(', ') : ''}
+${extra ? '**INSTRUCCIONES ADICIONALES:** ' + extra : ''}
+
+Genera la rutina COMPLETA con:
+1. **ESTRUCTURA DEL PROGRAMA** - Descripción del split y distribución semanal
+2. **CADA DÍA DE ENTRENAMIENTO** con:
+   - Nombre del día y músculo(s) objetivo
+   - Lista de ejercicios con series × repeticiones × descanso
+   - Notas técnicas para cada ejercicio
+3. **PROGRESIÓN RECOMENDADA** - Cómo progresar semana a semana
+4. **CONSEJOS GENERALES** - Calentamiento, enfriamiento, recuperación
+
+Adapta TODOS los ejercicios al equipamiento disponible. Sé muy específico con los ejercicios, series, reps y descansos.`;
+
+  try {
+    const resp = await callClaude(prompt);
+    AI.routineResult = resp;
+    textEl.innerHTML = markdownToHtml(resp);
+  } catch (e) {
+    textEl.innerHTML = '<span style="color:var(--accent3)">❌ Error: ' + e.message + '</span>';
+  }
+}
+
+// ─── EQUIPMENT RECOMMENDATIONS ──────────────────────────────────────
+async function getEquipRecommendations() {
+  const recoEl = document.getElementById('ai-equip-reco-result');
+  recoEl.style.display = 'block';
+  recoEl.innerHTML = '<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Analizando equipamiento...</div>';
+
+  const currentEquip = Array.from(document.querySelectorAll('#ai-equip-checks input:checked')).map(c => c.value);
+  const space = AI.selectedSpace;
+  const extra = document.getElementById('ai-equip-extra').value.trim();
+
+  const prompt = `Eres un experto en equipamiento de fitness y diseño de gimnasios. Analiza el siguiente equipamiento disponible y proporciona recomendaciones:
+
+**TIPO DE ESPACIO:** ${space}
+**EQUIPAMIENTO ACTUAL:** ${currentEquip.length > 0 ? currentEquip.join(', ') : 'Ninguno configurado'}
+${extra ? '**NOTAS ADICIONALES:** ' + extra : ''}
+
+Por favor proporciona:
+
+1. **ANÁLISIS DEL EQUIPAMIENTO ACTUAL**
+   - Qué ejercicios y grupos musculares están bien cubiertos
+   - Qué grupos musculares tienen cobertura limitada
+
+2. **EQUIPAMIENTO RECOMENDADO PARA AGREGAR**
+   - Prioridad alta (esencial para completar el entrenamiento)
+   - Prioridad media (mejoraría significativamente las opciones)
+   - Prioridad baja (adicional para variedad)
+
+3. **EJERCICIOS ALTERNATIVOS**
+   - Para los equipos que no tienes, sugiere alternativas con el equipo disponible
+
+4. **OPTIMIZACIÓN**
+   - Cómo sacarle el máximo partido al equipamiento actual
+
+Sé práctico y específico. Incluye rangos de precio aproximados si es relevante.`;
+
+  try {
+    const resp = await callClaude(prompt);
+    recoEl.innerHTML = markdownToHtml(resp);
+  } catch (e) {
+    recoEl.innerHTML = '<span style="color:var(--accent3)">❌ Error: ' + e.message + '</span>';
+  }
+}
+
+// ─── FREE CHAT ───────────────────────────────────────────────────────
+async function sendChatMsg() {
+  const input = document.getElementById('ai-chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+
+  const chatBox = document.getElementById('ai-chat-messages');
+  // User message
+  chatBox.innerHTML += `<div class="ai-chat-msg ai-msg-user">
+    <div class="ai-chat-avatar">👤</div>
+    <div class="ai-chat-bubble">${escapeHtml(text)}</div>
+  </div>`;
+
+  // Typing indicator
+  chatBox.innerHTML += `<div class="ai-chat-msg" id="ai-typing-indicator">
+    <div class="ai-chat-avatar">🤖</div>
+    <div class="ai-chat-bubble ai-typing">
+      <div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div>
+    </div>
+  </div>`;
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  AI.chatHistory.push({ role: 'user', content: text });
+
+  const systemPrompt = `Eres JELIAN AI Coach, un asistente experto en fitness, nutrición deportiva, entrenamiento y coaching. 
+Responde en español de forma clara, motivadora y profesional. 
+Usa emojis ocasionalmente para hacer la conversación más dinámica.
+Cuando hagas listas o rutinas, usa formato markdown.
+Equipamiento configurado: ${AI.equipment.length > 0 ? AI.equipment.join(', ') : 'No especificado'}.`;
+
+  try {
+    const messages = AI.chatHistory.slice(-10).map(m => ({ role: m.role, content: m.content }));
+    const resp = await callClaudeChat(messages, systemPrompt);
+    AI.chatHistory.push({ role: 'assistant', content: resp });
+
+    const typingEl = document.getElementById('ai-typing-indicator');
+    if (typingEl) typingEl.remove();
+
+    chatBox.innerHTML += `<div class="ai-chat-msg">
+      <div class="ai-chat-avatar">🤖</div>
+      <div class="ai-chat-bubble">${markdownToHtml(resp)}</div>
+    </div>`;
+  } catch (e) {
+    const typingEl = document.getElementById('ai-typing-indicator');
+    if (typingEl) typingEl.remove();
+    chatBox.innerHTML += `<div class="ai-chat-msg">
+      <div class="ai-chat-avatar">🤖</div>
+      <div class="ai-chat-bubble" style="color:var(--accent3)">❌ Error al conectar con la IA: ${escapeHtml(e.message)}</div>
+    </div>`;
+  }
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// ─── CLAUDE API CALLS ────────────────────────────────────────────────
+async function callClaude(prompt) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'HTTP ' + resp.status);
+  }
+  const data = await resp.json();
+  return data.content.map(b => b.text || '').join('');
+}
+
+async function callClaudeWithImage(prompt, base64, mime) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mime, data: base64 } },
+          { type: 'text', text: prompt }
+        ]
+      }]
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'HTTP ' + resp.status);
+  }
+  const data = await resp.json();
+  return data.content.map(b => b.text || '').join('');
+}
+
+async function callClaudeChat(messages, system) {
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system,
+      messages
+    })
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'HTTP ' + resp.status);
+  }
+  const data = await resp.json();
+  return data.content.map(b => b.text || '').join('');
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────
+function markdownToHtml(text) {
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$2</h2>'.replace('$2','$1'))
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/^\- (.+)$/gm, '<li>$1</li>')
+    .replace(/^(\d+)\. (.+)$/gm, '<li>$2</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, s => '<ul>' + s + '</ul>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyAiResult(which) {
+  const text = which === 'analysis' ? AI.analysisResult : AI.routineResult;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('📋 Copiado al portapapeles');
+  }).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = text; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    showToast('📋 Copiado');
+  });
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface3);border:1px solid var(--border2);color:var(--text);padding:8px 18px;border-radius:20px;font-size:.8rem;font-weight:700;z-index:9999;animation:fadeUp .2s ease;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+// Initialize equipment summary on load
+setTimeout(() => { updateEquipSummary(); }, 500);
+
+
+function closeOverlay(id){ const el=document.getElementById(id); if(el) el.classList.remove('open'); }
+
+// Keyboard ESC to close overlays
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.overlay.open').forEach(o=>o.classList.remove('open'));
+  }
+});
+</script>
+</body>
+</html>
