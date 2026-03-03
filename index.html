@@ -373,8 +373,11 @@ input,select,button,textarea{font-family:var(--font-b);}
       </button>
     </nav>
     <div class="sidebar-footer">
-      <div style="font-size:.7rem;color:var(--text3);text-align:center;margin-bottom:8px;">JELIAN FT Coach v2.0</div>
-      <button class="btn btn-ghost btn-sm" style="width:100%;font-size:.7rem;" onclick="openDataManager()">💾 Exportar / Importar</button>
+      <div style="font-size:.7rem;color:var(--text3);text-align:center;margin-bottom:8px;">JELIAN FT Coach v3.0</div>
+      <button class="btn btn-ghost btn-sm" style="width:100%;font-size:.7rem;margin-bottom:6px;" onclick="openDataManager()">💾 Exportar / Importar</button>
+      <button class="btn btn-purple btn-sm" style="width:100%;font-size:.7rem;" onclick="openApiKeyModal()" id="apikey-sidebar-btn">
+        🔑 <span id="apikey-sidebar-label">Configurar API Key</span>
+      </button>
     </div>
   </div>
 
@@ -1022,6 +1025,49 @@ input,select,button,textarea{font-family:var(--font-b);}
   </div>
 </div>
 
+<!-- API KEY MODAL -->
+<div class="overlay" id="apikey-overlay">
+  <div class="sheet" style="max-width:480px;">
+    <div class="sheet-head">
+      <div class="sheet-title">🔑 API Key de Anthropic</div>
+      <button class="sheet-close" onclick="closeOverlay('apikey-overlay')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div style="background:rgba(232,255,60,.06);border:1px solid rgba(232,255,60,.18);border-radius:var(--radius);padding:12px;margin-bottom:16px;font-size:.78rem;color:var(--text2);line-height:1.6;">
+        <strong style="color:var(--accent);">¿Para qué sirve?</strong><br>
+        La API Key permite que el módulo <strong>IA Coach</strong> funcione de forma independiente, fuera de Claude.ai. Sin ella, la IA solo funciona dentro de claude.ai.<br><br>
+        <strong style="color:var(--accent);">¿Dónde la obtengo?</strong><br>
+        Entra a <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent2);text-decoration:none;">console.anthropic.com</a> → API Keys → Create Key
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Tu API Key</label>
+        <div style="position:relative;">
+          <input class="field-input" id="apikey-input" type="password" placeholder="sk-ant-api03-..." style="padding-right:44px;">
+          <button onclick="toggleApiKeyVisibility()" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:.85rem;" id="apikey-eye-btn">👁</button>
+        </div>
+      </div>
+
+      <div id="apikey-status" style="min-height:24px;font-size:.78rem;margin-bottom:8px;"></div>
+
+      <div style="display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--surface3);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;">
+        <span style="font-size:1.1rem;">🔒</span>
+        <span style="font-size:.72rem;color:var(--text3);line-height:1.5;">La key se guarda <strong style="color:var(--text2);">solo en tu navegador</strong> (localStorage). Nunca se envía a ningún servidor excepto directamente a Anthropic.</span>
+      </div>
+
+      <div id="apikey-current-wrap" style="display:none;margin-bottom:14px;padding:10px 12px;background:rgba(60,255,200,.05);border:1px solid rgba(60,255,200,.18);border-radius:var(--radius);">
+        <div style="font-size:.65rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--accent2);margin-bottom:4px;">API Key activa</div>
+        <div id="apikey-current-display" style="font-size:.8rem;color:var(--text2);font-family:monospace;"></div>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-danger btn-md" onclick="deleteApiKey()" id="apikey-delete-btn" style="display:none;">🗑 Eliminar</button>
+      <button class="btn btn-ghost btn-md" onclick="closeOverlay('apikey-overlay')">Cancelar</button>
+      <button class="btn btn-accent btn-md" style="flex:1" onclick="saveApiKey()">💾 Guardar Key</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // =====================================================================
 // AUTH
@@ -1033,12 +1079,72 @@ function doLogin(){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').className='visible';
     initApp();
+    updateApiKeyBadge();
   } else {
     document.getElementById('login-err').textContent='Contraseña incorrecta';
     setTimeout(()=>document.getElementById('login-err').textContent='',2000);
   }
 }
 document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+// =====================================================================
+// API KEY MANAGEMENT
+// =====================================================================
+const APIKEY_STORE = 'jft_anthropic_key';
+
+function getApiKey(){ return localStorage.getItem(APIKEY_STORE) || ''; }
+
+function openApiKeyModal(){
+  const key = getApiKey();
+  const input = document.getElementById('apikey-input');
+  const wrap = document.getElementById('apikey-current-wrap');
+  const display = document.getElementById('apikey-current-display');
+  const deleteBtn = document.getElementById('apikey-delete-btn');
+  const status = document.getElementById('apikey-status');
+  input.value = '';
+  status.textContent = '';
+  if(key){
+    wrap.style.display = 'block';
+    display.textContent = key.substring(0,18) + '••••••••••••••••••••' + key.slice(-4);
+    deleteBtn.style.display = 'inline-flex';
+  } else {
+    wrap.style.display = 'none';
+    deleteBtn.style.display = 'none';
+  }
+  document.getElementById('apikey-overlay').classList.add('open');
+}
+
+function toggleApiKeyVisibility(){
+  const input = document.getElementById('apikey-input');
+  const btn = document.getElementById('apikey-eye-btn');
+  if(input.type === 'password'){ input.type = 'text'; btn.textContent = '🙈'; }
+  else { input.type = 'password'; btn.textContent = '👁'; }
+}
+
+function saveApiKey(){
+  const val = document.getElementById('apikey-input').value.trim();
+  const status = document.getElementById('apikey-status');
+  if(!val){ status.style.color='var(--accent3)'; status.textContent='⚠️ Ingresa una API Key válida'; return; }
+  if(!val.startsWith('sk-ant-')){ status.style.color='var(--accent5)'; status.textContent='⚠️ La key debe comenzar con sk-ant-'; return; }
+  localStorage.setItem(APIKEY_STORE, val);
+  status.style.color='var(--accent2)'; status.textContent='✅ API Key guardada correctamente';
+  updateApiKeyBadge();
+  setTimeout(()=>closeOverlay('apikey-overlay'), 1200);
+}
+
+function deleteApiKey(){
+  if(!confirm('¿Eliminar la API Key guardada?')) return;
+  localStorage.removeItem(APIKEY_STORE);
+  updateApiKeyBadge();
+  closeOverlay('apikey-overlay');
+  showToast('🗑 API Key eliminada');
+}
+
+function updateApiKeyBadge(){
+  const key = getApiKey();
+  const label = document.getElementById('apikey-sidebar-label');
+  if(label) label.textContent = key ? '✅ API Key activa' : 'Configurar API Key';
+}
 
 // =====================================================================
 // DATA STORAGE
@@ -2497,9 +2603,12 @@ Equipamiento configurado: ${AI.equipment.length > 0 ? AI.equipment.join(', ') : 
 
 // ─── CLAUDE API CALLS ────────────────────────────────────────────────
 async function callClaude(prompt) {
+  const key = getApiKey();
+  const headers = { 'Content-Type': 'application/json' };
+  if(key){ headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true'; }
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
@@ -2515,9 +2624,12 @@ async function callClaude(prompt) {
 }
 
 async function callClaudeWithImage(prompt, base64, mime) {
+  const key = getApiKey();
+  const headers = { 'Content-Type': 'application/json' };
+  if(key){ headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true'; }
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
@@ -2539,9 +2651,12 @@ async function callClaudeWithImage(prompt, base64, mime) {
 }
 
 async function callClaudeChat(messages, system) {
+  const key = getApiKey();
+  const headers = { 'Content-Type': 'application/json' };
+  if(key){ headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true'; }
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
