@@ -2941,13 +2941,14 @@ Equipamiento configurado: ${AI.equipment.length > 0 ? AI.equipment.join(', ') : 
 async function callClaude(prompt) {
   const key = getApiKey();
   const headers = { 'Content-Type': 'application/json' };
-  if(key){ headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true'; }
+  if(!key){ openApiKeyModal(); throw new Error('Configura tu API Key primero. Haz clic en Configurar API Key.'); }
+  headers['x-api-key'] = key; headers['anthropic-version'] = '2023-06-01'; headers['anthropic-dangerous-direct-browser-access'] = 'true';
   const resp = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
       messages: [{ role: 'user', content: prompt }]
     })
   });
@@ -2967,8 +2968,8 @@ async function callClaudeWithImage(prompt, base64, mime) {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4096,
       messages: [{
         role: 'user',
         content: [
@@ -2994,8 +2995,8 @@ async function callClaudeChat(messages, system) {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2048,
       system,
       messages
     })
@@ -3013,7 +3014,7 @@ function markdownToHtml(text) {
   return text
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$2</h2>'.replace('$2','$1'))
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
     .replace(/^# (.+)$/gm, '<h1>$1</h1>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
