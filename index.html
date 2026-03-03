@@ -664,7 +664,7 @@ input,select,button,textarea{font-family:var(--font-b);}
             <div class="card-title">Resultado del análisis</div>
             <div id="ai-analysis-text" class="ai-result-body"></div>
             <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
-              <button class="btn btn-ghost btn-sm" onclick="switchAiTab('routine');applyAnalysisToRoutine()">→ Crear rutina basada en este análisis</button>
+              <button class="btn btn-purple btn-sm" onclick="switchAiTab('routine');applyAnalysisToRoutine()">🔬 Generar rutina con este análisis</button>
               <button class="btn btn-ghost btn-sm" onclick="copyAiResult('analysis')">📋 Copiar</button>
               <button class="btn btn-orange btn-sm" onclick="exportAiContentPDF('analysis')">📄 Exportar PDF</button>
             </div>
@@ -677,6 +677,13 @@ input,select,button,textarea{font-family:var(--font-b);}
         <div class="ai-panel" id="aipanel-routine">
           <div class="card">
             <div class="card-title">📋 Configuración de la rutina</div>
+
+            <div class="field-group">
+              <label class="field-label">Basar en asesorado (autocompleta campos)</label>
+              <select class="field-input field-select" id="routine-client-select" onchange="loadClientForRoutine()">
+                <option value="">Configurar manualmente</option>
+              </select>
+            </div>
 
             <div class="field-group">
               <label class="field-label">Tipo de entrenamiento</label>
@@ -791,9 +798,34 @@ input,select,button,textarea{font-family:var(--font-b);}
               </div>
             </div>
 
+            <div class="field-row field-row-2 mt-8">
+              <div>
+                <label class="field-label">⚠️ Lesiones / Restricciones</label>
+                <input class="field-input" id="ai-routine-injuries" type="text" placeholder="Ej: rodilla derecha, lumbar, hombro izq...">
+              </div>
+              <div>
+                <label class="field-label">🏃 Cardio incluido</label>
+                <select class="field-input field-select" id="ai-routine-cardio">
+                  <option value="">Sin cardio</option>
+                  <option value="HIIT 10min al final">HIIT 10min al final</option>
+                  <option value="cardio steady-state 15min">Cardio 15min steady-state</option>
+                  <option value="cardio LISS 20min al inicio">LISS 20min al inicio</option>
+                </select>
+              </div>
+            </div>
+
             <div class="field-group mt-8">
-              <label class="field-label">Instrucciones adicionales</label>
-              <textarea class="field-input" id="ai-routine-extra" rows="2" placeholder="Ej: evitar sentadilla por rodilla, incluir trabajo de movilidad, basado en análisis de puntos débiles..."></textarea>
+              <label class="field-label">Instrucciones adicionales del coach</label>
+              <textarea class="field-input" id="ai-routine-extra" rows="2" placeholder="Ej: incluir trabajo de movilidad, enfoque en tempo excéntrico..."></textarea>
+            </div>
+
+            <!-- Badge: análisis corporal vinculado automáticamente -->
+            <div id="analysis-linked-badge" style="display:none;align-items:center;gap:8px;background:rgba(167,139,250,.09);border:1px solid rgba(167,139,250,.25);border-radius:8px;padding:9px 12px;margin-top:10px;font-size:.75rem;color:var(--accent4);">
+              🔬 <strong>Análisis corporal activo</strong> — la rutina se adaptará automáticamente a los puntos débiles detectados
+            </div>
+            <!-- Aviso si NO hay análisis -->
+            <div id="no-analysis-hint" style="display:flex;align-items:center;gap:8px;background:rgba(255,170,68,.06);border:1px solid rgba(255,170,68,.15);border-radius:8px;padding:9px 12px;margin-top:10px;font-size:.75rem;color:var(--accent5);">
+              💡 Tip: Haz un <strong style="cursor:pointer;text-decoration:underline;" onclick="switchAiTab('analysis')">análisis corporal</strong> primero para que la rutina se adapte a los puntos débiles reales del cliente
             </div>
 
             <button class="btn btn-accent btn-full mt-8" onclick="generateAiRoutine()">
@@ -916,18 +948,27 @@ input,select,button,textarea{font-family:var(--font-b);}
 
         <!-- TAB: CHAT LIBRE -->
         <div class="ai-panel" id="aipanel-chat">
+          <div class="card" style="margin-bottom:8px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <label class="field-label" style="margin:0;white-space:nowrap;">👤 Cliente:</label>
+              <select class="field-input field-select" id="chat-client-select" onchange="onChatClientChange()" style="flex:1;min-width:160px;padding:7px 30px 7px 10px;">
+                <option value="">Sin cliente (consulta general)</option>
+              </select>
+              <button class="btn btn-danger btn-xs" onclick="clearChatHistory()" title="Limpiar chat">🗑</button>
+            </div>
+            <div id="chat-client-badge" style="display:none;margin-top:8px;font-size:.72rem;color:var(--accent2);background:rgba(60,255,200,.07);border:1px solid rgba(60,255,200,.18);border-radius:6px;padding:5px 10px;"></div>
+          </div>
           <div class="card" style="padding:0;overflow:hidden;">
             <div id="ai-chat-messages" class="ai-chat-box">
               <div class="ai-chat-msg ai-msg-bot">
                 <div class="ai-chat-avatar">🤖</div>
                 <div class="ai-chat-bubble">
-                  ¡Hola! Soy tu asistente IA de coaching. Puedo ayudarte con:<br><br>
-                  • 🔍 Análisis de puntos débiles<br>
-                  • 📋 Diseño de rutinas personalizadas<br>
-                  • 🥗 Consejos de nutrición<br>
-                  • 📊 Periodización y progresión<br>
-                  • ❓ Cualquier pregunta sobre fitness<br><br>
-                  ¿En qué puedo ayudarte hoy?
+                  ¡Hola! Selecciona un <strong>cliente</strong> arriba para consultas específicas, o pregúntame de forma general.<br><br>
+                  • 📋 Rutinas y periodización<br>
+                  • 🥗 Nutrición y macros<br>
+                  • 📊 Progreso e interpretación<br>
+                  • 💊 Suplementación<br>
+                  • ❓ Cualquier duda de coaching
                 </div>
               </div>
             </div>
@@ -2018,6 +2059,19 @@ async function initApp(){
   renderWlogSection();
   renderAiHistory('routine');
   renderAiHistory('analysis');
+  // Poblar selectores de clientes en pestañas IA
+  populateClientSelectors();
+  // Restaurar historial del chat
+  loadChatHistory();
+}
+
+function populateClientSelectors() {
+  const opts = '<option value="">Configurar manualmente</option>' + ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const chatOpts = '<option value="">Sin cliente (consulta general)</option>' + ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const routSel = document.getElementById('routine-client-select');
+  const chatSel = document.getElementById('chat-client-select');
+  if (routSel) routSel.innerHTML = opts;
+  if (chatSel) chatSel.innerHTML = chatOpts;
 }
 
 // =====================================================================
@@ -2180,7 +2234,7 @@ function deleteClient(id){
   ST.clients=ST.clients.filter(c=>c.id!==id);
   ST.progress=(ST.progress||[]).filter(p=>p.clientId!==id);
   ST.payments=(ST.payments||[]).filter(p=>p.clientId!==id);
-  save(); renderClients(); renderDashboard();
+  save(); renderClients(); renderDashboard(); populateClientSelectors();
   if(currentSection==='client-detail') goTo('clients');
 }
 
@@ -3264,6 +3318,26 @@ function cacheAiResult(type, params, result){
   renderAiHistory(type);
 }
 
+// MEJORA: Buscar en caché antes de llamar a la API (evita gastar créditos)
+// TTL por defecto: 24 horas. Para análisis con fotos no se cachea por parámetros (siempre nuevas fotos).
+function findCachedResult(type, params, ttlHours = 24) {
+  const entries = AI.savedResults[type];
+  if (!entries || entries.length === 0) return null;
+  const cutoff = Date.now() - ttlHours * 60 * 60 * 1000;
+  for (const entry of entries) {
+    if (new Date(entry.date).getTime() < cutoff) continue; // muy viejo
+    // Comparar parámetros clave (ignora campos que cambian siempre como fotos)
+    const keysToMatch = Object.keys(params).filter(k => k !== 'photos');
+    const match = keysToMatch.every(k => {
+      const a = JSON.stringify(params[k]);
+      const b = JSON.stringify(entry.params[k]);
+      return a === b;
+    });
+    if (match) return entry.result;
+  }
+  return null;
+}
+
 // Navigation tab switch
 function switchAiTab(name) {
   document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
@@ -3272,7 +3346,15 @@ function switchAiTab(name) {
   const panel = document.getElementById('aipanel-' + name);
   if (tab) tab.classList.add('active');
   if (panel) panel.classList.add('active');
-  if (name === 'routine') updateEquipSummaryInRoutine();
+  if (name === 'routine') {
+    updateEquipSummaryInRoutine();
+    // Mostrar badge según si hay análisis disponible
+    const hasAnalysis = !!AI.analysisResult;
+    const badge = document.getElementById('analysis-linked-badge');
+    const hint = document.getElementById('no-analysis-hint');
+    if (badge) badge.style.display = hasAnalysis ? 'flex' : 'none';
+    if (hint) hint.style.display = hasAnalysis ? 'none' : 'flex';
+  }
   if (name === 'mealplan') {
     const sel = document.getElementById('mp-client-select');
     if(sel) sel.innerHTML = '<option value="">Ingresar macros manualmente</option>' +
@@ -3455,7 +3537,9 @@ function loadAiHistoryItem(type, idx){
     const txt = document.getElementById('ai-analysis-text');
     if(box) box.style.display='block';
     if(txt) txt.innerHTML = markdownToHtml(item.result);
-    showToast('📂 Análisis cargado del historial');
+    // Auto-seleccionar chips de músculos débiles
+    applyAnalysisToRoutine();
+    showToast('📂 Análisis cargado — músculos débiles actualizados');
   }
 }
 
@@ -3505,6 +3589,8 @@ Sé específico, técnico y constructivo. Usa formato markdown con emojis para m
     textEl.innerHTML = markdownToHtml(resp);
     cacheAiResult('analysis', {photos: AI.photos.length, context}, resp);
     renderAiHistory('analysis');
+    // Auto-seleccionar chips de músculos débiles en el generador de rutinas
+    applyAnalysisToRoutine();
   } catch (e) {
     textEl.innerHTML = '<span style="color:var(--accent3)">❌ Error al analizar: ' + e.message + '</span>';
   }
@@ -3512,11 +3598,82 @@ Sé específico, técnico y constructivo. Usa formato markdown con emojis para m
   btn.innerHTML = '🔍 Analizar puntos débiles';
 }
 
-function applyAnalysisToRoutine() {
-  if (AI.analysisResult) {
-    const extra = document.getElementById('ai-routine-extra');
-    if (extra) extra.value = 'Basado en análisis corporal: ' + AI.analysisResult.substring(0, 300) + '...';
+// Extrae los puntos clave del análisis corporal para inyectarlos en el prompt de rutina
+// Devuelve un objeto con: debilidades, desequilibrios, ejercicios prioritarios
+function extractAnalysisSummary(analysisText) {
+  if (!analysisText) return null;
+  // Toma hasta 1200 chars relevantes: busca las secciones de débiles y ejercicios
+  const lines = analysisText.split('\n').filter(l => l.trim());
+  const relevant = [];
+  let capturing = false;
+  const triggers = ['débil', 'desequilibr', 'priorizar', 'prioritar', 'ejercicio', 'correg', 'acción', 'postural'];
+  for (const line of lines) {
+    const low = line.toLowerCase();
+    if (triggers.some(t => low.includes(t))) capturing = true;
+    if (capturing) relevant.push(line.trim());
+    if (relevant.join(' ').length > 1200) break;
   }
+  // Fallback: primeros 1000 chars si no encontró secciones específicas
+  return relevant.length > 3
+    ? relevant.join('\n').substring(0, 1200)
+    : analysisText.substring(0, 1000);
+}
+
+function applyAnalysisToRoutine() {
+  if (!AI.analysisResult) {
+    showToast('⚠️ Primero genera un análisis corporal en la pestaña Análisis');
+    return;
+  }
+
+  // Mapa de palabras clave del análisis → data-m de los chips
+  const muscleMap = {
+    'Pecho':          ['pecho','pectoral','pectorales'],
+    'Espalda':        ['espalda','dorsal','dorsales','trapecio superior','romboides','lumbar'],
+    'Hombros':        ['hombro','hombros','deltoides','deltoide'],
+    'Bíceps':         ['bíceps','biceps','bícep'],
+    'Tríceps':        ['tríceps','triceps','trícep'],
+    'Cuádriceps':     ['cuádriceps','cuadriceps','cuádricep','quads'],
+    'Isquiotibiales': ['isquiotibiales','isquio','femoral','femorales'],
+    'Glúteos':        ['glúteo','glúteos','gluteo','gluteos'],
+    'Pantorrillas':   ['pantorrilla','pantorrillas','gemelo','gemelos','sóleo','soleo'],
+    'Core/Abdomen':   ['core','abdomen','abdominal','abdominales','transverso','oblicuo'],
+    'Antebrazo':      ['antebrazo','antebrazos'],
+    'Trapecio':       ['trapecio','trapecios']
+  };
+
+  // Buscar en las secciones de debilidades/desequilibrios del análisis
+  const text = AI.analysisResult.toLowerCase();
+  const detectedMuscles = new Set();
+
+  // Primero buscar en secciones específicas de debilidades
+  const weakSectionMatch = text.match(/(débil|desequilibr|priorizar|correg|subdesarroll|punto.*débil|grupo.*débil)([\s\S]{0,600})/gi);
+  const searchZone = weakSectionMatch ? weakSectionMatch.join(' ') : text;
+
+  for (const [chipName, keywords] of Object.entries(muscleMap)) {
+    if (keywords.some(kw => searchZone.includes(kw))) {
+      detectedMuscles.add(chipName);
+    }
+  }
+
+  // Aplicar a los chips: primero deseleccionar todos, luego marcar los detectados
+  const chips = document.querySelectorAll('#ai-muscle-chips .ai-mchip');
+  chips.forEach(chip => chip.classList.remove('on'));
+
+  if (detectedMuscles.size > 0) {
+    chips.forEach(chip => {
+      if (detectedMuscles.has(chip.dataset.m)) chip.classList.add('on');
+    });
+    AI.weakMuscles = [...detectedMuscles];
+    showToast(`🔬 ${detectedMuscles.size} músculos débiles seleccionados automáticamente`);
+  } else {
+    showToast('✅ Análisis vinculado — no se detectaron músculos débiles específicos');
+  }
+
+  // Mostrar badge
+  const badge = document.getElementById('analysis-linked-badge');
+  const hint = document.getElementById('no-analysis-hint');
+  if (badge) badge.style.display = 'flex';
+  if (hint) hint.style.display = 'none';
 }
 
 // ─── GENERATE ROUTINE ───────────────────────────────────────────────
@@ -3528,54 +3685,93 @@ async function generateAiRoutine() {
   const level = document.getElementById('ai-level').value;
   const duration = document.getElementById('ai-duration').value;
   const extra = document.getElementById('ai-routine-extra').value.trim();
+  const injuries = document.getElementById('ai-routine-injuries')?.value.trim() || '';
+  const cardio = document.getElementById('ai-routine-cardio')?.value || '';
   const weakMuscles = Array.from(document.querySelectorAll('#ai-muscle-chips .ai-mchip.on')).map(c => c.dataset.m);
+  // Traducir nivel a instrucciones concretas
+  const levelGuide = {
+    'principiante': 'Principiante: ejercicios básicos y seguros, 3-4 series, 10-15 reps, énfasis en técnica, evitar ejercicios de alta técnica (clean, snatch, etc)',
+    'intermedio': 'Intermedio: ejercicios compuestos + aislamiento, 3-5 series, 8-12 reps, puede incluir variaciones técnicas moderadas',
+    'avanzado': 'Avanzado: ejercicios complejos, alta intensidad, 4-6 series, 5-12 reps, técnicas avanzadas (drop sets, rest-pause, etc) cuando sea relevante'
+  }[level] || level;
+
+  // Detectar si hay análisis corporal disponible (automático, sin necesidad de clic)
+  const analysisSummary = extractAnalysisSummary(AI.analysisResult);
+  const hasAnalysis = !!analysisSummary;
 
   resultBox.style.display = 'block';
-  textEl.innerHTML = '<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Diseñando rutina personalizada...</div>';
 
   const equipList = AI.equipment.length > 0
     ? AI.equipment.join(', ') + (AI.equipExtra ? '. Notas adicionales: ' + AI.equipExtra : '')
     : 'Gimnasio completo (todos los equipos disponibles)';
 
-  const prompt = `Eres un coach de fitness élite. Crea una rutina de entrenamiento COMPLETA para todos los ${days} días. NO cortes ni omitas ningún día.
+  // Incluir análisis en cacheParams para que cambiar el análisis invalide el caché
+  const cacheParams = {
+    days, goal, level, duration,
+    type: AI.selectedType, space: AI.selectedSpace,
+    equip: AI.equipment.join(','),
+    weakMuscles: weakMuscles.join(','),
+    extra, injuries, cardio,
+    analysisHash: hasAnalysis ? AI.analysisResult.substring(0, 80) : ''
+  };
+  const cached = findCachedResult('routine', cacheParams, 48);
+  if (cached) {
+    textEl.innerHTML = '<div style="background:rgba(60,255,200,.07);border:1px solid rgba(60,255,200,.2);border-radius:8px;padding:8px 12px;font-size:.75rem;color:var(--accent2);margin-bottom:10px;">⚡ Resultado del caché — sin gasto de créditos</div>' + markdownToHtml(cached);
+    AI.routineResult = cached;
+    renderAiHistory('routine');
+    return;
+  }
 
-**PARÁMETROS:**
-- Tipo: ${AI.selectedType}
-- Días/semana: ${days}
-- Objetivo: ${goal}
-- Nivel: ${level}
-- Duración/sesión: ${duration}
-- Espacio: ${AI.selectedSpace}
-- Equipamiento: ${equipList}
-${weakMuscles.length > 0 ? '- Músculos a priorizar: ' + weakMuscles.join(', ') : ''}
-${extra ? '- Instrucciones extra: ' + extra : ''}
+  const analysisLabel = hasAnalysis
+    ? '🔬 Generando rutina con análisis corporal integrado...'
+    : '💪 Diseñando rutina personalizada...';
+  textEl.innerHTML = `<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> ${analysisLabel}</div>`;
 
-Responde con esta estructura para los ${days} días (sé directo, sin introducción larga):
+  // Bloque de análisis corporal — se inyecta completo si existe
+  const analysisBlock = hasAnalysis ? `
+ANÁLISIS CORPORAL PREVIO DEL CLIENTE (úsalo como guía principal para la selección de ejercicios):
+---
+${analysisSummary}
+---
+INSTRUCCIÓN CRÍTICA: Basa la selección y el volumen de ejercicios directamente en este análisis. Los músculos débiles o con desequilibrios detectados deben tener mayor volumen y ejercicios correctivos. No ignores ningún punto del análisis.
+` : '';
 
-## ESTRUCTURA DEL PROGRAMA
-[Split breve de ${days} días]
+  const prompt = `Eres un coach de fitness élite especializado en programación. Crea la rutina COMPLETA para ${days} días/semana.
+${analysisBlock}
+━━━ PERFIL ━━━
+Objetivo: ${goal} | Nivel: ${levelGuide}
+Días: ${days}/semana | Duración: ${duration} | Split: ${AI.selectedType} | ${AI.selectedSpace}
+Equipamiento: ${equipList}
+${weakMuscles.length > 0 ? 'Músculos a priorizar' + (hasAnalysis ? ' (análisis corporal)' : '') + ': ' + weakMuscles.join(', ') : ''}${injuries ? '\n⚠️ LESIONES/RESTRICCIONES — OBLIGATORIO respetar: ' + injuries : ''}${cardio ? '\nCardio: ' + cardio : ''}${extra ? '\nNotas del coach: ' + extra : ''}
 
-## DÍA 1 — [Nombre y músculo(s)]
-[5-7 ejercicios con: Series x Reps — Descanso — Nota técnica]
+━━━ FORMATO ━━━
+Responde SOLO esto, sin texto extra:
 
-## DÍA 2 — [Nombre y músculo(s)]
-[5-7 ejercicios con: Series x Reps — Descanso — Nota técnica]
+## SPLIT
+[Día X — Músculo(s), una línea por día]
 
-[Continúa hasta DÍA ${days}]
+## DÍA 1 — [Músculos]
+| Ejercicio | Series | Reps | Descanso |
+|---|---|---|---|
+[5-6 ejercicios adaptados al nivel]
+${hasAnalysis ? '> 🎯 Corrección: [1 frase sobre la priorización muscular según análisis]' : ''}
 
-## PROGRESIÓN SEMANAL
-[Breve: cómo progresar]
+[Repetir hasta DÍA ${days}]
 
-## CONSEJOS GENERALES
-[Calentamiento, recuperación — máximo 5 puntos]
+## PROGRESIÓN SEMANAS 2-4
+[Máx 3 líneas: cómo escalar carga/volumen]
 
-IMPORTANTE: Incluye TODOS los ${days} días completos. Usa SOLO el equipamiento disponible.`;
+Usa SOLO el equipamiento listado. Respeta todas las lesiones. Sin intro ni conclusión.`;
 
   try {
     const resp = await callClaude(prompt);
     AI.routineResult = resp;
-    textEl.innerHTML = markdownToHtml(resp);
-    cacheAiResult('routine', {days, goal, level, duration, type: AI.selectedType}, resp);
+    // Añadir banner informando si se usó análisis
+    const banner = hasAnalysis
+      ? '<div style="background:rgba(167,139,250,.09);border:1px solid rgba(167,139,250,.25);border-radius:8px;padding:8px 12px;font-size:.75rem;color:var(--accent4);margin-bottom:10px;">🔬 Rutina generada con análisis corporal integrado</div>'
+      : '';
+    textEl.innerHTML = banner + markdownToHtml(resp);
+    cacheAiResult('routine', cacheParams, resp);
     renderAiHistory('routine');
   } catch (e) {
     textEl.innerHTML = '<span style="color:var(--accent3)">❌ Error: ' + e.message + '</span>';
@@ -3868,6 +4064,134 @@ Sé práctico y específico. Incluye rangos de precio aproximados si es relevant
 }
 
 // ─── FREE CHAT ───────────────────────────────────────────────────────
+// ─── CHAT: CLIENTE SELECTOR + HISTORIAL PERSISTENTE ─────────────────
+let chatClientId = '';
+
+function buildChatSystemPrompt() {
+  const base = `Eres JELIAN AI Coach, asistente experto en fitness, nutrición y coaching. Responde en español, claro y profesional. Usa markdown para listas y tablas. Equipamiento: ${AI.equipment.length > 0 ? AI.equipment.join(', ') : 'No especificado'}.`;
+  if (!chatClientId) return base;
+  const c = ST.clients.find(cl => cl.id === chatClientId);
+  if (!c) return base;
+  const macros = calcMacros(c);
+  const goalMap = { cut: 'Definición', maintain: 'Mantenimiento', bulk: 'Volumen', agbulk: 'Volumen agresivo' };
+  const prog = (ST.progress || []).filter(e => e.clientId === chatClientId).sort((a,b) => b.date.localeCompare(a.date));
+  const latestProg = prog[0];
+  const firstProg = prog[prog.length - 1];
+  const progSummary = latestProg
+    ? `Último registro (${latestProg.date}): ${[latestProg.weight?latestProg.weight+'kg':null,latestProg.bf?latestProg.bf+'% grasa':null,latestProg.waist?'cintura '+latestProg.waist+'cm':null,latestProg.bicep?'bícep '+latestProg.bicep+'cm':null].filter(Boolean).join(', ')}`
+      + (firstProg && firstProg.id !== latestProg.id && firstProg.weight && latestProg.weight ? `. Cambio peso total: ${(latestProg.weight-firstProg.weight).toFixed(1)}kg desde ${firstProg.date}` : '')
+    : 'Sin registros aún';
+  const clientRoutines = (ST.routines || []).filter(r => r.clientId === chatClientId);
+  const routinesSummary = clientRoutines.length > 0 ? clientRoutines.slice(0,5).map(r=>r.name).join(', ') : 'Sin rutinas';
+  return `${base}
+
+PERFIL DEL CLIENTE ACTIVO — ${c.name}:
+${c.age?`Edad: ${c.age} años`:''}${c.sex?` | ${c.sex==='M'?'Masculino':'Femenino'}`:''}${c.weight?` | Peso: ${c.weight}kg`:''}${c.height?` | Altura: ${c.height}cm`:''}
+Objetivo: ${goalMap[c.goal]||c.goal||'No especificado'}
+${macros?`TDEE: ${macros.tdee}kcal | Macros: P${macros.prot}g C${macros.carbs}g G${macros.fat}g`:''}
+${c.notes?`Notas del coach: ${c.notes}`:''}
+Progreso: ${progSummary}
+Rutinas asignadas: ${routinesSummary}
+Análisis corporal: ${AI.analysisResult?'Disponible (hay datos de desequilibrios musculares)':'No realizado'}
+
+Cuando el coach mencione "el cliente", "él/ella" o el nombre, se refiere a esta persona.`;
+}
+
+function onChatClientChange() {
+  chatClientId = document.getElementById('chat-client-select').value;
+  const badge = document.getElementById('chat-client-badge');
+  if (chatClientId) {
+    const c = ST.clients.find(cl => cl.id === chatClientId);
+    if (c && badge) {
+      const macros = calcMacros(c);
+      const goalMap = { cut: 'Definición', maintain: 'Mantenimiento', bulk: 'Volumen', agbulk: 'Vol. agresivo' };
+      badge.style.display = 'block';
+      badge.innerHTML = `🟢 <strong>${c.name}</strong>${c.age?' · '+c.age+'a':''}${c.weight?' · '+c.weight+'kg':''} · ${goalMap[c.goal]||c.goal||'—'}${macros?' · '+macros.kcal+'kcal':''}`;
+    }
+  } else {
+    if (badge) badge.style.display = 'none';
+  }
+  AI.chatHistory = [];
+  saveChatHistory();
+}
+
+function saveChatHistory() {
+  try { localStorage.setItem('jft_chat_history', JSON.stringify({ clientId: chatClientId, history: AI.chatHistory.slice(-20) })); } catch(e) {}
+}
+
+function loadChatHistory() {
+  try {
+    const raw = localStorage.getItem('jft_chat_history');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    AI.chatHistory = data.history || [];
+    chatClientId = data.clientId || '';
+    if (chatClientId) {
+      const sel = document.getElementById('chat-client-select');
+      if (sel) { sel.value = chatClientId; onChatClientChange(); }
+    }
+    if (AI.chatHistory.length > 0) {
+      const chatBox = document.getElementById('ai-chat-messages');
+      if (!chatBox) return;
+      AI.chatHistory.forEach(m => {
+        if (m.role === 'user') {
+          chatBox.innerHTML += `<div class="ai-chat-msg ai-msg-user"><div class="ai-chat-avatar">👤</div><div class="ai-chat-bubble">${escapeHtml(m.content)}</div></div>`;
+        } else {
+          chatBox.innerHTML += `<div class="ai-chat-msg ai-msg-bot"><div class="ai-chat-avatar">🤖</div><div class="ai-chat-bubble">${markdownToHtml(m.content)}</div></div>`;
+        }
+      });
+      const chatBox2 = document.getElementById('ai-chat-messages');
+      if (chatBox2) chatBox2.scrollTop = chatBox2.scrollHeight;
+    }
+  } catch(e) {}
+}
+
+function clearChatHistory() {
+  AI.chatHistory = [];
+  saveChatHistory();
+  const chatBox = document.getElementById('ai-chat-messages');
+  if (chatBox) chatBox.innerHTML = `<div class="ai-chat-msg ai-msg-bot"><div class="ai-chat-avatar">🤖</div><div class="ai-chat-bubble">Chat limpiado. ¿En qué puedo ayudarte?</div></div>`;
+  showToast('🗑 Chat limpiado');
+}
+
+// ─── LOAD CLIENT FOR ROUTINE GENERATOR ──────────────────────────────
+function loadClientForRoutine() {
+  const cid = document.getElementById('routine-client-select').value;
+  if (!cid) return;
+  const c = ST.clients.find(cl => cl.id === cid);
+  if (!c) return;
+  const macros = calcMacros(c);
+  const goalMap = { cut: 'Definición / Pérdida de grasa', maintain: 'Mantenimiento', bulk: 'Volumen muscular', agbulk: 'Volumen agresivo' };
+  const goalSel = document.getElementById('ai-goal');
+  if (goalSel && c.goal) {
+    for (const opt of goalSel.options) {
+      if (opt.value && goalMap[c.goal] && goalMap[c.goal].toLowerCase().includes(opt.value.toLowerCase().split('/')[0].trim())) {
+        goalSel.value = opt.value; break;
+      }
+    }
+  }
+  // Fill injuries if client has notes mentioning them
+  const injuriesEl = document.getElementById('ai-routine-injuries');
+  if (injuriesEl && c.notes) {
+    const injuryKeywords = ['lesion', 'lesión', 'rodilla', 'lumbar', 'hombro', 'codo', 'tobillo', 'cadera', 'cervical', 'hernia', 'dolor', 'evitar'];
+    const noteWords = c.notes.toLowerCase();
+    if (injuryKeywords.some(kw => noteWords.includes(kw))) {
+      injuriesEl.value = c.notes;
+    }
+  }
+  // Only pre-fill extra if currently empty
+  const extraEl = document.getElementById('ai-routine-extra');
+  if (extraEl && !extraEl.value.trim()) {
+    const parts = [];
+    if (c.name) parts.push(`Cliente: ${c.name}`);
+    if (c.age) parts.push(`${c.age} años`);
+    if (c.sex) parts.push(c.sex === 'M' ? 'Hombre' : 'Mujer');
+    if (macros) parts.push(`TDEE ${macros.tdee}kcal`);
+    extraEl.value = parts.join(' | ');
+  }
+  showToast(`✅ Perfil de ${c.name} cargado`);
+}
+
 async function sendChatMsg() {
   const input = document.getElementById('ai-chat-input');
   const text = input.value.trim();
@@ -3876,13 +4200,11 @@ async function sendChatMsg() {
   input.style.height = 'auto';
 
   const chatBox = document.getElementById('ai-chat-messages');
-  // User message
   chatBox.innerHTML += `<div class="ai-chat-msg ai-msg-user">
     <div class="ai-chat-avatar">👤</div>
     <div class="ai-chat-bubble">${escapeHtml(text)}</div>
   </div>`;
 
-  // Typing indicator
   chatBox.innerHTML += `<div class="ai-chat-msg" id="ai-typing-indicator">
     <div class="ai-chat-avatar">🤖</div>
     <div class="ai-chat-bubble ai-typing">
@@ -3893,36 +4215,45 @@ async function sendChatMsg() {
 
   AI.chatHistory.push({ role: 'user', content: text });
 
-  const systemPrompt = `Eres JELIAN AI Coach, un asistente experto en fitness, nutrición deportiva, entrenamiento y coaching. 
-Responde en español de forma clara, motivadora y profesional. 
-Usa emojis ocasionalmente para hacer la conversación más dinámica.
-Cuando hagas listas o rutinas, usa formato markdown.
-Equipamiento configurado: ${AI.equipment.length > 0 ? AI.equipment.join(', ') : 'No especificado'}.`;
-
   try {
-    const messages = AI.chatHistory.slice(-10).map(m => ({ role: m.role, content: m.content }));
-    const resp = await callClaudeChat(messages, systemPrompt);
+    const messages = AI.chatHistory.slice(-14).map(m => ({ role: m.role, content: m.content }));
+    const resp = await callClaudeChat(messages, buildChatSystemPrompt());
     AI.chatHistory.push({ role: 'assistant', content: resp });
-
+    saveChatHistory();
     const typingEl = document.getElementById('ai-typing-indicator');
     if (typingEl) typingEl.remove();
-
-    chatBox.innerHTML += `<div class="ai-chat-msg">
+    chatBox.innerHTML += `<div class="ai-chat-msg ai-msg-bot">
       <div class="ai-chat-avatar">🤖</div>
       <div class="ai-chat-bubble">${markdownToHtml(resp)}</div>
     </div>`;
   } catch (e) {
     const typingEl = document.getElementById('ai-typing-indicator');
     if (typingEl) typingEl.remove();
-    chatBox.innerHTML += `<div class="ai-chat-msg">
+    chatBox.innerHTML += `<div class="ai-chat-msg ai-msg-bot">
       <div class="ai-chat-avatar">🤖</div>
-      <div class="ai-chat-bubble" style="color:var(--accent3)">❌ Error al conectar con la IA: ${escapeHtml(e.message)}</div>
+      <div class="ai-chat-bubble" style="color:var(--accent3)">❌ Error: ${escapeHtml(e.message)}</div>
     </div>`;
   }
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 // ─── CLAUDE API CALLS ────────────────────────────────────────────────
+// MEJORA: max_tokens adaptativo según tipo de prompt para ahorrar créditos
+function getMaxTokens(prompt) {
+  const p = prompt || '';
+  // Plan de comidas
+  const mealMatch = p.match(/Plan de (\d+) d[ií]as/);
+  if (mealMatch) { const d = parseInt(mealMatch[1]); return Math.min(2000 + d * 500, 5000); }
+  // Rutina — múltiples formatos posibles
+  const routMatch = p.match(/para (\d+) d[ií]as\/semana/) || p.match(/para todos los (\d+) d[ií]as/) || p.match(/COMPLETA para (\d+)/);
+  if (routMatch) { const d = parseInt(routMatch[1]); return Math.min(2000 + d * 650, 6500); }
+  // Análisis equipamiento
+  if (p.includes('equipamiento de fitness')) return 2000;
+  // Análisis corporal
+  if (p.includes('biom') || p.includes('postural')) return 2500;
+  return 3500;
+}
+
 async function callClaude(prompt) {
   const key = getApiKey();
   const headers = { 'Content-Type': 'application/json' };
@@ -3933,7 +4264,7 @@ async function callClaude(prompt) {
     headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
+      max_tokens: getMaxTokens(prompt),
       messages: [{ role: 'user', content: prompt }]
     })
   });
@@ -3961,7 +4292,7 @@ async function callClaudeWithImages(prompt, photos) {
     headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 8192,
+      max_tokens: 2500,
       messages: [{ role: 'user', content }]
     })
   });
@@ -4349,7 +4680,81 @@ function renderProgress(){
     <div class="prog-metrics" style="margin-top:8px;">${Object.keys(labels).map(k=>e[k]?`<div class="prog-metric"><div class="prog-val" style="font-size:.95rem;">${e[k]}<span style="font-size:.6rem">${units[k]}</span></div><div class="prog-lbl">${labels[k]}</div></div>`:'').join('')}</div>
     ${e.notes?`<div style="font-size:.72rem;color:var(--text3);margin-top:6px;">${e.notes}</div>`:''}</div>`).join('');
 
-  content.innerHTML=chartHtml+summaryHtml+`<div class="card"><div class="card-title">Historial completo (${entries.length})</div>${histHtml}</div>`;
+  // Botón de análisis IA de progreso (sin backticks anidados)
+  const aiProgBtn = '<div class="card mt-8" style="border-color:rgba(167,139,250,.25);">'
+    + '<div class="card-title" style="color:var(--accent4);">🤖 Análisis IA del progreso</div>'
+    + '<p style="font-size:.78rem;color:var(--text2);margin-bottom:10px;">La IA interpretará la evolución de ' + (client?.name||'') + ', detectará tendencias, estancamientos y recomendará ajustes.</p>'
+    + '<button class="btn btn-purple btn-full" onclick="analyzeProgressWithAI(\x27' + clientId + '\x27)">📊 Analizar evolución con IA</button>'
+    + '<div id="ai-progress-result" style="display:none;margin-top:12px;" class="ai-result-body"></div>'
+    + '</div>';
+
+  content.innerHTML = chartHtml + summaryHtml
+    + '<div class="card"><div class="card-title">Historial completo (' + entries.length + ')</div>' + histHtml + '</div>'
+    + aiProgBtn;
+}
+
+async function analyzeProgressWithAI(clientId) {
+  const btn = event.target;
+  const resultEl = document.getElementById('ai-progress-result');
+  const client = ST.clients.find(c => c.id === clientId);
+  if (!client || !resultEl) return;
+
+  const entries = (ST.progress || []).filter(e => e.clientId === clientId).sort((a,b) => a.date.localeCompare(b.date));
+  if (entries.length < 2) { showToast('⚠️ Necesitas al menos 2 registros para analizar'); return; }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Analizando...';
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Interpretando evolución...</div>';
+
+  const macros = calcMacros(client);
+  const goalMap = { cut: 'Definición', maintain: 'Mantenimiento', bulk: 'Volumen', agbulk: 'Vol. agresivo' };
+  const labels = {weight:'Peso(kg)',bf:'Grasa(%)',chest:'Pecho(cm)',waist:'Cintura(cm)',hip:'Cadera(cm)',bicep:'Bícep(cm)',thigh:'Muslo(cm)',calf:'Pantorrilla(cm)'};
+
+  const tableRows = entries.map(e =>
+    `${e.date} | ${Object.keys(labels).map(k => e[k] != null ? e[k] : '—').join(' | ')}`
+  ).join('\n');
+
+  const first = entries[0], last = entries[entries.length - 1];
+  const weeks = Math.round((new Date(last.date) - new Date(first.date)) / (7*24*3600*1000));
+
+  const prompt = `Eres un coach experto analizando el progreso de un cliente. Sé directo y específico.
+
+CLIENTE: ${client.name}${client.age?' · '+client.age+'a':''}${client.sex?' · '+(client.sex==='M'?'Hombre':'Mujer'):''}${client.weight?' · '+client.weight+'kg actual':''}
+OBJETIVO: ${goalMap[client.goal]||client.goal||'No especificado'}
+${macros?`TDEE calculado: ${macros.tdee}kcal | Macros objetivo: P${macros.prot}g C${macros.carbs}g G${macros.fat}g`:''}
+PERÍODO: ${first.date} → ${last.date} (${weeks} semanas, ${entries.length} registros)
+
+HISTORIAL (fecha | ${Object.values(labels).join(' | ')}):
+${tableRows}
+
+Analiza en este formato exacto:
+
+## 📈 Tendencia general
+[2-3 líneas: qué está pasando con el peso y composición]
+
+## ✅ Puntos positivos
+[Lista de lo que va bien]
+
+## ⚠️ Alertas y estancamientos
+[Lista de problemas o estancamientos detectados]
+
+## 🎯 Ajustes recomendados
+[3-5 recomendaciones concretas: dieta, entrenamiento, descanso]
+
+## 📅 Proyección
+[Si continúa así, en cuánto tiempo logrará el objetivo]
+
+Sé específico con números. Sin introducciones.`;
+
+  try {
+    const resp = await callClaude(prompt);
+    resultEl.innerHTML = markdownToHtml(resp);
+  } catch(e) {
+    resultEl.innerHTML = `<span style="color:var(--accent3)">❌ Error: ${e.message}</span>`;
+  }
+  btn.disabled = false;
+  btn.textContent = '📊 Analizar evolución con IA';
 }
 
 async function deleteProgress(id,clientId){
@@ -4505,25 +4910,37 @@ async function generateMealPlan(){
   const resultBox=document.getElementById('ai-mealplan-result');
   const textEl=document.getElementById('ai-mealplan-text');
   resultBox.style.display='block';
+
+  // MEJORA: Verificar caché antes de llamar a la API (TTL 24h)
+  const mpCacheParams = { kcal, prot, carbs, fat, meals, days, diets: diets.join(','), foods, clientId: clientSel };
+  const mpCached = findCachedResult('mealplan', mpCacheParams, 24);
+  if(mpCached){
+    textEl.innerHTML='<div style="background:rgba(60,255,200,.07);border:1px solid rgba(60,255,200,.2);border-radius:8px;padding:8px 12px;font-size:.75rem;color:var(--accent2);margin-bottom:10px;">⚡ Resultado del caché — sin gasto de créditos</div>'+markdownToHtml(mpCached);
+    mealPlanResult=mpCached;
+    return;
+  }
+
   textEl.innerHTML='<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Generando plan de comidas...</div>';
-  const prompt=`Eres un nutricionista deportivo experto. Genera un plan de comidas detallado:
 
-**MACROS DIARIOS:** ${kcal||'—'} kcal | Proteína: ${prot||'—'}g | Carbos: ${carbs||'—'}g | Grasas: ${fat||'—'}g
-**ESTRUCTURA:** ${meals} comidas/día — Plan de ${days} días
-${diets.length?`**RESTRICCIONES:** ${diets.join(', ')}`:''}
-${foods?`**ALIMENTOS DISPONIBLES:** ${foods}`:''}
-${client?`**PERFIL:** ${client.sex==='M'?'Hombre':'Mujer'}, ${client.age} años, ${client.weight}kg, objetivo: ${client.goal}`:''}
+  // MEJORA: Prompt conciso con formato tabla para reducir tokens de salida
+  const prompt=`Eres nutricionista deportivo. Genera plan de comidas COMPLETO y directo.
 
-Genera el plan COMPLETO con:
-- Cada día con todas sus comidas
-- Alimentos con cantidades exactas (gramos/unidades)
-- Macros de cada comida y total diario
-- Varía los alimentos día a día para evitar monotonía
-- Tips de preparación rápida donde ayude`;
+MACROS: ${kcal||'—'} kcal | P:${prot||'—'}g | C:${carbs||'—'}g | G:${fat||'—'}g
+${meals} comidas/día — Plan de ${days} días${diets.length?' — Restricciones: '+diets.join(', '):''}${foods?'\nAlimentos disponibles: '+foods:''}${client?'\nPerfil: '+(client.sex==='M'?'Hombre':'Mujer')+', '+client.age+'a, '+client.weight+'kg, '+client.goal:''}
+
+FORMATO por día:
+## DÍA X
+| Comida | Alimento | Cantidad | P | C | G | kcal |
+|---|---|---|---|---|---|---|
+[filas]
+**Total día: Xkcal | PXg | CXg | GXg**
+
+Varía alimentos entre días. Sin introducciones. Plan de ${days} días completo.`;
   try{
     const resp=await callClaude(prompt);
     mealPlanResult=resp;
     textEl.innerHTML=markdownToHtml(resp);
+    cacheAiResult('mealplan', mpCacheParams, resp);
   } catch(e){ textEl.innerHTML=`<span style="color:var(--accent3)">❌ Error: ${e.message}</span>`; }
 }
 
