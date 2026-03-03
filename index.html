@@ -2899,28 +2899,39 @@ async function generateAiRoutine() {
     ? AI.equipment.join(', ') + (AI.equipExtra ? '. Notas adicionales: ' + AI.equipExtra : '')
     : 'Gimnasio completo (todos los equipos disponibles)';
 
-  const prompt = `Eres un coach de fitness élite. Crea una rutina de entrenamiento completa con estos parámetros:
+  const prompt = `Eres un coach de fitness élite. Crea una rutina de entrenamiento COMPLETA para todos los ${days} días. NO cortes ni omitas ningún día.
 
-**TIPO DE ENTRENAMIENTO:** ${AI.selectedType}
-**DÍAS POR SEMANA:** ${days} días
-**OBJETIVO:** ${goal}
-**NIVEL:** ${level}
-**DURACIÓN POR SESIÓN:** ${duration}
-**TIPO DE ESPACIO:** ${AI.selectedSpace}
-**EQUIPAMIENTO DISPONIBLE:** ${equipList}
-${weakMuscles.length > 0 ? '**MÚSCULOS A PRIORIZAR (puntos débiles):** ' + weakMuscles.join(', ') : ''}
-${extra ? '**INSTRUCCIONES ADICIONALES:** ' + extra : ''}
+**PARÁMETROS:**
+- Tipo: ${AI.selectedType}
+- Días/semana: ${days}
+- Objetivo: ${goal}
+- Nivel: ${level}
+- Duración/sesión: ${duration}
+- Espacio: ${AI.selectedSpace}
+- Equipamiento: ${equipList}
+${weakMuscles.length > 0 ? '- Músculos a priorizar: ' + weakMuscles.join(', ') : ''}
+${extra ? '- Instrucciones extra: ' + extra : ''}
 
-Genera la rutina COMPLETA con:
-1. **ESTRUCTURA DEL PROGRAMA** - Descripción del split y distribución semanal
-2. **CADA DÍA DE ENTRENAMIENTO** con:
-   - Nombre del día y músculo(s) objetivo
-   - Lista de ejercicios con series × repeticiones × descanso
-   - Notas técnicas para cada ejercicio
-3. **PROGRESIÓN RECOMENDADA** - Cómo progresar semana a semana
-4. **CONSEJOS GENERALES** - Calentamiento, enfriamiento, recuperación
+Responde con esta estructura para los ${days} días (sé directo, sin introducción larga):
 
-Adapta TODOS los ejercicios al equipamiento disponible. Sé muy específico con los ejercicios, series, reps y descansos.`;
+## ESTRUCTURA DEL PROGRAMA
+[Split breve de ${days} días]
+
+## DÍA 1 — [Nombre y músculo(s)]
+[5-7 ejercicios con: Series x Reps — Descanso — Nota técnica]
+
+## DÍA 2 — [Nombre y músculo(s)]
+[5-7 ejercicios con: Series x Reps — Descanso — Nota técnica]
+
+[Continúa hasta DÍA ${days}]
+
+## PROGRESIÓN SEMANAL
+[Breve: cómo progresar]
+
+## CONSEJOS GENERALES
+[Calentamiento, recuperación — máximo 5 puntos]
+
+IMPORTANTE: Incluye TODOS los ${days} días completos. Usa SOLO el equipamiento disponible.`;
 
   try {
     const resp = await callClaude(prompt);
@@ -3040,7 +3051,7 @@ async function callClaude(prompt) {
     headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: 8192,
       messages: [{ role: 'user', content: prompt }]
     })
   });
@@ -3068,7 +3079,7 @@ async function callClaudeWithImages(prompt, photos) {
     headers,
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: 8192,
       messages: [{ role: 'user', content }]
     })
   });
