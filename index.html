@@ -165,7 +165,7 @@ input,select,button,textarea{font-family:var(--font-b);}
 .dashboard-stat::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,255,60,.03),transparent);pointer-events:none;}
 .ds-val{font-family:var(--font-h);font-size:3rem;font-weight:900;line-height:1;color:var(--accent);}
 .ds-lbl{font-size:.65rem;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
-.ds-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.ds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px;}
 
 /* CLIENT CARDS */
 .client-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px;cursor:pointer;transition:.15s;position:relative;}
@@ -264,7 +264,34 @@ input,select,button,textarea{font-family:var(--font-b);}
 .search-input-wrap input{padding-left:32px;}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.85rem;pointer-events:none;}
 
-/* ── AI COACH STYLES ─────────────────────────────── */
+/* ── PROGRESS ───────────────────────────── */
+.prog-entry{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:8px;}
+.prog-date{font-family:var(--font-h);font-weight:800;font-size:.85rem;color:var(--accent);letter-spacing:.5px;}
+.prog-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;}
+@media(max-width:500px){.prog-metrics{grid-template-columns:repeat(2,1fr);}}
+.prog-metric{background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;}
+.prog-val{font-family:var(--font-h);font-size:1.25rem;font-weight:900;line-height:1;}
+.prog-lbl{font-size:.55rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.prog-delta{font-size:.65rem;font-weight:700;margin-top:2px;}
+.prog-delta.pos{color:var(--accent2);}
+.prog-delta.neg{color:var(--accent3);}
+.chart-wrap{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:12px;}
+.chart-title{font-size:.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:12px;}
+.sparkline{width:100%;height:80px;}
+
+/* ── BILLING ────────────────────────────── */
+.bill-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:8px;}
+.bill-card.overdue{border-color:rgba(255,60,110,.35);background:rgba(255,60,110,.04);}
+.bill-card.active{border-color:rgba(60,255,200,.2);}
+.bill-name{font-family:var(--font-h);font-weight:800;font-size:1rem;}
+.bill-amount{font-family:var(--font-h);font-size:1.5rem;font-weight:900;color:var(--accent);}
+.bill-meta{font-size:.7rem;color:var(--text3);margin-top:2px;}
+.bill-status{display:inline-flex;align-items:center;font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;}
+.bill-status.active{background:rgba(60,255,200,.1);color:var(--accent2);border:1px solid rgba(60,255,200,.2);}
+.bill-status.overdue{background:rgba(255,60,110,.1);color:var(--accent3);border:1px solid rgba(255,60,110,.2);}
+.bill-status.paid{background:rgba(232,255,60,.08);color:var(--accent);border:1px solid rgba(232,255,60,.15);}
+.bill-status.pending{background:rgba(255,170,68,.08);color:var(--accent5);border:1px solid rgba(255,170,68,.2);}
+
 .ai-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;}
 .ai-tab{background:transparent;border:1px solid var(--border);color:var(--text2);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:700;letter-spacing:.5px;transition:.15s;white-space:nowrap;}
 .ai-tab:hover{border-color:var(--accent);color:var(--accent);}
@@ -371,6 +398,12 @@ input,select,button,textarea{font-family:var(--font-b);}
         <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>IA Coach
         <span style="position:absolute;top:6px;right:8px;background:var(--accent);color:#000;font-size:.45rem;font-weight:900;padding:1px 5px;border-radius:8px;letter-spacing:.5px;">NEW</span>
       </button>
+      <button class="sidebar-item" id="sn-progress" onclick="goTo('progress')">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Progreso
+      </button>
+      <button class="sidebar-item" id="sn-billing" onclick="goTo('billing')">
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Facturación
+      </button>
     </nav>
     <div class="sidebar-footer">
       <div style="font-size:.7rem;color:var(--text3);text-align:center;margin-bottom:8px;">JELIAN FT Coach v3.0</div>
@@ -418,6 +451,8 @@ input,select,button,textarea{font-family:var(--font-b);}
                 <button class="btn btn-accent btn-full" onclick="openNewClient()">+ Nuevo asesorado</button>
                 <button class="btn btn-ghost btn-full" onclick="goTo('routines')">📋 Crear rutina</button>
                 <button class="btn btn-purple btn-full" onclick="goTo('clients')">👥 Ver todos los clientes</button>
+                <button class="btn btn-orange btn-full" onclick="goTo('billing')">💳 Facturación</button>
+                <button class="btn btn-green btn-full" onclick="goTo('progress')">📊 Registrar progreso</button>
               </div>
             </div>
           </div>
@@ -478,6 +513,47 @@ input,select,button,textarea{font-family:var(--font-b);}
         <div id="ex-lib-list"></div>
       </div>
 
+      <!-- PROGRESO -->
+      <div class="section" id="sec-progress">
+        <div class="section-header flex-between">
+          <div>
+            <div class="section-title">Progreso</div>
+            <div class="section-sub">Seguimiento de medidas y evolución</div>
+          </div>
+          <button class="btn btn-accent btn-md" onclick="openAddProgress()">+ Registro</button>
+        </div>
+        <div class="field-group mb-12">
+          <label class="field-label">Ver progreso de</label>
+          <select class="field-input field-select" id="progress-client-select" onchange="renderProgress()">
+            <option value="">Selecciona un asesorado</option>
+          </select>
+        </div>
+        <div id="progress-content">
+          <div class="empty"><div class="empty-icon">📊</div><div class="empty-ttl">Selecciona un asesorado</div><p class="empty-txt">Elige un cliente arriba para ver su historial de progreso</p></div>
+        </div>
+      </div>
+
+      <!-- FACTURACIÓN -->
+      <div class="section" id="sec-billing">
+        <div class="section-header flex-between">
+          <div>
+            <div class="section-title">Facturación</div>
+            <div class="section-sub">Control de pagos y vencimientos</div>
+          </div>
+          <button class="btn btn-accent btn-md" onclick="openAddPayment()">+ Pago</button>
+        </div>
+        <!-- Resumen financiero -->
+        <div class="stats-grid stats-grid-4 mb-12" id="billing-stats"></div>
+        <!-- Filtro -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+          <button class="fchip on" id="bf-all" onclick="filterBilling('all',this)">Todos</button>
+          <button class="fchip" id="bf-active" onclick="filterBilling('active',this)">Activos</button>
+          <button class="fchip" id="bf-overdue" onclick="filterBilling('overdue',this)">Vencidos</button>
+          <button class="fchip" id="bf-paid" onclick="filterBilling('paid',this)">Pagados</button>
+        </div>
+        <div id="billing-list"></div>
+      </div>
+
       <!-- IA COACH -->
       <div class="section" id="sec-ai">
         <div class="section-header">
@@ -491,6 +567,7 @@ input,select,button,textarea{font-family:var(--font-b);}
           <button class="ai-tab" onclick="switchAiTab('routine')" id="aitab-routine">📋 Generar Rutina</button>
           <button class="ai-tab" onclick="switchAiTab('equipment')" id="aitab-equipment">🏋️ Equipamiento</button>
           <button class="ai-tab" onclick="switchAiTab('chat')" id="aitab-chat">💬 Consulta Libre</button>
+          <button class="ai-tab" onclick="switchAiTab('mealplan')" id="aitab-mealplan">🥗 Plan de Comidas</button>
         </div>
 
         <!-- TAB: ANÁLISIS CORPORAL -->
@@ -768,6 +845,91 @@ input,select,button,textarea{font-family:var(--font-b);}
           </div>
         </div>
 
+        <!-- TAB: PLAN DE COMIDAS -->
+        <div class="ai-panel" id="aipanel-mealplan">
+          <div class="card">
+            <div class="card-title">🥗 Generador de Plan de Comidas</div>
+            <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;">Genera un menú semanal completo basado en los macros de un asesorado o ingresando datos manuales.</p>
+
+            <div class="field-group">
+              <label class="field-label">Basar en asesorado existente (opcional)</label>
+              <select class="field-input field-select" id="mp-client-select" onchange="loadClientMacrosForMeal()">
+                <option value="">Ingresar macros manualmente</option>
+              </select>
+            </div>
+
+            <div class="field-row field-row-2 mt-8">
+              <div>
+                <label class="field-label">Calorías diarias</label>
+                <input class="field-input" id="mp-kcal" type="number" placeholder="2000">
+              </div>
+              <div>
+                <label class="field-label">Proteína (g)</label>
+                <input class="field-input" id="mp-prot" type="number" placeholder="150">
+              </div>
+            </div>
+            <div class="field-row field-row-2">
+              <div>
+                <label class="field-label">Carbos (g)</label>
+                <input class="field-input" id="mp-carbs" type="number" placeholder="220">
+              </div>
+              <div>
+                <label class="field-label">Grasas (g)</label>
+                <input class="field-input" id="mp-fat" type="number" placeholder="65">
+              </div>
+            </div>
+
+            <div class="field-row field-row-2 mt-4">
+              <div>
+                <label class="field-label">Comidas por día</label>
+                <select class="field-input field-select" id="mp-meals">
+                  <option value="3">3 comidas</option>
+                  <option value="4" selected>4 comidas</option>
+                  <option value="5">5 comidas</option>
+                  <option value="6">6 comidas</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Días del plan</label>
+                <select class="field-input field-select" id="mp-days">
+                  <option value="3">3 días</option>
+                  <option value="5">5 días</option>
+                  <option value="7" selected>7 días (semana completa)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field-group mt-8">
+              <label class="field-label">Preferencias / restricciones alimentarias</label>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="mp-diet-chips">
+                <span class="ai-mchip" onclick="this.classList.toggle('on')" data-d="Sin gluten">Sin gluten</span>
+                <span class="ai-mchip" onclick="this.classList.toggle('on')" data-d="Sin lactosa">Sin lactosa</span>
+                <span class="ai-mchip" onclick="this.classList.toggle('on')" data-d="Vegetariano">Vegetariano</span>
+                <span class="ai-mchip" onclick="this.classList.toggle('on')" data-d="Vegano">Vegano</span>
+                <span class="ai-mchip" onclick="this.classList.toggle('on')" data-d="Sin mariscos">Sin mariscos</span>
+                <span class="ai-mchip" onclick="this.classList.toggle('on')" data-d="Alto en fibra">Alto en fibra</span>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Alimentos favoritos / disponibles</label>
+              <textarea class="field-input" id="mp-foods" rows="2" placeholder="Ej: pollo, arroz, huevos, avena, plátano, aguacate..."></textarea>
+            </div>
+
+            <button class="btn btn-accent btn-full mt-8" onclick="generateMealPlan()">
+              🥗 Generar plan de comidas
+            </button>
+          </div>
+
+          <div id="ai-mealplan-result" style="display:none;" class="card mt-8">
+            <div class="card-title">Plan generado</div>
+            <div id="ai-mealplan-text" class="ai-result-body"></div>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm" onclick="copyAiResult('mealplan')">📋 Copiar plan</button>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /sec-ai -->
 
     </div><!-- /main-content -->
@@ -787,13 +949,35 @@ input,select,button,textarea{font-family:var(--font-b);}
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           <span>RUTINAS</span>
         </button>
-        <button class="nav-item" id="nn-exercises" onclick="goTo('exercises')">
-          <svg viewBox="0 0 24 24"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
-          <span>EJERC.</span>
+        <button class="nav-item" id="nn-billing" onclick="goTo('billing')">
+          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>PAGOS</span>
         </button>
-        <button class="nav-item" id="nn-ai" onclick="goTo('ai')">
-          <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
-          <span>IA</span>
+        <button class="nav-item" id="nn-more" onclick="toggleMobileMore()">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          <span>MÁS</span>
+        </button>
+      </div>
+      <!-- More menu popup -->
+      <div id="mobile-more-menu" style="display:none;position:absolute;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 6px);right:8px;background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:8px;z-index:50;min-width:160px;box-shadow:0 -4px 20px rgba(0,0,0,.5);">
+        <button onclick="goTo('ai');toggleMobileMore()" style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:none;border:none;color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='none'">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/></svg>
+          IA Coach
+        </button>
+        <button onclick="goTo('progress');toggleMobileMore()" style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:none;border:none;color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='none'">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Progreso
+        </button>
+        <button onclick="goTo('exercises');toggleMobileMore()" style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:none;border:none;color:var(--text);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='none'">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/></svg>
+          Ejercicios
+        </button>
+        <hr style="border:none;border-top:1px solid var(--border);margin:4px 0;">
+        <button onclick="openApiKeyModal();toggleMobileMore()" style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:none;border:none;color:var(--text2);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='none'">
+          🔑 API Key
+        </button>
+        <button onclick="openDataManager();toggleMobileMore()" style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:none;border:none;color:var(--text2);font-size:.82rem;font-weight:600;cursor:pointer;border-radius:8px;" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='none'">
+          💾 Backup
         </button>
       </div>
     </nav>
@@ -995,7 +1179,7 @@ input,select,button,textarea{font-family:var(--font-b);}
       <button class="sheet-close" onclick="closeOverlay('data-overlay')">✕</button>
     </div>
     <div class="sheet-body">
-      <div class="stats-grid stats-grid-3 mb-16" id="dm-stats"></div>
+      <div class="stats-grid stats-grid-4 mb-16" id="dm-stats"></div>
       <div class="card mb-12">
         <div class="card-title">📤 Exportar</div>
         <p style="font-size:.8rem;color:var(--text2);margin-bottom:12px;">Descarga un archivo <strong>.json</strong> con todos tus asesorados y rutinas. Úsalo como respaldo o para transferirlo a otro dispositivo (PC ↔ móvil).</p>
@@ -1021,6 +1205,126 @@ input,select,button,textarea{font-family:var(--font-b);}
     </div>
     <div class="sheet-footer">
       <button class="btn btn-ghost btn-md" style="flex:1" onclick="closeOverlay('data-overlay')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PROGRESS OVERLAY -->
+<div class="overlay" id="progress-overlay">
+  <div class="sheet" style="max-width:500px;">
+    <div class="sheet-head">
+      <div class="sheet-title">📊 Nuevo registro de progreso</div>
+      <button class="sheet-close" onclick="closeOverlay('progress-overlay')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="field-group">
+        <label class="field-label">Asesorado *</label>
+        <select class="field-input field-select" id="prog-client-sel"></select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Fecha</label>
+        <input class="field-input" id="prog-date" type="date">
+      </div>
+      <div class="field-row field-row-2">
+        <div><label class="field-label">Peso (kg)</label><input class="field-input" id="prog-weight" type="number" step="0.1" placeholder="70.5"></div>
+        <div><label class="field-label">Grasa corporal %</label><input class="field-input" id="prog-bf" type="number" step="0.1" placeholder="18"></div>
+      </div>
+      <div class="field-row field-row-3">
+        <div><label class="field-label">Pecho (cm)</label><input class="field-input" id="prog-chest" type="number" step="0.1"></div>
+        <div><label class="field-label">Cintura (cm)</label><input class="field-input" id="prog-waist" type="number" step="0.1"></div>
+        <div><label class="field-label">Cadera (cm)</label><input class="field-input" id="prog-hip" type="number" step="0.1"></div>
+      </div>
+      <div class="field-row field-row-3">
+        <div><label class="field-label">Bícep (cm)</label><input class="field-input" id="prog-bicep" type="number" step="0.1"></div>
+        <div><label class="field-label">Muslo (cm)</label><input class="field-input" id="prog-thigh" type="number" step="0.1"></div>
+        <div><label class="field-label">Pantorrilla (cm)</label><input class="field-input" id="prog-calf" type="number" step="0.1"></div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Notas del registro</label>
+        <textarea class="field-input" id="prog-notes" rows="2" placeholder="Observaciones, cómo se sintió, cambios notables..."></textarea>
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-ghost btn-md" onclick="closeOverlay('progress-overlay')">Cancelar</button>
+      <button class="btn btn-accent btn-md" style="flex:1" onclick="saveProgress()">Guardar registro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PAYMENT OVERLAY -->
+<div class="overlay" id="payment-overlay">
+  <div class="sheet" style="max-width:480px;">
+    <div class="sheet-head">
+      <div class="sheet-title" id="payment-sheet-title">💳 Nuevo pago</div>
+      <button class="sheet-close" onclick="closeOverlay('payment-overlay')">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="field-group">
+        <label class="field-label">Asesorado *</label>
+        <select class="field-input field-select" id="pay-client-sel"></select>
+      </div>
+      <div class="field-row field-row-2">
+        <div>
+          <label class="field-label">Monto *</label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:.85rem;">$</span>
+            <input class="field-input" id="pay-amount" type="number" step="0.01" placeholder="150.00" style="padding-left:26px;">
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Moneda</label>
+          <select class="field-input field-select" id="pay-currency">
+            <option value="USD">USD $</option>
+            <option value="EUR">EUR €</option>
+            <option value="COP">COP $</option>
+            <option value="MXN">MXN $</option>
+            <option value="ARS">ARS $</option>
+            <option value="PEN">PEN S/</option>
+            <option value="CLP">CLP $</option>
+            <option value="VES">VES Bs</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row field-row-2">
+        <div>
+          <label class="field-label">Servicio</label>
+          <select class="field-input field-select" id="pay-service">
+            <option value="Asesoría mensual">Asesoría mensual</option>
+            <option value="Plan nutricional">Plan nutricional</option>
+            <option value="Rutina personalizada">Rutina personalizada</option>
+            <option value="Paquete completo">Paquete completo</option>
+            <option value="Sesión única">Sesión única</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label">Estado</label>
+          <select class="field-input field-select" id="pay-status">
+            <option value="paid">✅ Pagado</option>
+            <option value="pending">⏳ Pendiente</option>
+            <option value="active">🟢 Plan activo</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row field-row-2">
+        <div>
+          <label class="field-label">Fecha de pago</label>
+          <input class="field-input" id="pay-date" type="date">
+        </div>
+        <div>
+          <label class="field-label">Vencimiento (opcional)</label>
+          <input class="field-input" id="pay-due" type="date">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Notas</label>
+        <input class="field-input" id="pay-notes" placeholder="Transferencia, efectivo, Nequi...">
+      </div>
+    </div>
+    <div class="sheet-footer">
+      <button class="btn btn-danger btn-md" id="pay-delete-btn" style="display:none;" onclick="deletePayment()">🗑</button>
+      <button class="btn btn-ghost btn-md" onclick="closeOverlay('payment-overlay')">Cancelar</button>
+      <button class="btn btn-accent btn-md" style="flex:1" onclick="savePayment()">Guardar</button>
     </div>
   </div>
 </div>
@@ -1160,7 +1464,9 @@ function load(){
     // Migrate if needed
     if(!ST.clients) ST.clients=[];
     if(!ST.routines) ST.routines=[];
-  } catch(e){ ST={clients:[],routines:[]}; }
+    if(!ST.progress) ST.progress=[];
+    if(!ST.payments) ST.payments=[];
+  } catch(e){ ST={clients:[],routines:[],progress:[],payments:[]}; }
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
@@ -1411,6 +1717,9 @@ let currentSection = 'dashboard';
 
 function goTo(sec){
   showSection(sec);
+  // Close mobile more menu
+  const mm=document.getElementById('mobile-more-menu');
+  if(mm) mm.style.display='none';
   // Sidebar
   document.querySelectorAll('.sidebar-item').forEach(b=>{
     b.classList.toggle('active', b.id===('sn-'+sec));
@@ -1433,6 +1742,8 @@ function renderSection(sec){
   else if(sec==='clients') renderClients();
   else if(sec==='routines') renderRoutinesSection();
   else if(sec==='exercises') renderExLib();
+  else if(sec==='progress') renderProgress();
+  else if(sec==='billing') renderBilling();
 }
 
 // =====================================================================
@@ -1451,11 +1762,21 @@ function initApp(){
 function renderDashboard(){
   const cl=ST.clients;
   const rt=ST.routines;
+  const pays=ST.payments||[];
+  const today=new Date().toISOString().slice(0,10);
+  // Auto-flag overdue
+  pays.forEach(p=>{ if(p.due&&p.due<today&&p.status==='active') p.status='overdue'; });
+  const overdueN=pays.filter(p=>p.status==='overdue').length;
+  const monthStr=today.slice(0,7);
+  const monthIncome=pays.filter(p=>p.status==='paid'&&(p.date||'').startsWith(monthStr)).reduce((s,p)=>s+p.amount,0);
+
   const grid=document.getElementById('dash-stats-grid');
   grid.innerHTML=`
     <div class="dashboard-stat"><div class="ds-val">${cl.length}</div><div class="ds-lbl">Asesorados</div></div>
     <div class="dashboard-stat"><div class="ds-val" style="color:var(--accent2)">${rt.length}</div><div class="ds-lbl">Rutinas</div></div>
-    <div class="dashboard-stat"><div class="ds-val" style="color:var(--accent4)">${rt.reduce((a,r)=>a+r.exercises.length,0)}</div><div class="ds-lbl">Ejercicios totales</div></div>`;
+    <div class="dashboard-stat"><div class="ds-val" style="color:var(--accent5)">$${monthIncome.toFixed(0)}</div><div class="ds-lbl">Cobrado este mes</div></div>
+    ${overdueN?`<div class="dashboard-stat" style="border-color:rgba(255,60,110,.3);cursor:pointer;" onclick="goTo('billing')"><div class="ds-val" style="color:var(--accent3)">${overdueN}</div><div class="ds-lbl">Pagos vencidos</div></div>`:''}`;
+
   const recEl=document.getElementById('dash-recent-clients');
   if(!cl.length){
     recEl.innerHTML=`<div class="empty" style="padding:20px 0"><div class="empty-icon">👥</div><div class="empty-ttl">Sin asesorados</div><p class="empty-txt">Agrega tu primer cliente</p><button class="btn btn-accent btn-md" onclick="openNewClient()">+ Agregar</button></div>`;
@@ -1591,8 +1912,10 @@ function saveClient(){
 }
 
 function deleteClient(id){
-  if(!confirm('¿Eliminar este asesorado? Sus rutinas asignadas no se eliminarán.')) return;
+  if(!confirm('¿Eliminar este asesorado? También se eliminarán sus registros de progreso y pagos.')) return;
   ST.clients=ST.clients.filter(c=>c.id!==id);
+  ST.progress=(ST.progress||[]).filter(p=>p.clientId!==id);
+  ST.payments=(ST.payments||[]).filter(p=>p.clientId!==id);
   save(); renderClients(); renderDashboard();
   if(currentSection==='client-detail') goTo('clients');
 }
@@ -1784,6 +2107,7 @@ function renderRoutinesSection(){
         <div class="flex-gap">
           ${r.day?`<span class="routine-day-badge">${r.day}</span>`:''}
           <button class="btn btn-ghost btn-xs" onclick="openEditRoutine('${r.id}')">✏️</button>
+          <button class="btn btn-green btn-xs" onclick="cloneRoutine('${r.id}')" title="Clonar">⧉</button>
           <button class="btn btn-orange btn-xs" onclick="openPDFForRoutine('${r.id}')">📄</button>
           <button class="btn btn-danger btn-xs" onclick="deleteRoutine('${r.id}')">🗑</button>
         </div>
@@ -2221,7 +2545,8 @@ function openDataManager(){
   if(el) el.innerHTML=`
     <div class="stat-box"><div class="stat-val">${ST.clients.length}</div><div class="stat-label">Asesorados</div></div>
     <div class="stat-box"><div class="stat-val" style="color:var(--accent2)">${ST.routines.length}</div><div class="stat-label">Rutinas</div></div>
-    <div class="stat-box"><div class="stat-val" style="color:var(--accent4)">${ST.routines.reduce((a,r)=>a+r.exercises.length,0)}</div><div class="stat-label">Ejercicios</div></div>`;
+    <div class="stat-box"><div class="stat-val" style="color:var(--accent4)">${(ST.progress||[]).length}</div><div class="stat-label">Progresos</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--accent5)">${(ST.payments||[]).length}</div><div class="stat-label">Pagos</div></div>`;
   const msg=document.getElementById('import-msg');
   if(msg) msg.textContent='';
   document.getElementById('data-overlay').classList.add('open');
@@ -2229,11 +2554,13 @@ function openDataManager(){
 
 function exportData(){
   const exportObj={
-    version:2,
+    version:3,
     exportedAt:new Date().toISOString(),
     app:'JELIAN FT Coach',
     clients:ST.clients,
-    routines:ST.routines
+    routines:ST.routines,
+    progress:ST.progress||[],
+    payments:ST.payments||[]
   };
   const json=JSON.stringify(exportObj,null,2);
   const blob=new Blob([json],{type:'application/json'});
@@ -2253,7 +2580,6 @@ function importData(input){
   reader.onload=e=>{
     try{
       const data=JSON.parse(e.target.result);
-      // Validate
       if(!data.clients||!data.routines||!Array.isArray(data.clients)||!Array.isArray(data.routines)){
         msg.style.color='var(--accent3)';
         msg.textContent='❌ Archivo inválido. Asegúrate de importar un backup de JELIAN FT.';
@@ -2265,20 +2591,25 @@ function importData(input){
         }
         ST.clients=data.clients;
         ST.routines=data.routines;
+        ST.progress=data.progress||[];
+        ST.payments=data.payments||[];
       } else {
-        // Merge: add only IDs not already present
         const existingClientIds=new Set(ST.clients.map(c=>c.id));
         const existingRoutineIds=new Set(ST.routines.map(r=>r.id));
-        let addedC=0, addedR=0;
+        const existingProgressIds=new Set((ST.progress||[]).map(p=>p.id));
+        const existingPaymentIds=new Set((ST.payments||[]).map(p=>p.id));
+        let addedC=0, addedR=0, addedPr=0, addedPay=0;
         data.clients.forEach(c=>{ if(!existingClientIds.has(c.id)){ ST.clients.push(c); addedC++; }});
         data.routines.forEach(r=>{ if(!existingRoutineIds.has(r.id)){ ST.routines.push(r); addedR++; }});
-        if(!addedC&&!addedR){
+        (data.progress||[]).forEach(p=>{ if(!existingProgressIds.has(p.id)){ if(!ST.progress) ST.progress=[]; ST.progress.push(p); addedPr++; }});
+        (data.payments||[]).forEach(p=>{ if(!existingPaymentIds.has(p.id)){ if(!ST.payments) ST.payments=[]; ST.payments.push(p); addedPay++; }});
+        if(!addedC&&!addedR&&!addedPr&&!addedPay){
           msg.style.color='var(--accent5)';
-          msg.textContent='ℹ️ No hay datos nuevos para fusionar (todos los IDs ya existen).';
+          msg.textContent='ℹ️ No hay datos nuevos para fusionar.';
           input.value=''; return;
         }
         msg.style.color='var(--accent2)';
-        msg.textContent=`✅ Fusionado: +${addedC} asesorado${addedC!==1?'s':''}, +${addedR} rutina${addedR!==1?'s':''}.`;
+        msg.textContent=`✅ Fusionado: +${addedC} clientes, +${addedR} rutinas, +${addedPr} progresos, +${addedPay} pagos.`;
       }
       save();
       renderDashboard(); renderClients(); renderRoutinesSection();
@@ -2286,12 +2617,12 @@ function importData(input){
         msg.style.color='var(--accent2)';
         msg.textContent=`✅ Datos reemplazados: ${ST.clients.length} asesorado${ST.clients.length!==1?'s':''}, ${ST.routines.length} rutina${ST.routines.length!==1?'s':''}.`;
       }
-      // Update stats panel
       const el=document.getElementById('dm-stats');
       if(el) el.innerHTML=`
         <div class="stat-box"><div class="stat-val">${ST.clients.length}</div><div class="stat-label">Asesorados</div></div>
         <div class="stat-box"><div class="stat-val" style="color:var(--accent2)">${ST.routines.length}</div><div class="stat-label">Rutinas</div></div>
-        <div class="stat-box"><div class="stat-val" style="color:var(--accent4)">${ST.routines.reduce((a,r)=>a+r.exercises.length,0)}</div><div class="stat-label">Ejercicios</div></div>`;
+        <div class="stat-box"><div class="stat-val" style="color:var(--accent4)">${(ST.progress||[]).length}</div><div class="stat-label">Progresos</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:var(--accent5)">${(ST.payments||[]).length}</div><div class="stat-label">Pagos</div></div>`;
     } catch(err){
       msg.style.color='var(--accent3)';
       msg.textContent='❌ Error al leer el archivo: '+err.message;
@@ -2328,6 +2659,11 @@ function switchAiTab(name) {
   if (tab) tab.classList.add('active');
   if (panel) panel.classList.add('active');
   if (name === 'routine') updateEquipSummaryInRoutine();
+  if (name === 'mealplan') {
+    const sel = document.getElementById('mp-client-select');
+    if(sel) sel.innerHTML = '<option value="">Ingresar macros manualmente</option>' +
+      ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  }
 }
 
 // Training type selection
@@ -2347,7 +2683,7 @@ function selectSpace(btn) {
 // Muscle priority chips
 function toggleMuscle(chip) {
   chip.classList.toggle('on');
-  AI.weakMuscles = Array.from(document.querySelectorAll('.ai-mchip.on')).map(c => c.dataset.m);
+  AI.weakMuscles = Array.from(document.querySelectorAll('#ai-muscle-chips .ai-mchip.on')).map(c => c.dataset.m);
 }
 
 // Equipment checkboxes
@@ -2462,7 +2798,7 @@ async function generateAiRoutine() {
   const level = document.getElementById('ai-level').value;
   const duration = document.getElementById('ai-duration').value;
   const extra = document.getElementById('ai-routine-extra').value.trim();
-  const weakMuscles = Array.from(document.querySelectorAll('.ai-mchip.on')).map(c => c.dataset.m);
+  const weakMuscles = Array.from(document.querySelectorAll('#ai-muscle-chips .ai-mchip.on')).map(c => c.dataset.m);
 
   resultBox.style.display = 'block';
   textEl.innerHTML = '<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Diseñando rutina personalizada...</div>';
@@ -2693,18 +3029,7 @@ function escapeHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function copyAiResult(which) {
-  const text = which === 'analysis' ? AI.analysisResult : AI.routineResult;
-  if (!text) return;
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('📋 Copiado al portapapeles');
-  }).catch(() => {
-    const el = document.createElement('textarea');
-    el.value = text; document.body.appendChild(el); el.select();
-    document.execCommand('copy'); document.body.removeChild(el);
-    showToast('📋 Copiado');
-  });
-}
+// copyAiResult — defined below (unified version handles analysis, routine, mealplan)
 
 function showToast(msg) {
   const t = document.createElement('div');
@@ -2717,6 +3042,307 @@ function showToast(msg) {
 // Initialize equipment summary on load
 setTimeout(() => { updateEquipSummary(); }, 500);
 
+
+
+
+// =====================================================================
+// CLONE ROUTINE
+// =====================================================================
+function cloneRoutine(id){
+  const r=ST.routines.find(r=>r.id===id); if(!r) return;
+  const clone=JSON.parse(JSON.stringify(r));
+  clone.id=uid(); clone.name=clone.name+' (copia)';
+  clone.createdAt=new Date().toISOString(); clone.clientId='';
+  ST.routines.push(clone); save(); renderRoutinesSection();
+  showToast('⧉ Rutina clonada: '+clone.name);
+}
+
+// =====================================================================
+// PROGRESS TRACKING
+// =====================================================================
+function openAddProgress(){
+  const sel=document.getElementById('prog-client-sel');
+  sel.innerHTML='<option value="">Selecciona asesorado</option>'+ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const cur=document.getElementById('progress-client-select')?.value;
+  if(cur) sel.value=cur;
+  document.getElementById('prog-date').value=new Date().toISOString().slice(0,10);
+  ['weight','bf','chest','waist','hip','bicep','thigh','calf'].forEach(f=>{ const el=document.getElementById('prog-'+f); if(el) el.value=''; });
+  document.getElementById('prog-notes').value='';
+  document.getElementById('progress-overlay').classList.add('open');
+}
+
+function saveProgress(){
+  const clientId=document.getElementById('prog-client-sel').value;
+  if(!clientId){ alert('Selecciona un asesorado'); return; }
+  const entry={
+    id:uid(), clientId,
+    date:document.getElementById('prog-date').value||new Date().toISOString().slice(0,10),
+    weight:parseFloat(document.getElementById('prog-weight').value)||null,
+    bf:parseFloat(document.getElementById('prog-bf').value)||null,
+    chest:parseFloat(document.getElementById('prog-chest').value)||null,
+    waist:parseFloat(document.getElementById('prog-waist').value)||null,
+    hip:parseFloat(document.getElementById('prog-hip').value)||null,
+    bicep:parseFloat(document.getElementById('prog-bicep').value)||null,
+    thigh:parseFloat(document.getElementById('prog-thigh').value)||null,
+    calf:parseFloat(document.getElementById('prog-calf').value)||null,
+    notes:document.getElementById('prog-notes').value,
+    createdAt:new Date().toISOString()
+  };
+  if(!ST.progress) ST.progress=[];
+  ST.progress.push(entry); save();
+  closeOverlay('progress-overlay');
+  const sel=document.getElementById('progress-client-select');
+  if(sel) sel.value=clientId;
+  renderProgress(); showToast('📊 Registro guardado');
+}
+
+function renderProgress(){
+  const sel=document.getElementById('progress-client-select'); if(!sel) return;
+  const prevVal=sel.value; // preserve selection before repopulating
+  sel.innerHTML='<option value="">Selecciona un asesorado</option>'+ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(prevVal) sel.value=prevVal; // restore
+  const clientId=sel.value;
+  const content=document.getElementById('progress-content');
+  if(!clientId){ content.innerHTML=`<div class="empty"><div class="empty-icon">📊</div><div class="empty-ttl">Selecciona un asesorado</div><p class="empty-txt">Elige un cliente para ver su historial</p></div>`; return; }
+  const entries=(ST.progress||[]).filter(e=>e.clientId===clientId).sort((a,b)=>a.date.localeCompare(b.date));
+  const client=ST.clients.find(c=>c.id===clientId);
+  if(!entries.length){ content.innerHTML=`<div class="empty"><div class="empty-icon">📊</div><div class="empty-ttl">Sin registros para ${client?.name}</div><p class="empty-txt">Agrega el primer registro</p><button class="btn btn-accent btn-md" onclick="openAddProgress()">+ Primer registro</button></div>`; return; }
+
+  // Weight sparkline
+  const we=entries.filter(e=>e.weight);
+  let chartHtml='';
+  if(we.length>1){
+    const vals=we.map(e=>e.weight), mn=Math.min(...vals), mx=Math.max(...vals), rng=mx-mn||1;
+    const W=400,H=70,pad=12;
+    const pts=vals.map((v,i)=>`${pad+(i/(vals.length-1))*(W-pad*2)},${H-pad-((v-mn)/rng)*(H-pad*2)}`).join(' ');
+    const delta=(vals[vals.length-1]-vals[0]).toFixed(1);
+    const col=parseFloat(delta)<=0?'var(--accent2)':'var(--accent3)';
+    chartHtml=`<div class="chart-wrap"><div class="chart-title">📉 Peso — ${delta>0?'+':''}${delta} kg total (${we.length} registros)</div>
+    <svg class="sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+      <defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${col}" stop-opacity=".3"/><stop offset="100%" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+      <polyline fill="url(#wg)" stroke="none" points="${pts} ${W-pad},${H} ${pad},${H}"/>
+      <polyline fill="none" stroke="${col}" stroke-width="2.5" stroke-linejoin="round" points="${pts}"/>
+      ${vals.map((v,i)=>{const x=pad+(i/(vals.length-1))*(W-pad*2);const y=H-pad-((v-mn)/rng)*(H-pad*2);return`<circle cx="${x}" cy="${y}" r="3.5" fill="${col}"/>`;}).join('')}
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--text3);margin-top:4px;"><span>${we[0].date}</span><span style="color:${col};font-weight:700">${vals[0]}→${vals[vals.length-1]}kg</span><span>${we[we.length-1].date}</span></div></div>`;
+  }
+
+  const latest=entries[entries.length-1], first=entries[0];
+  const mkeys=[{k:'weight',l:'Peso',u:'kg',c:'var(--accent)'},{k:'bf',l:'% Grasa',u:'%',c:'var(--accent3)'},{k:'waist',l:'Cintura',u:'cm',c:'var(--accent5)'},{k:'bicep',l:'Bícep',u:'cm',c:'var(--accent2)'}];
+  const summaryHtml=`<div class="card mb-12"><div class="card-title">Último registro — ${latest.date}</div>
+    <div class="prog-metrics">${mkeys.map(m=>{ if(!latest[m.k]) return ''; const d=first[m.k]?(latest[m.k]-first[m.k]).toFixed(1):null; return`<div class="prog-metric"><div class="prog-val" style="color:${m.c}">${latest[m.k]}<span style="font-size:.65rem">${m.u}</span></div><div class="prog-lbl">${m.l}</div>${d!==null?`<div class="prog-delta ${parseFloat(d)<0?'neg':parseFloat(d)>0?'pos':''}">${parseFloat(d)>0?'+':''}${d}${m.u}</div>`:''}</div>`; }).join('')}</div>
+    ${latest.notes?`<div style="margin-top:8px;font-size:.75rem;color:var(--text2);font-style:italic;">"${latest.notes}"</div>`:''}</div>`;
+
+  const labels={weight:'Peso',bf:'Grasa%',chest:'Pecho',waist:'Cintura',hip:'Cadera',bicep:'Bícep',thigh:'Muslo',calf:'Pantorrilla'};
+  const units={weight:'kg',bf:'%',chest:'cm',waist:'cm',hip:'cm',bicep:'cm',thigh:'cm',calf:'cm'};
+  const histHtml=[...entries].reverse().map(e=>`<div class="prog-entry">
+    <div class="flex-between"><div class="prog-date">${e.date}</div><button class="btn btn-danger btn-xs" onclick="deleteProgress('${e.id}','${clientId}')">🗑</button></div>
+    <div class="prog-metrics" style="margin-top:8px;">${Object.keys(labels).map(k=>e[k]?`<div class="prog-metric"><div class="prog-val" style="font-size:.95rem;">${e[k]}<span style="font-size:.6rem">${units[k]}</span></div><div class="prog-lbl">${labels[k]}</div></div>`:'').join('')}</div>
+    ${e.notes?`<div style="font-size:.72rem;color:var(--text3);margin-top:6px;">${e.notes}</div>`:''}</div>`).join('');
+
+  content.innerHTML=chartHtml+summaryHtml+`<div class="card"><div class="card-title">Historial completo (${entries.length})</div>${histHtml}</div>`;
+}
+
+function deleteProgress(id,clientId){
+  if(!confirm('¿Eliminar este registro?')) return;
+  ST.progress=(ST.progress||[]).filter(e=>e.id!==id); save(); renderProgress();
+}
+
+// =====================================================================
+// BILLING
+// =====================================================================
+let editPaymentId=null;
+let billingFilter='all';
+
+function openAddPayment(payId){
+  editPaymentId=payId||null;
+  const sel=document.getElementById('pay-client-sel');
+  sel.innerHTML='<option value="">Selecciona asesorado</option>'+ST.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const deleteBtn=document.getElementById('pay-delete-btn');
+  if(payId){
+    const pay=(ST.payments||[]).find(p=>p.id===payId); if(!pay) return;
+    document.getElementById('payment-sheet-title').textContent='✏️ Editar pago';
+    sel.value=pay.clientId||'';
+    document.getElementById('pay-amount').value=pay.amount||'';
+    document.getElementById('pay-currency').value=pay.currency||'USD';
+    document.getElementById('pay-service').value=pay.service||'Asesoría mensual';
+    document.getElementById('pay-status').value=pay.status||'paid';
+    document.getElementById('pay-date').value=pay.date||'';
+    document.getElementById('pay-due').value=pay.due||'';
+    document.getElementById('pay-notes').value=pay.notes||'';
+    deleteBtn.style.display='inline-flex';
+  } else {
+    document.getElementById('payment-sheet-title').textContent='💳 Nuevo pago';
+    document.getElementById('pay-amount').value='';
+    document.getElementById('pay-currency').value='USD';
+    document.getElementById('pay-service').value='Asesoría mensual';
+    document.getElementById('pay-status').value='paid';
+    document.getElementById('pay-date').value=new Date().toISOString().slice(0,10);
+    document.getElementById('pay-due').value='';
+    document.getElementById('pay-notes').value='';
+    deleteBtn.style.display='none';
+  }
+  document.getElementById('payment-overlay').classList.add('open');
+}
+
+function savePayment(){
+  const clientId=document.getElementById('pay-client-sel').value;
+  const amount=parseFloat(document.getElementById('pay-amount').value);
+  if(!clientId){ alert('Selecciona un asesorado'); return; }
+  if(!amount||isNaN(amount)){ alert('Ingresa un monto válido'); return; }
+  const pay={id:editPaymentId||uid(),clientId,amount,
+    currency:document.getElementById('pay-currency').value,
+    service:document.getElementById('pay-service').value,
+    status:document.getElementById('pay-status').value,
+    date:document.getElementById('pay-date').value,
+    due:document.getElementById('pay-due').value,
+    notes:document.getElementById('pay-notes').value,
+    createdAt:new Date().toISOString()};
+  if(!ST.payments) ST.payments=[];
+  if(editPaymentId){ const idx=ST.payments.findIndex(p=>p.id===editPaymentId); if(idx>-1) ST.payments[idx]=pay; }
+  else ST.payments.push(pay);
+  save(); closeOverlay('payment-overlay'); renderBilling(); showToast('💳 Pago guardado');
+}
+
+function deletePayment(){
+  if(!editPaymentId||!confirm('¿Eliminar este pago?')) return;
+  ST.payments=(ST.payments||[]).filter(p=>p.id!==editPaymentId);
+  save(); closeOverlay('payment-overlay'); renderBilling(); showToast('🗑 Pago eliminado');
+}
+
+function filterBilling(f,btn){
+  billingFilter=f;
+  document.querySelectorAll('[id^="bf-"]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); renderBilling();
+}
+
+function renderBilling(){
+  const statsEl=document.getElementById('billing-stats'), listEl=document.getElementById('billing-list');
+  if(!statsEl||!listEl) return;
+  if(!ST.payments) ST.payments=[];
+  const today=new Date().toISOString().slice(0,10);
+  ST.payments.forEach(p=>{ if(p.due&&p.due<today&&p.status==='active') p.status='overdue'; });
+  const totalAmt=ST.payments.reduce((s,p)=>s+p.amount,0);
+  const paidAmt=ST.payments.filter(p=>p.status==='paid').reduce((s,p)=>s+p.amount,0);
+  const pendingAmt=ST.payments.filter(p=>p.status==='pending'||p.status==='overdue').reduce((s,p)=>s+p.amount,0);
+  const overdueN=ST.payments.filter(p=>p.status==='overdue').length;
+  statsEl.innerHTML=`
+    <div class="stat-box"><div class="stat-val">${ST.payments.length}</div><div class="stat-label">Registros</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--accent2)">$${paidAmt.toFixed(0)}</div><div class="stat-label">Cobrado</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--accent5)">$${pendingAmt.toFixed(0)}</div><div class="stat-label">Pendiente</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--accent3)">${overdueN}</div><div class="stat-label">Vencidos</div></div>`;
+  let pays=[...ST.payments];
+  if(billingFilter==='active') pays=pays.filter(p=>p.status==='active');
+  else if(billingFilter==='overdue') pays=pays.filter(p=>p.status==='overdue');
+  else if(billingFilter==='paid') pays=pays.filter(p=>p.status==='paid');
+  pays.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!pays.length){ listEl.innerHTML=`<div class="empty"><div class="empty-icon">💳</div><div class="empty-ttl">Sin registros</div><p class="empty-txt">Agrega tu primer pago</p><button class="btn btn-accent btn-md" onclick="openAddPayment()">+ Nuevo pago</button></div>`; return; }
+  const sL={paid:'Pagado',pending:'Pendiente',active:'Activo',overdue:'Vencido'};
+  listEl.innerHTML=pays.map(p=>{
+    const client=ST.clients.find(c=>c.id===p.clientId);
+    return`<div class="bill-card ${p.status}">
+      <div class="flex-between">
+        <div><div class="bill-name">${client?.name||'—'}</div>
+        <div class="bill-meta">${p.service} · ${p.date||'—'}${p.due?' · Vence: '+p.due:''}</div>
+        ${p.notes?`<div style="font-size:.7rem;color:var(--text3);margin-top:2px;">${p.notes}</div>`:''}</div>
+        <div style="text-align:right;"><div class="bill-amount">${p.currency} ${p.amount.toFixed(2)}</div>
+        <span class="bill-status ${p.status}" style="margin-top:4px;display:inline-block;">${sL[p.status]||p.status}</span></div>
+      </div>
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-xs" onclick="openAddPayment('${p.id}')">✏️ Editar</button>
+        ${p.status!=='paid'?`<button class="btn btn-green btn-xs" onclick="markPaid('${p.id}')">✅ Pagado</button>`:''}
+      </div></div>`;
+  }).join('');
+}
+
+function markPaid(id){
+  const pay=(ST.payments||[]).find(p=>p.id===id); if(!pay) return;
+  pay.status='paid'; pay.date=new Date().toISOString().slice(0,10);
+  save(); renderBilling(); showToast('✅ Marcado como pagado');
+}
+
+// =====================================================================
+// MEAL PLAN (AI)
+// =====================================================================
+let mealPlanResult='';
+
+function loadClientMacrosForMeal(){
+  const cid=document.getElementById('mp-client-select').value;
+  if(!cid){ ['mp-kcal','mp-prot','mp-carbs','mp-fat'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; }); return; }
+  const c=ST.clients.find(cl=>cl.id===cid); if(!c) return;
+  const m=calcMacros(c);
+  if(m){
+    document.getElementById('mp-kcal').value=m.kcal;
+    document.getElementById('mp-prot').value=m.prot;
+    document.getElementById('mp-carbs').value=m.carbs;
+    document.getElementById('mp-fat').value=m.fat;
+  }
+}
+
+async function generateMealPlan(){
+  const kcal=document.getElementById('mp-kcal').value;
+  const prot=document.getElementById('mp-prot').value;
+  const carbs=document.getElementById('mp-carbs').value;
+  const fat=document.getElementById('mp-fat').value;
+  const meals=document.getElementById('mp-meals').value;
+  const days=document.getElementById('mp-days').value;
+  const foods=document.getElementById('mp-foods').value.trim();
+  const diets=Array.from(document.querySelectorAll('#mp-diet-chips .ai-mchip.on')).map(c=>c.dataset.d);
+  const clientSel=document.getElementById('mp-client-select').value;
+  const client=ST.clients.find(c=>c.id===clientSel);
+  const resultBox=document.getElementById('ai-mealplan-result');
+  const textEl=document.getElementById('ai-mealplan-text');
+  resultBox.style.display='block';
+  textEl.innerHTML='<div class="ai-loading"><div class="ai-loading-dots"><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div><div class="ai-loading-dot"></div></div> Generando plan de comidas...</div>';
+  const prompt=`Eres un nutricionista deportivo experto. Genera un plan de comidas detallado:
+
+**MACROS DIARIOS:** ${kcal||'—'} kcal | Proteína: ${prot||'—'}g | Carbos: ${carbs||'—'}g | Grasas: ${fat||'—'}g
+**ESTRUCTURA:** ${meals} comidas/día — Plan de ${days} días
+${diets.length?`**RESTRICCIONES:** ${diets.join(', ')}`:''}
+${foods?`**ALIMENTOS DISPONIBLES:** ${foods}`:''}
+${client?`**PERFIL:** ${client.sex==='M'?'Hombre':'Mujer'}, ${client.age} años, ${client.weight}kg, objetivo: ${client.goal}`:''}
+
+Genera el plan COMPLETO con:
+- Cada día con todas sus comidas
+- Alimentos con cantidades exactas (gramos/unidades)
+- Macros de cada comida y total diario
+- Varía los alimentos día a día para evitar monotonía
+- Tips de preparación rápida donde ayude`;
+  try{
+    const resp=await callClaude(prompt);
+    mealPlanResult=resp;
+    textEl.innerHTML=markdownToHtml(resp);
+  } catch(e){ textEl.innerHTML=`<span style="color:var(--accent3)">❌ Error: ${e.message}</span>`; }
+}
+
+// ── COPY AI RESULT (analysis / routine / mealplan) ───────────────────
+
+function copyAiResult(which){
+  if(which==='mealplan'){
+    if(!mealPlanResult) return;
+    navigator.clipboard.writeText(mealPlanResult).then(()=>showToast('📋 Copiado')).catch(()=>{
+      const el=document.createElement('textarea');el.value=mealPlanResult;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);showToast('📋 Copiado');
+    }); return;
+  }
+  const text=which==='analysis'?AI.analysisResult:AI.routineResult;
+  if(!text) return;
+  navigator.clipboard.writeText(text).then(()=>showToast('📋 Copiado')).catch(()=>{
+    const el=document.createElement('textarea');el.value=text;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);showToast('📋 Copiado');
+  });
+}
+
+function toggleMobileMore(){
+  const m=document.getElementById('mobile-more-menu');
+  if(!m) return;
+  m.style.display = m.style.display==='none' ? 'block' : 'none';
+}
+document.addEventListener('click', e=>{
+  const menu=document.getElementById('mobile-more-menu');
+  const btn=document.getElementById('nn-more');
+  if(menu && btn && !menu.contains(e.target) && !btn.contains(e.target)){
+    menu.style.display='none';
+  }
+});
 
 function closeOverlay(id){ const el=document.getElementById(id); if(el) el.classList.remove('open'); }
 
