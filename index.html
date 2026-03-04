@@ -3742,8 +3742,21 @@ ${analysisBlock}
 Objetivo: ${goal} | Nivel: ${levelGuide}
 Días: ${days}/semana | Duración: ${duration} | Split: ${AI.selectedType} | ${AI.selectedSpace}
 Equipamiento: ${equipList}
-${weakMuscles.length > 0 ? 'Músculos a priorizar' + (hasAnalysis ? ' (análisis corporal)' : '') + ': ' + weakMuscles.join(', ') : ''}${injuries ? '\n⚠️ LESIONES/RESTRICCIONES — OBLIGATORIO respetar: ' + injuries : ''}${cardio ? '\nCardio: ' + cardio : ''}${extra ? '\nNotas del coach: ' + extra : ''}
+${weakMuscles.length > 0 ? 'Músculos a priorizar' + (hasAnalysis ? ' (análisis corporal)' : '') + ': ' + weakMuscles.join(', ') : ''}${cardio ? '\nCardio: ' + cardio : ''}${extra ? '\nNotas del coach: ' + extra : ''}
+${injuries ? `
+━━━ LESIONES / RESTRICCIONES ━━━
+REGLA ABSOLUTA: Las siguientes restricciones aplican en TODOS los días de la semana sin excepción.
+NO se dedica ningún día específico a trabajar la zona lesionada.
+Las lesiones solo determinan QUÉ ejercicios SE EVITAN en cada sesión.
+El volumen y la frecuencia de los demás grupos musculares NO se reduce.
 
+Restricciones activas: ${injuries}
+
+Para cada zona lesionada:
+- ELIMINA todos los ejercicios que carguen directamente esa articulación/músculo
+- SUSTITUYE por variantes que no generen impacto en esa zona (ej: hombro lesionado → evitar press militar, sustituir por elevaciones con polea baja, face pulls)
+- El resto de la sesión sigue normal con volumen completo
+` : ''}
 ━━━ FORMATO ━━━
 Responde SOLO esto, sin texto extra:
 
@@ -3753,7 +3766,7 @@ Responde SOLO esto, sin texto extra:
 ## DÍA 1 — [Músculos]
 | Ejercicio | Series | Reps | Descanso |
 |---|---|---|---|
-[5-6 ejercicios adaptados al nivel]
+[5-6 ejercicios — si hay lesión activa, ya con las sustituciones aplicadas]
 ${hasAnalysis ? '> 🎯 Corrección: [1 frase sobre la priorización muscular según análisis]' : ''}
 
 [Repetir hasta DÍA ${days}]
@@ -3761,7 +3774,7 @@ ${hasAnalysis ? '> 🎯 Corrección: [1 frase sobre la priorización muscular se
 ## PROGRESIÓN SEMANAS 2-4
 [Máx 3 líneas: cómo escalar carga/volumen]
 
-Usa SOLO el equipamiento listado. Respeta todas las lesiones. Sin intro ni conclusión.`;
+Usa SOLO el equipamiento listado. Sin intro ni conclusión.`;
 
   try {
     const resp = await callClaude(prompt);
